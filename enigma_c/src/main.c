@@ -17,7 +17,7 @@
 
 int main(int argc, char *argv[])
 {
-    // uint8_t *test = get_int_array_from_string("TEST");
+    uint8_t *test = get_int_array_from_string("TEST");
     // for(int i = 0; i < 4; i++) printf("%d ", test[i]);
 
     // Rotor *rotor = create_one_notch_rotor("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "UWYGADFPVZBECKMTHXSLRINQOJ", 'Q', 0, 0);
