@@ -17,8 +17,8 @@
  * Claim is that const or constexpr is more performant than define when a calculation is involved
  */
 static const uint32_t TOTAL_CYCLES                 = 26 * 26 * 26 * 3 * 2 * 1;
-static const int ring_settings[3]                  = {0, 0, 0};
-static const int possible_rotor_permutations[6][3] = {
+static const uint8_t ring_settings[3]                  = {0, 0, 0};
+static const uint8_t possible_rotor_permutations[6][3] = {
     {1, 2, 3}, {1, 3, 2}, {2, 1, 3},
     {2, 3, 1}, {3, 1, 2}, {3, 2, 1}
 };
@@ -123,7 +123,7 @@ static void print_cycle(const Cycle cycle, FILE *file)
 }
 
 static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configuration,
-                                         const int32_t *rotor_permutation, FILE *file)
+                                         const uint8_t *rotor_permutation, FILE *file)
 {
     CycleOfRotorSetting *cycle = malloc(sizeof(CycleOfRotorSetting));
     assertmsg(cycle != NULL, "cycle == NULL");
