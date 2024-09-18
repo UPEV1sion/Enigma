@@ -1,0 +1,6 @@
+/mnt/c/Users/Emanuel/CLionProjects/enigma/enigma_c/build/CMakeFiles/enigma.dir
+/mnt/c/Users/Emanuel/CLionProjects/enigma/enigma_c/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Emanuel/CLionProjects/enigma/enigma_c/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/Emanuel/CLionProjects/enigma/enigma_c/build/src/CMakeFiles/enigma_lib.dir
+/mnt/c/Users/Emanuel/CLionProjects/enigma/enigma_c/build/src/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Emanuel/CLionProjects/enigma/enigma_c/build/src/CMakeFiles/rebuild_cache.dir

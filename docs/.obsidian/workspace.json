@@ -1,0 +1,193 @@
+{
+  "main": {
+    "id": "41e486ad46bbc0e0",
+    "type": "split",
+    "children": [
+      {
+        "id": "197e19ecdfe943af",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "046bffc2fab633d6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CLI.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f52bfc11423e3d29",
+    "type": "split",
+    "children": [
+      {
+        "id": "615f888e034ab959",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "34714db45ecbf891",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "eb4e968d906b8406",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "e2994fc2a6c918ec",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "928f7a86ef4166f8",
+    "type": "split",
+    "children": [
+      {
+        "id": "819889a106fa1fa2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "75dd055a78597eeb",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "CLI.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "153b5f9c017076c0",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "CLI.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "17222c702800153a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "1edff6fe2c5e1bed",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "CLI.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "floating": {
+    "id": "80710df5550c9261",
+    "type": "floating",
+    "children": [
+      {
+        "id": "6e2a64ad05419b76",
+        "type": "window",
+        "children": [
+          {
+            "id": "2eb64b168b0ac4d6",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "ea0c3739a23ecc48",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Backend.md",
+                    "mode": "source",
+                    "source": false
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": 642,
+        "y": 14,
+        "width": 1576,
+        "height": 1000,
+        "maximize": true,
+        "zoom": 0
+      }
+    ]
+  },
+  "active": "046bffc2fab633d6",
+  "lastOpenFiles": [
+    "Backend.md",
+    "CLI.md",
+    "CMakeLists.md",
+    "Cyclometer.md"
+  ]
+}
