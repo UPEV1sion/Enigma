@@ -20,8 +20,6 @@
 #define INTERACTIVE_SHORT      "-i"
 #define ENIGMA                 "--enigma"
 #define ENIGMA_SHORT           "-e"
-#define CYCLOMETER             "--cyclometer"
-#define CYCLOMETER_SHORT       "-c"
 #define ROTOR_ONE              "--rotor-one"
 #define ROTOR_ONE_SHORT        "-r1"
 #define ROTOR_TWO              "--rotor-two"
@@ -40,6 +38,10 @@
 #define PLUGBOARD_SHORT        "-pb"
 #define PLAINTEXT              "--plaintext"
 #define PLAINTEXT_SHORT        "-pt"
+
+/*----------CYCLOMETER----------*/
+#define CYCLOMETER             "--cyclometer"
+#define CYCLOMETER_SHORT       "-c"
 
 /*----------BOMB----------*/
 #define BOMB              "--bomb"
