@@ -86,8 +86,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include_directories(${MINGW_INCLUDE_DIR})
     link_directories(${MINGW_LIB_DIR})
 
-    message(STATUS "MinGW Include Directory: ${MINGW_INCLUDE_DIR}")
-    message(STATUS "MinGW Library Directory: ${MINGW_LIB_DIR}")
+    message(STATUS "Windows Include Directory: ${MINGW_INCLUDE_DIR}")
+    message(STATUS "Windows Library Directory: ${MINGW_LIB_DIR}")
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if (DEFINED ENV{LINUX_INCLUDE_DIR})
