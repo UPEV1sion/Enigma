@@ -14,9 +14,15 @@
 
 /*
  * Advice from Juergen Wolfs C von A bis Z:
- * Claim is that const or constexpr is more performant than define when a calculation is involved
+ * Claim is that const or constexpr is more performant than define when a calculation is involved...
+ * And MSVC doesnt support that....
  */
-static const uint32_t TOTAL_CYCLES                 = 26 * 26 * 26 * 3 * 2 * 1;
+#ifdef _MSC_VER
+#define TOTAL_CYCLES (26 * 26 * 26 * 3 * 2 * 1)
+#else
+static const uint32_t TOTAL_CYCLES = 26 * 26 * 26 * 3 * 2 * 1;
+#endif
+
 static const uint8_t ring_settings[3]                  = {0, 0, 0};
 static const uint8_t possible_rotor_permutations[6][3] = {
     {1, 2, 3}, {1, 3, 2}, {2, 1, 3},
