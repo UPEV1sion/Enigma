@@ -125,26 +125,30 @@ After we calculated the correct index (`index_from_right`)
 we simulate the internal wiring with `rotor->wiring[index_from_right]`.
 Then we need to adjust the index one more time because as of now, the rotor "hasn't rotated."
 
-> **Example:**
-> Suppose we want to encrypt `"AAAAAA"`. `"AAAAAA"` is now processed by `get_int_array_from_string` to `[0, 0, 0, 0, 0, 0]`. 
->After the first "keypress" the rotor is at position 1 or 'B'. So now `traverse_rotor` receives a rotor with position 1 and character 0.
-> 
->`index_from_right` is calculated to be 1 in this case. The wiring for the character 'B' or index 1 is looked up as it is the current position of the rotor.
-> But we must keep in mind that we've never actually "rotated the rotor" so now we've permuted the character correctly, but the index is now actually n places too far. So we must subtract the position again.
-> <div style="text-align: center;">
->  <img src="Rotor.png" alt="Circle alphabet image" width="250"/>
-> </div>
->
-> The red arrow is the `index_from_right` and green the arrow is the result of `rotor->wiring[index_from_right]` so we must adjust the index because in a real Enigma the letter 'B' would now be on top. 
+---
 
+**Example:**
 
+Suppose we want to encrypt `"AAAAAA"`:
 
+`"AAAAAA"` is now processed by `get_int_array_from_string` to `[0, 0, 0, 0, 0, 0]`. 
+ After the first "keypress" the rotor is at position 1 or 'B'. So now `traverse_rotor` receives a rotor with position 1 and character 0.
+ 
+`index_from_right` is calculated to be 1 in this case. The wiring for the character 'B' or index 1 is looked up as it is the current position of the rotor.
+ But we must keep in mind that we've never actually "rotated the rotor" so now we've permuted the character correctly, but the index is now actually n places too far. So we must subtract the position again.
+ <div style="text-align: center;">
+  <img src="Rotor.png" alt="Circle alphabet image" width="250"/>
+ </div>
 
+ The red arrow is the `index_from_right` and green the arrow is the result of `rotor->wiring[index_from_right]` so we must adjust the index because in a real Enigma the letter 'B' would now be on top. 
+
+---
 
 The inverse method looks very similar,
-but left and right indizes are swapped and the lookup happens in the rotor->inverse_wiring array.
+but left and right indizes are swapped and the lookup happens in the `rotor->inverse_wiring` array.
 
-`mod26` is an inline function that makes sure all values are >= 0 and < 26. It does so by adding 26 to the argument and applying % 26 afterward. This approach was taken for speed purposes as branching is relatively slow.
+`mod26` is an inline function that makes sure all values are >= 0 and < 26. It does so by adding 26 to the argument and applying % 26 afterward. 
+This approach was taken for speed purposes as branching is relatively slow.
 
 ### Reflector
 The Reflector basically works the same as a Rotor, but it doesn't rotate.
