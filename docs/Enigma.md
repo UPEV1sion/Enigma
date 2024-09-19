@@ -143,7 +143,8 @@ forty-six trillion eight hundred four billion nine hundred sixty million three h
 
 This is roughly $10^{23}$ combinations.
 It should be apparent that this is not "bruteforce-able".
-The key length is about 76 bits, which for the time was enormous and is quite impressive even today.
+The key length is about 76 bits,
+which for the time was enormous and still is quite impressive even for today's standards.
 The wildly used encryption algorithm [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard) has comparatively small 
 key length of only 56 bits.
 Although key length is not a maxime for security,
