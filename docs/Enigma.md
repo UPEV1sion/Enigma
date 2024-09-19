@@ -118,7 +118,7 @@ Why $26^2$?
 Because the notch of the ring setting of the left most rotor doesn't rotate any other rotors,
 we must only calculate the combinations for two of these rotors.
 
-There were 26 only positions in which the above-described anomaly didn't occur,
+There were only 26 positions in which the above-described anomaly didn't occur,
 so we must eliminate the following combinations:
 
 $$
@@ -141,7 +141,37 @@ In words:
 one hundred three sextillion four hundred eighty-four quintillion six hundred twenty-three quadrillion four hundred 
 forty-six trillion eight hundred four billion nine hundred sixty million three hundred sixty thousand combinations.
 
-Or roughly $10^{23}$ combinations. It should be apparent that this is not "bruteforce-able". 
+Or roughly $10^{23}$ combinations.
+It should be apparent that this is not "bruteforce-able".
+The key length is about 76 bits, which for the time was enormous and is quite impressive even today.
+The wildly used encryption algorithm [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard) has comparatively small 
+key length of only 56 bits.
+Although key length is not a maxime for security,
+because a mono alphabetic substitution has a key length of 88 bits and is much unsafer, it gives a rough direction.
+
+## This has to be Secure enough! Right?
+
+All that glitters is not gold.
+This enormous key length isn't what the allies needed to break.
+Because the plugboard just performs a mono alphabetic substitution
+and doesn't change during the whole encryption process,
+it can be ruled out with intelligent cryptanalytic attacks like the [Turing Bomb](TuringBomb.md).
+So we can cancel out the factor $150.738.274.937.250$. 
+The ring settings were also quite useless
+because messages had an upper limit of 250 characters, and the middle rotor
+which had a periodic length of 650, the anomaly only happened in rare cases, thus it could be neglected. 
+Overall, the ring settings caused no trouble for the cryptanalyst of the second world war.  
+So we can cancel the factor $676$. 
+
+$$
+60 \cdot 17.576 = 1.054.560
+$$
+
+After all this, we are left with compared to before a laughable key length of $1.054.560$.
+
+
+**Side-note**:
+The sometimes mentioned 150 million, million, million possible Enigma settings leave out the ring settings.
 
 ## Implementation
 
