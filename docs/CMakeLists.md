@@ -13,7 +13,7 @@ very easy to add new files to the project.
 
 The project is structured into 3 main directories:
 
-- `enigma_backend`: Contains all the source files
+- `enigma_c`: Contains all the source files
 - `tests`: Contains all the test files
 - `./`: Contains the root CMakeLists.txt files
 
