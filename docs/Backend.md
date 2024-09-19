@@ -31,5 +31,7 @@ It takes advantage of the peculiarities of the Enigma — for example, a letter 
 To learn more about the Turing Bomb, read the [documentation](TuringBomb.md).
 
 ## Enigma 
-To learn more about the inner workings of the Enigma and how it is implemented in C: click [here](Enigma.md)
+To learn more about how the Enigma worked, click [here](Enigma.md)
+
+To learn more about how it is implemented in C, click [here](Enigma%20Implemenation.md)
 
