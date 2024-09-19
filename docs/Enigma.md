@@ -67,11 +67,13 @@ The german army asked itself the question: How secure is the Enigma?
 So let's calculate how secure an Enigma without a plugboard is:
 
 The number of possible rotor arrangements for a three-rotor Enigma is:
+
 $$
 P(5, 3) = \frac{5!}{(5-3)!} = 60 \text{ Rotor Permutations}
 $$
 
 Combined with the 26 possible positions of each rotor:
+
 $$
 26^3=17.576 \cdot 60 = 1.054.560 \text{ Theoretical Combinations}
 $$
@@ -107,6 +109,7 @@ Because we have ten cables, the number of combinations we must rule out is $2^{1
 To calculate the actual number of combinations, we must consider the anomaly described in "Ring Setting":
 
 To rule out these anomalies, we must first calculate the number of ring settings:
+
 $$
 26^2=676 \text{ Ring Positions}
 $$
@@ -117,16 +120,19 @@ we must only calculate the combinations for two of these rotors.
 
 There were 26 only positions in which the above-described anomaly didn't occur,
 so we must eliminate the following combinations:
+
 $$
 26^2−26 = 650 \text{ Redundant Positions}
 $$
 
 So the actual number of possible combinations is:
+
 $$
 26^3–650 = 16.926 \text{ Actual Rotor Positions}
 $$
 
 The resulting number is hard to comprehend:
+
 $$
 60 \cdot 676 \cdot 16.926 \cdot 150.738.274.937.250 = 103.484.623.446.804.960.360.000 \text{ Actual Combinations}
 $$

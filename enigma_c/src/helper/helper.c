@@ -180,8 +180,8 @@ char* get_string_from_int_array(const uint8_t *array, const size_t size)
  */
 bool has_duplicates(const char *str)
 {
-    const size_t len = strlen(str);
     if (str == NULL) return false;
+    const size_t len = strlen(str);
     if (len == 0) return false;
 
     bool seen[ASCII_SIZE] = {false};
@@ -202,6 +202,7 @@ bool has_duplicates(const char *str)
  */
 bool contains_spaces(const char *str)
 {
+    if (str == NULL) return false;
     const size_t len = strlen(str);
     if (len == 0) return false;
     for (size_t i = 0; i < len; ++i)
