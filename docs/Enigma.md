@@ -170,6 +170,7 @@ $$
 
 After all this, we are left with compared to before a laughable key length of $1.054.560$.
 
+The Enigma had a peculiarity that made the crypto analytic analysis easier: one letter never gets depicted on it self. This was caused by the self-inverse characteristics of the machine, meaning we can encrypt/decrypt the same message with the same key.
 
 **Side-note**:
 The sometimes mentioned 150 million, million, million possible Enigma settings leave out the ring settings.
