@@ -21,23 +21,19 @@
 
 ```bash
 # arch
-sudo pacman -S cjson
 sudo pacman -S gtk3
 sudo pacman -S pkg-config
 
 # debian based
-sudo apt install libcjson-dev
 sudo apt install libgtk-3-dev
 sudo apt install pkg-config
 
 # MinGW (Windows)
-pacman -S mingw-w64-x86_64-cjson
 pacman -S mingw-w64-x86_64-gtk3
 (optional) pacman -S mingw-w64-ucrt-x86_64-toolchain base-devel
 pacman -S mingw-w64-x86_64-pkg-config
 
 # macOs (homebrew), you may need to install homebrew first (https://brew.sh/)
-brew install cjson
 brew install gtk+3
 brew install pkg-config
 ```

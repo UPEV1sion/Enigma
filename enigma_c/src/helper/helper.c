@@ -97,36 +97,42 @@ int32_t remove_none_alpha(char *input)
 
 /**
  * @brief Checks if second is a permutation of first
+ * @note Only works with uppercase alphabetic strings
  * @param first first str
  * @param second second str
  * @return bool: true or falsehood
  */
 bool is_permutation(const char *first, const char *second)
 {
+    /*  I'll leave this here for the interested reader:
+     *  Instead of using a boolean or int array to toggle or count the letters,
+     *  I used a bitmask where each bit corresponds to an uppercase letter.
+     *  After the subtraction of 'A' we rightshift the one by n places, which is equivalent to multiplying it by 2^n
+     *  We XOR this bit which is effectively toggling it.
+     *  If first and second contain the same chars, the number must be 0 again,
+     *  so the final check is a straightforward == 0.
+     */
+
     if (first == NULL || second == NULL) return false;
     const size_t len1 = strlen(first);
     const size_t len2 = strlen(second);
 
     if (len1 != len2) return false;
 
-    int32_t count[ASCII_SIZE] = {0};
+    uint32_t mask = 0;
 
     for (size_t i = 0; i < len1; i++)
     {
-        count[(unsigned char) first[i]]++;
-        count[(unsigned char) second[i]]--;
+        mask ^= 1 << (first[i] - 'A');
+        mask ^= 1 << (second[i] - 'A');
     }
 
-    for (size_t i = 0; i < ASCII_SIZE; i++)
-    {
-        if (count[i] != 0) return false;
-    }
-
-    return true;
+    return mask == 0;
 }
 
 /**
  * @brief Subtracts 'A' from all chars
+ * @note All letters must be uppercase
  * @param str the original string
  * @return int32_t*: to the processed array
  */
@@ -276,7 +282,8 @@ double calc_index_of_coincidence(const uint8_t *str, const size_t len)
 }
 
 /**
- * @brief Reads a line from the console, ignores \n
+ * @brief Reads a line from the console
+ * @note Ignores \n
  * @param str the string in which the line should be stored
  * @param lim upper limit of how much characters are to be read
  * @return size_t: number of characters read

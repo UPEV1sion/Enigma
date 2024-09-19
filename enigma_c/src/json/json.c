@@ -6,7 +6,7 @@
 * Die vollständige Lizenz finden Sie hier: https://github.com/GNOME/gtk/blob/main/COPYING.
 */
 
-#include <cjson/cJSON.h>
+#include "cJSON.h"
 
 #include "json.h"
 #include "gui/enigma_gui.h"

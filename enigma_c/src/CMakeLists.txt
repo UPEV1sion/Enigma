@@ -36,6 +36,8 @@ add_library(enigma_lib
         helper/hashmap.h
         turing_bomb/turing_bomb.c
         turing_bomb/turing_bomb.h
+        json/cJSON.c
+        json/cJSON.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

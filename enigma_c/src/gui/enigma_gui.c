@@ -199,6 +199,15 @@ static void action_listener_plugboard(GtkEntry *entry,
 {
     const gchar *current_text = gtk_entry_get_text(entry);
 
+    for (uint16_t i = 0; i < length; i++)
+    {
+        if (!isalpha(text[i]) && !isspace(text[i]))
+        {
+            g_signal_stop_emission_by_name(entry, "insert-text");
+            return;
+        }
+    }
+
     gchar new_text[BUFFER_SIZE];
 
     strncpy(new_text, current_text, BUFFER_SIZE - 1);
@@ -208,16 +217,6 @@ static void action_listener_plugboard(GtkEntry *entry,
     if (has_duplicates(new_text))
     {
         g_signal_stop_emission_by_name(entry, "insert-text");
-        return;
-    }
-
-    for (uint16_t i = 0; i < length; i++)
-    {
-        if (!isalpha(text[i]) && !isspace(text[i]))
-        {
-            g_signal_stop_emission_by_name(entry, "insert-text");
-            return;
-        }
     }
 }
 
