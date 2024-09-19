@@ -141,7 +141,7 @@ In words:
 one hundred three sextillion four hundred eighty-four quintillion six hundred twenty-three quadrillion four hundred 
 forty-six trillion eight hundred four billion nine hundred sixty million three hundred sixty thousand combinations.
 
-Or roughly $10^{23}$ combinations.
+This is roughly $10^{23}$ combinations.
 It should be apparent that this is not "bruteforce-able".
 The key length is about 76 bits, which for the time was enormous and is quite impressive even today.
 The wildly used encryption algorithm [DES](https://en.wikipedia.org/wiki/Data_Encryption_Standard) has comparatively small 
