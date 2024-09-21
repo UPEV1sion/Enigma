@@ -15,10 +15,12 @@ straightforward to add new files to the project.
 
 ## Project Structure
 
-The project is structured into three main directories:
+The project is structured into five main directories:
 
 - `enigma_c`: Contains all the source files
 - `tests`: Contains all the test files
+- `docs`: Contains all the documentation
+- 'tools': Contains all the side tools for the project
 - `./`: Contains the root CMakeLists.txt files
 
 ### CMakeLists.txt (src)

@@ -168,7 +168,7 @@ $$
 60 \cdot 17.576 = 1.054.560
 $$
 
-After all this, we are left with compared to before a laughable key length of $1.054.560$.
+After all this, we're left with compared to before a laughable key length of $1.054.560$.
 
 
 **Side-note**:

@@ -12,11 +12,17 @@
 // Created by Emanuel on 07.09.2024.
 //
 
-#define  NUM_ROTORS             5
-#define  NUM_ROTORS_PER_ENIGMA  3
-#define  PLUGBOARD              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+/* One more note from me: if you don't like bit manipulations, I apologize, but
+ * the bit manipulation algorithms that I developed like "is_permutation" and "is_cycle_iter" are faster by
+ * several magnitudes than there corresponding "normal" approaches.
+ * I've had the goal to provide a fast user experience, and that does sometimes interfere with clean and readable code.
+ */
 
-static bool is_valid_crip_position(const char *crib, const char *encrypted_text, const int32_t crib_pos)
+#define NUM_ROTORS             5
+#define NUM_ROTORS_PER_ENIGMA  3
+#define PLUGBOARD              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+static bool is_valid_crip_position(const char *crib, const char *encrypted_text, const uint32_t crib_pos)
 {
     const size_t crip_len = strlen(crib);
     if (crip_len + crib_pos > strlen(encrypted_text)) return false;
@@ -28,8 +34,8 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
     return true;
 }
 
-static char* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, const int32_t crib_pos,
-                                            const int32_t crib_len)
+static char* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, const uint32_t crib_pos,
+                                            const size_t crib_len)
 {
     uint8_t *text   = get_int_array_from_string(conf->message);
     uint8_t *output = malloc(sizeof(uint8_t) * crib_len);
@@ -65,7 +71,7 @@ static char* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, con
     return result;
 }
 
-int32_t start_turing_bomb(char *crib, const char *ciphertext, const int32_t crib_pos)
+int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_pos)) return 1;
     const size_t plain_len = strlen(crib);

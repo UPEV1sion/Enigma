@@ -110,6 +110,46 @@ static bool is_cycle(const char start, const char c, Tuple *tuples, const size_t
     return false;
 }
 
+
+/**
+ * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
+ * using a mix of iterative and recursive approach.
+ * @param start the start position of the potential cycle
+ * @param c the other letter from the tuple where a letter is matched
+ * @param tuples array with all the letter tuples
+ * @param tuples_len the array length
+ * @param visited_bits the visited chars as a bitmask
+ * @param cycle_length the cycle length
+ * @return bool: true or falsehood for cycle or stub
+ */
+static bool is_cycle_iter(const char start, const char c, Tuple *tuples, const size_t tuples_len, uint32_t *visited_bits, size_t *cycle_length)
+{
+    uint32_t visited_mask = *visited_bits;
+    visited_mask |= (1 << (c - 'A'));
+    *visited_bits = visited_mask;
+    (*cycle_length)++;
+
+    if (c == start)
+        {
+        return true;
+    }
+
+    for (size_t i = 0; i < tuples_len; ++i)
+    {
+        const char next_char = (tuples[i].first == c) ? tuples[i].second :
+                         (tuples[i].second == c) ? tuples[i].first : 0;
+
+        if (next_char != 0 && !(visited_mask & 1 << (next_char - 'A'))) {
+            if (is_cycle_iter(start, next_char, tuples, tuples_len, visited_bits, cycle_length)) {
+                return true;
+            }
+        }
+    }
+
+    *cycle_length = 0;
+    return false;
+}
+
 /**
  * @brief Eliminates duplicate cycles where there loop is the same
  * but started at a different point or is traversed backwards
@@ -126,7 +166,7 @@ static size_t eliminate_duplicates(char *cycles[], const size_t num_cycles)
         {
             for (size_t j = i + 1; j < num_cycles; ++j)
             {
-                if (cycles[j] != NULL && is_permutation(cycles[i], cycles[j]))
+                if (is_permutation(cycles[i], cycles[j]))
                 {
                     free(cycles[j]);
                     cycles[j] = NULL;

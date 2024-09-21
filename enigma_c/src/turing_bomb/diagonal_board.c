@@ -13,7 +13,6 @@ bool cycles_equals(const Cycles *candidate_cycles, const Cycles *current_cycles)
 {
     if (candidate_cycles->num_cycles != current_cycles->num_cycles) return false;
 
-    // Avoid VLAs since size cant be predicted
     bool *visited = calloc(candidate_cycles->num_cycles, sizeof(bool));
     assertmsg(visited != NULL, "calloc failed");
 
@@ -77,7 +76,10 @@ bool is_candidate(const Cycles *candidate_cycles, const Cycles *current_cycles)
 bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles)
 {
     if (!is_candidate(candidate_cycles, current_cycles)) return false;
-    char graph_compare[ASCII_SIZE] = {0};
+    char graph_compare[ALPHABET_SIZE] = {0};
+
+
+
     // TODO Order cycles?
     return false;
 }
