@@ -2,7 +2,7 @@
 
 ## Rotor
 
-The Rotors are currently predefined and hardcoded as a string.
+The Rotors are predefined and hardcoded as a string.
 A shortened example of this string would be "CDAB".
 'A' would be converted to 'C', as the letter C is in the first (A) position.
 'B' would be converted to a 'D', 'C' to 'A' and 'D' to 'B'.
