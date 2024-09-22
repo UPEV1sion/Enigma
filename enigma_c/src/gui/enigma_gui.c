@@ -154,13 +154,13 @@ static void show_rotor_dialog(void)
 
 static void action_listener_rot_comb(GtkComboBox *combo_box)
 {
-    g_print("%d\n", gtk_combo_box_get_active(combo_box));
+    // g_print("%d\n", gtk_combo_box_get_active(combo_box));
 }
 
 static void action_listener_rot_pos_ring(GtkSpinButton *button)
 {
-    gint value = gtk_spin_button_get_value_as_int(button);
-    g_print("%d", value);
+    // gint value = gtk_spin_button_get_value_as_int(button);
+    // g_print("%d", value);
 }
 
 static void action_listener_input_in(GtkTextBuffer *buffer,
@@ -231,7 +231,7 @@ static Enigma* create_enigma_from_input(void)
     char *input_text                 = get_input_text_from_gui();
 
     EnigmaConfiguration configuration = {
-        rotor_arr, rotor_position_arr, rotor_ring_position_arr, enigma_type, reflector, .message = input_text
+        .rotors = rotor_arr, rotor_position_arr, rotor_ring_position_arr, enigma_type, reflector, .message = input_text
     };
     memcpy(configuration.plugboard, plugboard, strlen(plugboard));
     Enigma *enigma = create_enigma_from_configuration(&configuration);

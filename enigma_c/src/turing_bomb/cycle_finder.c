@@ -125,7 +125,7 @@ static bool is_cycle(const char start, const char c, Tuple *tuples, const size_t
 static bool is_cycle_iter(const char start, const char c, Tuple *tuples, const size_t tuples_len, uint32_t *visited_bits, size_t *cycle_length)
 {
     uint32_t visited_mask = *visited_bits;
-    visited_mask |= (1 << (c - 'A'));
+    visited_mask |= 1 << (c - 'A');
     *visited_bits = visited_mask;
     (*cycle_length)++;
 

@@ -34,7 +34,7 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
     return true;
 }
 
-static char* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, const uint32_t crib_pos,
+static uint8_t* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, const uint32_t crib_pos,
                                             const size_t crib_len)
 {
     uint8_t *text   = get_int_array_from_string(conf->message);
@@ -66,9 +66,7 @@ static char* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, con
     }
     free(text);
     free_enigma(enigma);
-    char *result = get_string_from_int_array(output, crib_len);
-    free(output);
-    return result;
+    return output;
 }
 
 int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t crib_pos)
@@ -117,17 +115,19 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
                                 rotors, rotor_positions, ring_settings, M3, 'B', .message = crib
                             };
                             memcpy(conf.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
-                            char *output                 = traverse_m3_enigma_at_position(&conf, crib_pos, plain_len);
-                            const Cycles *current_cycles = find_cycles(crib, output);
-                            free(output);
+                            uint8_t *output                 = traverse_m3_enigma_at_position(&conf, crib_pos, plain_len);
+                            //TODO rewrite
 
-                            if (passes_welchman_test(candidate_cycles, current_cycles))
-                            {
-                                printf("Possible match found: ");
-                                printf("%d : %d : %d at %d : %d : %d", conf.rotors[0], conf.rotors[1], conf.rotors[2],
-                                       conf.rotor_positions[0], conf.rotor_positions[1], conf.rotors[2]);
-                                return 0;
-                            }
+                            // const Cycles *current_cycles = find_cycles(crib, output);
+                            // free(output);
+
+                            // if (passes_welchman_test(candidate_cycles, current_cycles))
+                            // {
+                                // printf("Possible match found: ");
+                                // printf("%d : %d : %d at %d : %d : %d", conf.rotors[0], conf.rotors[1], conf.rotors[2],
+                                       // conf.rotor_positions[0], conf.rotor_positions[1], conf.rotors[2]);
+                                // return 0;
+                            // }
                         }
                     }
                 }

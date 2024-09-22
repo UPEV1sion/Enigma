@@ -128,12 +128,11 @@ void enigma_to_json(const char *out)
 char* read_json(void)
 {
     FILE *file;
-    assertmsg((file = fopen(FILE_PATH_JSON, "r")) != NULL, "file == NULL");
+    assertmsg((file = fopen(FILE_PATH_JSON, "rb")) != NULL, "file == NULL");
 
     fseek(file, 0, SEEK_END);
-    const long file_size = ftell(file);
+    const size_t file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    //malloc
     char *buffer = malloc(file_size + 1);
     assertmsg(buffer != NULL, "buffer == NULL");
     fread(buffer, sizeof(char), file_size, file);

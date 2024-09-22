@@ -17,7 +17,6 @@
 
 int main(int argc, char *argv[])
 {
-
     // Rotor *rotor = create_one_notch_rotor("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "UWYGADFPVZBECKMTHXSLRINQOJ", 'Q', 0, 0);
     // printf("%d", traverse_rotor(rotor, 0));
     // printf("%d", traverse_rotor(rotor, 0));

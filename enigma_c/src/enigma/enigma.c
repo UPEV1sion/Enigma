@@ -9,14 +9,14 @@
 #include "rotor/rotor.h"
 
 /**
- * @brief This function is used to traverse the enigma machine.
+ * @brief This function is used to traverse the m3 enigma machine.
  *
  * @param enigma The enigma machine to traverse.
  * @param text_in_integer The text to traverse.
  * @param array_size The size of the text.
- * @return int32_t* The traversed text as an int32_teger array.
+ * @return uint8_t*: The traversed text as an uint8_t* array.
  */
-static uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_integer, const int32_t array_size)
+uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_integer, const size_t array_size)
 {
     uint8_t *output = malloc(array_size * sizeof(uint8_t));
     assertmsg(output != NULL, "output == NULL");
@@ -25,9 +25,9 @@ static uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_intege
 
     memcpy(text, text_in_integer, array_size * sizeof(uint8_t));
 
-    Rotor *rotorOne   = enigma->rotors[0];
-    Rotor *rotorTwo   = enigma->rotors[1];
-    Rotor *rotorThree = enigma->rotors[2];
+    Rotor *rotor_one   = enigma->rotors[0];
+    Rotor *rotor_two   = enigma->rotors[1];
+    Rotor *rotor_three = enigma->rotors[2];
 
     const Plugboard *plugboard = enigma->plugboard;
     assertmsg(plugboard != NULL, "plugboard == NULL");
@@ -35,33 +35,104 @@ static uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_intege
 
     uint8_t *text_ptr                 = text;
     const uint8_t *plugboard_data_ptr = plugboard->plugboard_data;
-    for (uint16_t i = 0; i < array_size; i++)
+    for (size_t i = 0; i < array_size; i++)
     {
         *(text_ptr + i) = *(plugboard_data_ptr + *(text_ptr + i));
     }
 
-    for (uint16_t i = 0; i < array_size; i++)
+    for (size_t i = 0; i < array_size; i++)
     {
-        rotorOne->position = (rotorOne->position + 1) % 26;
+        rotor_one->position = (rotor_one->position + 1) % 26;
 
-        if (should_rotate(rotorOne))
+        if (should_rotate(rotor_one))
         {
             puts("Rot 2");
-            rotorTwo->position = (rotorTwo->position + 1) % 26;
+            rotor_two->position = (rotor_two->position + 1) % 26;
 
-            if (should_rotate(rotorTwo))
+            if (should_rotate(rotor_two))
             {
                 puts("Rot 3");
-                rotorThree->position = (rotorThree->position + 1) % 26;
+                rotor_three->position = (rotor_three->position + 1) % 26;
             }
         }
-        uint8_t character = traverse_rotor(rotorOne, text[i]);
-        character         = traverse_rotor(rotorTwo, character);
-        character         = traverse_rotor(rotorThree, character);
+        uint8_t character = traverse_rotor(rotor_one, text[i]);
+        character         = traverse_rotor(rotor_two, character);
+        character         = traverse_rotor(rotor_three, character);
         character         = reflector->wiring[character];
-        character         = traverse_rotor_inverse(rotorThree, character);
-        character         = traverse_rotor_inverse(rotorTwo, character);
-        character         = traverse_rotor_inverse(rotorOne, character);
+        character         = traverse_rotor_inverse(rotor_three, character);
+        character         = traverse_rotor_inverse(rotor_two, character);
+        character         = traverse_rotor_inverse(rotor_one, character);
+        output[i]         = plugboard->plugboard_data[character];
+    }
+
+    free(text_in_integer);
+    free(text);
+
+    return output;
+}
+
+/**
+ * @brief This function is used to traverse the m4 enigma machine.
+ *
+ * @param enigma The enigma machine to traverse.
+ * @param text_in_integer The text to traverse.
+ * @param array_size The size of the text.
+ * @return uint8_t*: The traversed text as an uint8_t array.
+ */
+uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, const size_t array_size)
+{
+    uint8_t *output = malloc(array_size * sizeof(uint8_t));
+    assertmsg(output != NULL, "output == NULL");
+    uint8_t *text = malloc(array_size * sizeof(uint8_t));
+    assertmsg(text != NULL, "text == NULL");
+
+    memcpy(text, text_in_integer, array_size * sizeof(uint8_t));
+
+    Rotor *rotor_one   = enigma->rotors[0];
+    Rotor *rotor_two   = enigma->rotors[1];
+    Rotor *rotor_three = enigma->rotors[2];
+    Rotor *rotor_four = enigma->rotors[3];
+
+    const Plugboard *plugboard = enigma->plugboard;
+    assertmsg(plugboard != NULL, "plugboard == NULL");
+    const Reflector *reflector = enigma->reflector;
+
+    uint8_t *text_ptr                 = text;
+    const uint8_t *plugboard_data_ptr = plugboard->plugboard_data;
+    for (size_t i = 0; i < array_size; i++)
+    {
+        *(text_ptr + i) = *(plugboard_data_ptr + *(text_ptr + i));
+    }
+
+    for (size_t i = 0; i < array_size; i++)
+    {
+        rotor_one->position = (rotor_one->position + 1) % 26;
+
+        if (should_rotate(rotor_one))
+        {
+            puts("Rot 2");
+            rotor_two->position = (rotor_two->position + 1) % 26;
+
+            if (should_rotate(rotor_two))
+            {
+                puts("Rot 3");
+                rotor_three->position = (rotor_three->position + 1) % 26;
+                if(should_rotate(rotor_three))
+                {
+                    puts("Rot 4");
+                    rotor_four->position = (rotor_four->position + 1) % 26;
+                }
+            }
+        }
+        uint8_t character = traverse_rotor(rotor_one, text[i]);
+        character         = traverse_rotor(rotor_two, character);
+        character         = traverse_rotor(rotor_three, character);
+        character         = traverse_rotor(rotor_four, character);
+        character         = reflector->wiring[character];
+        character         = traverse_rotor_inverse(rotor_four, character);
+        character         = traverse_rotor_inverse(rotor_three, character);
+        character         = traverse_rotor_inverse(rotor_two, character);
+        character         = traverse_rotor_inverse(rotor_one, character);
         output[i]         = plugboard->plugboard_data[character];
     }
 
@@ -75,23 +146,25 @@ static uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_intege
  * @brief This function is used to traverse the enigma machine.
  *
  * @param enigma The enigma machine to traverse.
- * @return char* The traversed text.
+ * @return uint8_t*: The traversed text.
  */
 uint8_t* traverse_enigma(const Enigma *enigma)
 {
     char *plaintext          = enigma->plaintext;
-    const int32_t array_size = strlen(plaintext);
+    const size_t array_size = strlen(plaintext);
     to_upper_case(plaintext);
     uint8_t *text_in_numbers = get_int_array_from_string(plaintext);
 
-    return traverse_m3_enigma(enigma, text_in_numbers, array_size);
+    if(enigma->type == M3)
+        return traverse_m3_enigma(enigma, text_in_numbers, array_size);
+    return traverse_m4_enigma(enigma, text_in_numbers, array_size);
 }
 
 /**
  * @brief This function is used to create an enigma machine.
  *
  * @param enigma_configuration The configuration of the enigma machine.
- * @return Enigma* The created enigma machine.
+ * @return Enigma*: The created enigma machine.
  */
 Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_configuration)
 {
@@ -152,7 +225,6 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
 
     return enigma;
 }
-
 
 void free_enigma(Enigma *enigma)
 {

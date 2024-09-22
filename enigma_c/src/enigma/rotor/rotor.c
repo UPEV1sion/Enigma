@@ -35,10 +35,10 @@
 #define ROTOR_VIII_NOTCH_TWO    'M'
 
 
-//DO NOT MAKE THIS UINT8_T!!! This was the reason for one of the longest and most painful debugging sessions!
+//DO NOT MAKE THIS UINT8_T! This was the reason for one of the longest and most painful debugging sessions!
 static inline int8_t mod26(const int8_t value)
 {
-    return (value + 26) % 26;
+    return (int8_t) ((value + 26) % 26);
 }
 
 uint8_t should_rotate(const Rotor *rotor)
@@ -68,34 +68,34 @@ Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, co
         rotor->inverse_wiring[i] = inverse_wiring[i] - 'A';
     }
 
-    rotor->position    = mod26(position - offset);
+    rotor->position    = mod26((int8_t) (position - offset));
     rotor->notch_count = 1;
     rotor->notch       = malloc(sizeof(uint8_t));
     assertmsg(rotor->notch != NULL, "rotor->notch == NULL");
-    rotor->notch[0] = mod26(notch - 'A' - offset);
+    rotor->notch[0] = mod26((int8_t) (notch - 'A' - offset));
 
     return rotor;
 }
 
 Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wiring, const char notch1,
-                              const char notch2)
+                              const char notch2, const uint8_t position, const uint8_t offset)
 {
     Rotor *rotor = malloc(sizeof(Rotor));
     assertmsg(rotor != NULL, "rotor == NULL");
 
-    const int32_t wiring_length = strlen(wiring);
-    for (uint16_t i = 0; i < wiring_length; i++)
+    const size_t wiring_length = strlen(wiring);
+    for (size_t i = 0; i < wiring_length; i++)
     {
         rotor->wiring[i]         = wiring[i] - 'A';
         rotor->inverse_wiring[i] = inverse_wiring[i] - 'A';
     }
 
-    rotor->position    = 0;
+    rotor->position    = mod26((int8_t) (position - offset));
     rotor->notch_count = 2;
     rotor->notch       = malloc(2 * sizeof(uint8_t));
     assertmsg(rotor->notch != NULL, "rotor->notch == NULL");
-    rotor->notch[0] = notch1 - 'A';
-    rotor->notch[1] = notch2 - 'A';
+    rotor->notch[0] = mod26((int8_t) (notch1 - 'A' - offset));
+    rotor->notch[1] = mod26((int8_t) (notch2 - 'A' - offset));
 
 
     return rotor;
@@ -122,14 +122,14 @@ Rotor* create_rotor(const uint8_t type, const uint8_t position, const uint8_t of
                                           position, offset);
         case 6:
             return create_two_notch_rotor(ROTOR_VI, ROTOR_VI_INV,
-                                          ROTOR_VI_NOTCH_ONE, ROTOR_VI_NOTCH_TWO);
+                                          ROTOR_VI_NOTCH_ONE, ROTOR_VI_NOTCH_TWO, position, offset);
         case 7:
             return create_two_notch_rotor(ROTOR_VII, ROTOR_VII_INV,
-                                          ROTOR_VII_NOTCH_ONE, ROTOR_VII_NOTCH_TWO);
+                                          ROTOR_VII_NOTCH_ONE, ROTOR_VII_NOTCH_TWO, position, offset);
         case 8:
             return create_two_notch_rotor(ROTOR_VIII, ROTOR_VIII_INV,
                                           ROTOR_VIII_NOTCH_ONE,
-                                          ROTOR_VIII_NOTCH_TWO);
+                                          ROTOR_VIII_NOTCH_TWO, position, offset);
         default:
             printf("Error, Rotor definition not found");
             exit(1);
@@ -138,16 +138,16 @@ Rotor* create_rotor(const uint8_t type, const uint8_t position, const uint8_t of
 
 uint8_t traverse_rotor(const Rotor *rotor, const uint8_t character)
 {
-    const int8_t index_from_right = mod26(character + rotor->position);
-    const int8_t index_from_left  = mod26(rotor->wiring[index_from_right] - rotor->position);
+    const int8_t index_from_right = mod26((int8_t) (character + rotor->position));
+    const int8_t index_from_left  = mod26((int8_t) (rotor->wiring[index_from_right] - rotor->position));
 
     return index_from_left;
 }
 
 uint8_t traverse_rotor_inverse(const Rotor *rotor, const uint8_t character)
 {
-    const int8_t index_from_left  = mod26(character + rotor->position);
-    const int8_t index_from_right = mod26(rotor->inverse_wiring[index_from_left] - rotor->position);
+    const int8_t index_from_left  = mod26((int8_t) (character + rotor->position));
+    const int8_t index_from_right = mod26((int8_t) (rotor->inverse_wiring[index_from_left] - rotor->position));
 
     return index_from_right;
 }
