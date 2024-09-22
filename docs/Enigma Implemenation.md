@@ -81,6 +81,7 @@ for (uint16_t i = 0; i < array_size; i++)
     character         = traverse_rotor_inverse(rotorOne, character);
 }
 
+//Todo
 uint8_t traverse_rotor(const Rotor *rotor, const uint8_t character)
 {
     const uint8_t index_from_right = mod26(character + rotor->position);
