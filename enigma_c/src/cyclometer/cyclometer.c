@@ -23,7 +23,7 @@
 static const uint32_t TOTAL_CYCLES = 26 * 26 * 26 * 3 * 2 * 1;
 #endif
 
-static const uint8_t ring_settings[3]                  = {0, 0, 0};
+static uint8_t ring_settings[3]                        = {0, 0, 0};
 static const uint8_t possible_rotor_permutations[6][3] = {
     {1, 2, 3}, {1, 3, 2}, {2, 1, 3},
     {2, 3, 1}, {3, 1, 2}, {3, 2, 1}
@@ -137,7 +137,7 @@ static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configu
     uint8_t rotors[NUM_ROTORS]              = {0};
     uint8_t rotor_positions[NUM_ROTORS]     = {0};
     char message[MESSAGE_SIZE]              = {0};
-    const EnigmaConfiguration configuration = {
+    EnigmaConfiguration configuration = {
         rotors, rotor_positions, ring_settings, M3, 'B', .message = message
     };
     memcpy(configuration.plugboard, PLUGBOARD, sizeof(PLUGBOARD));

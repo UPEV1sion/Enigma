@@ -41,9 +41,9 @@ static inline int8_t mod26(const int8_t value)
     return (int8_t) ((value + 26) % 26);
 }
 
-uint8_t should_rotate(const Rotor *rotor)
+bool should_rotate(const Rotor *rotor)
 {
-    const int32_t position = rotor->position - 1;
+    const uint8_t position = rotor->position - 1;
     if (rotor->notch_count == 1)
     {
         return position == rotor->notch[0];

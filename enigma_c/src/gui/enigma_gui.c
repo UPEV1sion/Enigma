@@ -225,7 +225,7 @@ static Enigma* create_enigma_from_input(void)
     uint8_t *rotor_arr               = get_rotors_from_gui();
     uint8_t *rotor_position_arr      = get_rotor_positions_from_gui();
     uint8_t *rotor_ring_position_arr = get_rotor_ring_positions_from_gui();
-    const TYPE enigma_type           = get_enigma_type_from_gui();
+    const enum TYPE enigma_type           = get_enigma_type_from_gui();
     const char reflector             = get_reflector_type_from_gui();
     char *plugboard                  = get_plugboard_from_gui();
     char *input_text                 = get_input_text_from_gui();

@@ -6,11 +6,11 @@
 #include "reflector/reflector.h"
 #include "rotor/rotor.h"
 
-enum
+enum TYPE
 {
     M3 = 3,
     M4 = 4
-} TYPE;
+};
 
 typedef struct
 {
