@@ -159,8 +159,7 @@ and doesn't change during the whole encryption process,
 it can be ruled out with intelligent cryptanalytic attacks like the [Turing Bomb](TuringBomb.md).
 So we can cancel out the factor $150.738.274.937.250$. 
 The ring settings were also quite useless
-because messages had an upper limit of 250 characters, and the middle rotor
-which had a periodic length of 650, the anomaly only happened in rare cases, thus it could be neglected. 
+because messages had an upper limit of 250 characters, and the middle rotor had a periodic length of 650, the anomaly only happened in rare cases, thus it could be neglected. 
 Overall, the ring settings caused no trouble for the cryptanalyst of the second world war.  
 So we can cancel the factor $676$. 
 
@@ -168,7 +167,7 @@ $$
 60 \cdot 17.576 = 1.054.560
 $$
 
-After all this, we're left with compared to before a laughable key length of $1.054.560$.
+After all this, we're left with compared to before a laughable $1.054.560$ combinations.
 
 The Enigma had a peculiarity that made the crypto analytic analysis easier: one letter never gets depicted on it self. This was caused by the self-inverse characteristics of the machine, meaning we can encrypt/decrypt the same message with the same key.
 
