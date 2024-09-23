@@ -24,8 +24,10 @@ static gchar* get_encrypted_text(void)
     gtk_text_buffer_get_end_iter(enc_buffer, &end_iter);
     gchar *encrypted_text =
             gtk_text_buffer_get_text(enc_buffer, &start_iter, &end_iter, FALSE);
-    to_uppercase(encrypted_text);
-    remove_non_alpha(encrypted_text);
+    int32_t err_code = 0;
+    err_code |= to_uppercase(encrypted_text);
+    err_code |= remove_non_alpha(encrypted_text);
+    assertmsg(err_code == 0, "normalization failed");
     return encrypted_text;
 }
 

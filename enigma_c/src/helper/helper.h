@@ -39,6 +39,12 @@
 #define expected_false(cond) (cond)
 #endif
 
+// A bit hack for NaN because including without including the math library.
+// IEEE 745-1985 NaN coding: s = 0||1, exponent = 11111111111, mantissa != 0
+// (uint64_t){0x7FFFFFFFFFFFFFFF} is a compound literal and the {} is needed
+// ...Turns out this can be done way easier with 0.0/0.0 but this is a cool bit hack, so I leave it here
+#define NaN (*(double*)&((uint64_t){0x7FFFFFFFFFFFFFFF}))
+
 int32_t get_number_from_string(const char *str, int32_t *number);
 int32_t to_uppercase(char *input);
 int32_t remove_non_alnum(char *input);

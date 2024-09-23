@@ -163,8 +163,10 @@ static uint8_t* traverse_enigma_w_checks(register const char *known_plaintext,
                                          register char *start_enc)
 {
     uint8_t *text           = get_int_array_from_string(enigma->plaintext);
+    assertmsg(text != NULL, "string to int[] conversion failed");
     const size_t array_size = strlen(known_plaintext);
     uint8_t *output         = malloc(array_size * sizeof(uint8_t));
+    assertmsg(output != NULL, "malloc failed");
     Rotor *rotorOne         = enigma->rotors[0];
     Rotor *rotorTwo         = enigma->rotors[1];
     Rotor *rotorThree       = enigma->rotors[2];
@@ -212,7 +214,9 @@ static double check_enigma_rotors(register const EnigmaConfiguration *conf)
 {
     const size_t array_size = strlen(conf->message);
     uint8_t *text           = get_int_array_from_string(conf->message);
+    assertmsg(text != NULL, "string to int[] conversion failed");
     uint8_t *output         = malloc(array_size * sizeof(uint8_t));
+    assertmsg(output != NULL, "malloc failed");
 
     Enigma *enigma = create_enigma_from_configuration(conf);
     assertmsg(enigma != NULL, "enigma == NULL");
@@ -237,6 +241,7 @@ static double check_enigma_rotors(register const EnigmaConfiguration *conf)
     free(text);
     free_enigma(enigma);
     const double ic = calc_index_of_coincidence(output, array_size);
+    assertmsg(ic != NaN, "calc_index_of_coincidence failed");
     free(output);
     return ic;
 }
@@ -245,7 +250,8 @@ static char* create_rotor_string(const EnigmaConfiguration *conf)
 {
     char *rotor_string = malloc(OUTPUT_STRING_SIZE);
     assertmsg(rotor_string != NULL, "rotor_string == NULL");
-    snprintf(rotor_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->rotors[0], conf->rotors[1], conf->rotors[2]);
+    const int ret = snprintf(rotor_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->rotors[0], conf->rotors[1], conf->rotors[2]);
+    assertmsg(ret >= 0 && ret < OUTPUT_STRING_SIZE, "snprintf failed");
     return rotor_string;
 }
 
@@ -253,9 +259,10 @@ static char* create_positions_string(const EnigmaConfiguration *conf)
 {
     char *position_string = malloc(OUTPUT_STRING_SIZE);
     assertmsg(position_string != NULL, "position_string == NULL");
-    snprintf(position_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->rotor_positions[0] + 1,
+    const int ret = snprintf(position_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->rotor_positions[0] + 1,
              conf->rotor_positions[1] + 1,
              conf->rotor_positions[2] + 1);
+    assertmsg(ret >= 0 && ret < OUTPUT_STRING_SIZE, "snprintf failed");
     return position_string;
 }
 
@@ -263,8 +270,9 @@ static char* create_ring_string(const EnigmaConfiguration *conf)
 {
     char *ring_string = malloc(OUTPUT_STRING_SIZE);
     assertmsg(ring_string != NULL, "ring_string == NULL");
-    snprintf(ring_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->ring_settings[0] + 1, conf->ring_settings[1] + 1,
+    const int ret = snprintf(ring_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->ring_settings[0] + 1, conf->ring_settings[1] + 1,
              conf->ring_settings[2] + 1);
+    assertmsg(ret >= 0 && ret < OUTPUT_STRING_SIZE, "snprintf failed");
     return ring_string;
 }
 
@@ -313,6 +321,7 @@ static void test_config(register const char *known_plaintext,
     }
 
     char *message = get_string_from_int_array(candidate, strlen(temp->plaintext));
+    assertmsg(message != NULL, "int[] to string conversion failed");
     free(candidate);
     assertmsg(message != NULL, "failed to get string from array");
     //Branching hint for pipelining
@@ -356,7 +365,6 @@ static void test_configs_sorted(const char *known_plaintext)
         printf("%d %d %d\n", conf->rotors[0], conf->rotors[1], conf->rotors[2]);
         //TODO: faster solution than a copy of conf?
         //TODO: may look into cuda computing
-        //FIXME: ring positions dont work as intended -> e.g. WETTERBERICHT often to short to reach the turning point
         #ifdef _OPENMP
         OMP_PARALLEL_PRAGMA
         #endif
@@ -421,7 +429,6 @@ void crack_enigma(const char *known_plaintext, char *encrypted_text)
     FILE *file;
     assertmsg((file = fopen(FILE_PATH_IC, "w")) != NULL, "file == NULL");
 
-    //TODO Optimize generic algorithms? Heuristics?
     for (uint8_t rotor_one = 1; rotor_one <= NUM_ROTATORS; rotor_one++)
     {
         for (uint8_t rotor_two = 1; rotor_two <= NUM_ROTATORS; rotor_two++)

@@ -13,9 +13,9 @@
 //
 
 /* One more note from me: if you don't like bit manipulations, I apologize, but
- * the bit manipulation algorithms that I developed like "is_permutation" and "is_cycle_iter" are faster by
- * several magnitudes than there corresponding "normal" approaches.
- * I've had the goal to provide a fast user experience, and that does sometimes interfere with clean and readable code.
+ * the algorithms that I developed like which are using bit manipulations like "is_permutation"
+ * and "is_cycle" are faster by several magnitudes than there corresponding "normal" approaches.
+ * I've had the goal to provide a fast user experience, and that does sometimes interfere with readable code.
  */
 
 #define NUM_ROTORS             5
@@ -38,6 +38,7 @@ static uint8_t* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, 
                                                const size_t crib_len)
 {
     uint8_t *text   = get_int_array_from_string(conf->message);
+    assertmsg(text != NULL, "string to int[] conversion failed");
     uint8_t *output = malloc(sizeof(uint8_t) * crib_len);
     assertmsg(output != NULL, "malloc failed");
 
@@ -83,8 +84,10 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
         fprintf(stderr, "Plain outside crib\n");
         return 1;
     }
+    uint8_t *crib_as_ints = get_int_array_from_string(crib);
+    uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
 
-    const Cycles *candidate_cycles = find_cycles(crib, ciphertext + crib_pos);
+    const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, plain_len);
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
@@ -119,22 +122,25 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
                             uint8_t *output = traverse_m3_enigma_at_position(&conf, crib_pos, plain_len);
                             //TODO rewrite
 
-                            // const Cycles *current_cycles = find_cycles(crib, output);
-                            // free(output);
+                            const Cycles *current_cycles = find_cycles(crib_as_ints, output, plain_len);
+                            free(output);
 
-                            // if (passes_welchman_test(candidate_cycles, current_cycles))
+                            if (passes_welchman_test(candidate_cycles, current_cycles))
                             // {
                             // printf("Possible match found: ");
                             // printf("%d : %d : %d at %d : %d : %d", conf.rotors[0], conf.rotors[1], conf.rotors[2],
                             // conf.rotor_positions[0], conf.rotor_positions[1], conf.rotors[2]);
                             // return 0;
                             // }
+                            free(output);
                         }
                     }
                 }
             }
         }
     }
+    free(crib_as_ints);
+    free(ciphertext_as_ints);
 
     return 1;
 }

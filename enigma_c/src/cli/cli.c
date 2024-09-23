@@ -7,9 +7,9 @@
 #include "cli.h"
 #include "helper/helper.h"
 #include "enigma/enigma.h"
-#include "turing_bomb/brute_force.h"
+#include "turing_bomb/turing_bomb.h"
 
-#define INPUT_BUFFER_SIZE  64
+#define INPUT_BUFFER_SIZE  1024
 
 /*----------ENIGMA----------*/
 #define INTERACTIVE            "--interactive"
@@ -67,24 +67,18 @@ enum REFLECTOR_TYPE
 
 typedef struct
 {
-    unsigned char enigma: 1;
-    unsigned char bomb: 1;
-    unsigned char interactive: 1;
-    unsigned char help: 1;
+    uint8_t enigma: 1;
+    uint8_t bomb: 1;
+    uint8_t interactive: 1;
+    uint8_t help: 1;
     enum ENIGMA_TYPE enigma_type;
-    // char *enigma_type;
     enum ROTOR_TYPE rotor_one_type;
     enum ROTOR_TYPE rotor_two_type;
     enum ROTOR_TYPE rotor_three_type;
     enum ROTOR_TYPE rotor_four_type;
     enum REFLECTOR_TYPE reflector_type;
-    // char *rotor_one_type;
-    // char *rotor_two_type;
-    // char *rotor_three_type;
-    // char *rotor_four_type;
     char *rotor_offsets;
     char *rotor_positions;
-    // char *reflector_type;
     char *plugboard;
     char *plaintext;
     char *ciphertext;
@@ -192,15 +186,15 @@ static void init_cli_options(CliOptions *options)
     options->rotor_two_type   = 0;
     options->rotor_three_type = 0;
     options->rotor_four_type  = 0;
-    options->rotor_offsets    = NULL;
-    options->rotor_positions  = NULL;
     options->reflector_type   = 0;
-    options->plugboard        = NULL;
-    options->plaintext        = NULL;
     options->interactive      = 0;
     options->help             = 0;
     options->bomb             = 0;
     options->enigma           = 0;
+    options->rotor_offsets    = NULL;
+    options->rotor_positions  = NULL;
+    options->plaintext        = NULL;
+    options->plugboard        = NULL;
 }
 
 static void parse_rotor_input(CliOptions *options, char *argv[], int32_t *i, const enum ROTOR_TYPE rotor_num)
@@ -268,11 +262,18 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
             options->plugboard = strdup(argv[++i]);
             assertmsg(options->plugboard != NULL, "strdup failed");
 
+            size_t total_len = strlen(options->plugboard);
+
             while (i + 1 < argc && argv[i + 1][0] != '-')
             {
-                options->plugboard = realloc(options->plugboard, strlen(options->plugboard) + strlen(argv[++i]) + 1);
-                assertmsg(options->plugboard != NULL, "realloc failed");
-                strcat(options->plugboard, argv[i]);
+                const size_t next_len = strlen(argv[++i]);
+                char *new_plugboard = realloc(options->plugboard, total_len + next_len + 1);
+                assertmsg(new_plugboard != NULL, "realloc failed");
+
+                options->plugboard = new_plugboard;
+                const int ret_val = snprintf(options->plugboard + total_len, next_len + 1, "%s", argv[i]);
+                assertmsg(ret_val >= 0 && ret_val == (int) next_len, "snprintf failed");
+                total_len += next_len;
             }
         }
         else if (string_equals(PLAINTEXT, argv[i]) ||
@@ -393,37 +394,25 @@ static int32_t validate_cli_options(const CliOptions *options)
 
 static void normalize_cli_options(const CliOptions *options)
 {
+    int err_code = 0;
     if (options->bomb)
     {
-        to_uppercase(options->ciphertext);
-        remove_non_alnum(options->ciphertext);
-        to_uppercase(options->known_text);
-        remove_non_alnum(options->known_text);
+        err_code |= to_uppercase(options->ciphertext);
+        err_code |= remove_non_alnum(options->ciphertext);
+        err_code |= to_uppercase(options->known_text);
+        err_code |= remove_non_alnum(options->known_text);
+        assertmsg(err_code == 0, "normalization failed");
         return;
     }
-    // to_uppercase(options->enigma_type);
-    // remove_non_alnum(options->enigma_type);
-    // to_uppercase(options->rotor_one_type);
-    // remove_non_alnum(options->rotor_one_type);
-    // to_uppercase(options->rotor_two_type);
-    // remove_non_alnum(options->rotor_two_type);
-    // to_uppercase(options->rotor_three_type);
-    // remove_non_alnum(options->rotor_three_type);
-    // if (string_equals(options->enigma_type, "M4"))
-    // {
-    //     to_uppercase(options->rotor_four_type);
-    //     remove_non_alnum(options->rotor_four_type);
-    // }
-    to_uppercase(options->rotor_offsets);
-    remove_non_alnum(options->rotor_offsets);
-    to_uppercase(options->rotor_positions);
-    remove_non_alnum(options->rotor_positions);
-    // to_uppercase(options->reflector_type);
-    // remove_non_alnum(options->reflector_type);
-    to_uppercase(options->plugboard);
-    remove_non_alnum(options->plugboard);
-    to_uppercase(options->plaintext);
-    remove_non_alnum(options->plaintext);
+    err_code |= to_uppercase(options->rotor_offsets);
+    err_code |= remove_non_alnum(options->rotor_offsets);
+    err_code |= to_uppercase(options->rotor_positions);
+    err_code |= remove_non_alnum(options->rotor_positions);
+    err_code |= to_uppercase(options->plugboard);
+    err_code |= remove_non_alnum(options->plugboard);
+    err_code |= to_uppercase(options->plaintext);
+    err_code |= remove_non_alnum(options->plaintext);
+    assertmsg(err_code == 0, "normalization failed");
 }
 
 static int32_t enigma_type_char_to_int(const char *enigma_type)
@@ -488,6 +477,7 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 Enigma* query_input_interactive(void)
 {
     char primary_input[INPUT_BUFFER_SIZE];
+    int32_t err_code = 0;
 
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "enigma == NULL");
@@ -495,8 +485,9 @@ Enigma* query_input_interactive(void)
     printf("Enigma type (M3, M4): ");
     while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
         ;
-    to_uppercase(primary_input);
-    remove_non_alnum(primary_input);
+    err_code |= to_uppercase(primary_input);
+    err_code |= remove_non_alnum(primary_input);
+    assertmsg(err_code == 0, "normalization failed");
     enigma->type   = enigma_type_char_to_int(primary_input);
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
     assertmsg(enigma->rotors != NULL, "enigma->rotors == NULL");
@@ -511,18 +502,21 @@ Enigma* query_input_interactive(void)
         printf("%s rotor type (1, 2, 3, 4, 5, 6, 7, 8): ", numeration[rotor_num]);
         while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
             ;
-        to_uppercase(primary_input);
-        remove_non_alnum(primary_input);
+        err_code |= to_uppercase(primary_input);
+        err_code |=remove_non_alnum(primary_input);
+        assertmsg(err_code == 0, "normalization failed");
         printf("%s rotor position (A, B, C, etc): ", numeration[rotor_num]);
         while (my_getline(secondary_input, INPUT_BUFFER_SIZE) == 0)
             ;
-        to_uppercase(secondary_input);
-        remove_non_alnum(secondary_input);
+        err_code |= to_uppercase(secondary_input);
+        err_code |= remove_non_alnum(secondary_input);
+        assertmsg(err_code == 0, "normalization failed");
         printf("%s rotor offset (A, B, C, etc): ", numeration[rotor_num]);
         while (my_getline(tertiary_input, INPUT_BUFFER_SIZE) == 0)
             ;
-        to_uppercase(tertiary_input);
-        remove_non_alnum(tertiary_input);
+        err_code |= to_uppercase(tertiary_input);
+        err_code |= remove_non_alnum(tertiary_input);
+        assertmsg(err_code == 0, "normalization failed");
         enigma->rotors[rotor_num] = create_rotor(primary_input[0] - '0', secondary_input[0] - 'A',
                                                  tertiary_input[0] - 'A');
 
@@ -532,16 +526,18 @@ Enigma* query_input_interactive(void)
     printf("Reflector type (B, C): ");
     while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
         ;
-    to_uppercase(primary_input);
-    remove_non_alnum(primary_input);
+    err_code |= to_uppercase(primary_input);
+    err_code |= remove_non_alnum(primary_input);
+    assertmsg(err_code == 0, "normalization failed");
     enigma->reflector = create_reflector_by_type(primary_input[0]);
     puts("");
 
     printf("Plugboard (e.g. AB CD EF, EMPTY for standard): ");
     if (my_getline(primary_input, INPUT_BUFFER_SIZE) > 0)
     {
-        to_uppercase(primary_input);
-        remove_non_alnum(primary_input);
+        err_code |= to_uppercase(primary_input);
+        err_code |= remove_non_alnum(primary_input);
+        assertmsg(err_code == 0, "normalization failed");
         enigma->plugboard = create_plugboard(primary_input);
     }
     enigma->plugboard = create_plugboard(NULL);
@@ -551,9 +547,10 @@ Enigma* query_input_interactive(void)
     while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
         ;
     enigma->plaintext = strdup(primary_input);
-    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
-    to_uppercase(enigma->plaintext);
-    remove_non_alnum(enigma->plaintext);
+    assertmsg(enigma->plaintext != NULL, "strdup failed");
+    err_code |= to_uppercase(enigma->plaintext);
+    err_code |= remove_non_alnum(enigma->plaintext);
+    assertmsg(err_code == 0, "normalization failed");
 
     return enigma;
 }
@@ -566,6 +563,11 @@ static void free_stack_enigma(const Enigma *enigma)
     free(enigma->rotors[1]);
     free(enigma->rotors[2]->notch);
     free(enigma->rotors[2]);
+    if(enigma->type == ENIGMA_M4)
+    {
+        free(enigma->rotors[3]->notch);
+        free(enigma->rotors[3]);
+    }
     free(enigma->rotors);
     free(enigma->plugboard->plugboard_data);
     free(enigma->plugboard);
@@ -598,7 +600,8 @@ void query_input(const int32_t argc, char *argv[])
     if (options.bomb)
     {
         assertmsg(options.known_text != NULL && options.ciphertext != NULL, "Input a valid known and cipher text");
-        crack_enigma(options.known_text, options.ciphertext);
+        //TODO 0 for now
+        start_turing_bomb(options.known_text, options.ciphertext, 0);
         exit(0);
     }
 

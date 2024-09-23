@@ -134,11 +134,12 @@ static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configu
     CycleOfRotorSetting *cycle = malloc(sizeof(CycleOfRotorSetting));
     assertmsg(cycle != NULL, "cycle == NULL");
 
-    uint8_t rotors[NUM_ROTORS]              = {0};
-    uint8_t rotor_positions[NUM_ROTORS]     = {0};
-    char message[MESSAGE_SIZE]              = {0};
-    EnigmaConfiguration configuration = {
-        .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings, .type = ENIGMA_M3, .reflector = 'B', .message = message
+    uint8_t rotors[NUM_ROTORS]          = {0};
+    uint8_t rotor_positions[NUM_ROTORS] = {0};
+    char message[MESSAGE_SIZE]          = {0};
+    EnigmaConfiguration configuration   = {
+        .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings, .type = ENIGMA_M3,
+        .reflector = 'B', .message = message
     };
     memcpy(configuration.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
 
@@ -219,7 +220,8 @@ void create_cycles(void)
                      rotor_permutation++)
                 {
                     CycleConfiguration cycle_configuration = {
-                        rotor_one, rotor_two, rotor_three, rotor_permutation, 'B'
+                        .rotor_one = rotor_one, .rotor_two = rotor_two, .rotor_three = rotor_three,
+                        .rotor_permutation = rotor_permutation, .reflector_index = 'B'
                     };
                     cycles[iterations] = create_cycle(
                         &cycle_configuration,

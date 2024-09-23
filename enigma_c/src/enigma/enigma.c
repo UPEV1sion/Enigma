@@ -152,8 +152,9 @@ uint8_t* traverse_enigma(const Enigma *enigma)
 {
     char *plaintext          = enigma->plaintext;
     const size_t array_size = strlen(plaintext);
-    to_uppercase(plaintext);
+    assertmsg(to_uppercase(plaintext) == 0, "to_uppercase failed");
     uint8_t *text_in_numbers = get_int_array_from_string(plaintext);
+    assertmsg(text_in_numbers != NULL, "string to int[] conversion failed");
 
     if(enigma->type == ENIGMA_M3)
         return traverse_m3_enigma(enigma, text_in_numbers, array_size);
@@ -183,16 +184,8 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
         const int32_t offset     = enigma_configuration->ring_settings[i];
 
         Rotor *rotor = create_rotor(rotor_type, position, offset);
-        if (rotor == NULL)
-        {
-            for (uint16_t j = 0; j < i; j++)
-            {
-                free(enigma->rotors[j]);
-            }
-            free(enigma->rotors);
-            free(enigma);
-            return NULL;
-        }
+        assertmsg(rotor != NULL, "rotor == NULL");
+
         enigma->rotors[i] = rotor;
     }
 
@@ -208,18 +201,8 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
     }
     const size_t len_message = strlen(enigma_configuration->message);
     enigma->plaintext        = malloc(len_message + 1);
-    if (enigma->plaintext == NULL)
-    {
-        free(enigma->plugboard);
-        free(enigma->reflector);
-        for (uint8_t i = 0; i < (uint8_t) enigma->type; i++)
-        {
-            free(enigma->rotors[i]);
-        }
-        free(enigma->rotors);
-        free(enigma);
-        return NULL;
-    }
+    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
+
     memcpy(enigma->plaintext, enigma_configuration->message, len_message);
     enigma->plaintext[len_message] = 0;
 
@@ -234,6 +217,11 @@ void free_enigma(Enigma *enigma)
     free(enigma->rotors[1]);
     free(enigma->rotors[2]->notch);
     free(enigma->rotors[2]);
+    if(enigma->type == ENIGMA_M4)
+    {
+        free(enigma->rotors[3]->notch);
+        free(enigma->rotors[3]);
+    }
     free(enigma->rotors);
     free(enigma->plugboard->plugboard_data);
     free(enigma->plugboard);

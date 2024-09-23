@@ -18,12 +18,12 @@
 
 // This is the heart of the turing bomb. And currently solved with a recursive backtracking algorithm.
 // TODO find a iterable way of doing thinks because of speed benefits.
-// TODO cycle approach like cyclometer?
+// -> After thinking about it I don't think this is realizable because of the backtracking
 
 typedef struct
 {
-    char first;
-    char second;
+    uint8_t first;
+    uint8_t second;
 } Tuple;
 
 static void print_cycle(const char *cycle, const size_t cycle_length)
@@ -36,27 +36,27 @@ static void print_cycle(const char *cycle, const size_t cycle_length)
     // printf("%c\n", cycle[0]);
 }
 
-static char* get_cycle_str(const char *cycle, const size_t cycle_length)
+static char* get_cycle_str(const uint8_t *cycle, const size_t cycle_length)
 {
     char *cycle_str = malloc(cycle_length + 1);
     assertmsg(cycle_str != NULL, "malloc failed");
     for (size_t i = 0; i < cycle_length; i++)
     {
-        cycle_str[i] = cycle[i];
+        cycle_str[i] = cycle[i] + 'A';
     }
     cycle_str[cycle_length] = 0;
 
     return cycle_str;
 }
 
-static char* get_stub_str(const char *stub)
+static char* get_stub_str(const uint8_t *stub)
 {
     const size_t stub_length = strlen(stub);
     char *stub_str           = malloc(stub_length + 1);
     assertmsg(stub_str != NULL, "malloc failed");
     for (size_t i = 0; i < stub_length; i++)
     {
-        stub_str[i] = stub[i];
+        stub_str[i] = stub[i] + 'A';
     }
     stub_str[stub_length] = 0;
 
@@ -66,87 +66,64 @@ static char* get_stub_str(const char *stub)
 /**
  * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
  * using a backtracking algorithm.
+ * @note If im referring to letter, I actually mean a digit from 0-25 representing it.
  * @param start the start position of the potential cycle
  * @param c the other letter from the tuple where a letter is matched
  * @param tuples array with all the letter tuples
  * @param tuples_len the array length
- * @param visited the tuples already visited
+ * @param visited_mask the tuples already visited as a bitmask
  * @param cycle_path to annotate the cycle path
  * @param cp_index index for cycle_path
  * @return bool: true or falsehood for cycle or stub
  */
-static bool is_cycle(const char start, const char c, Tuple *tuples, const size_t tuples_len, bool *visited,
-                     char *cycle_path,
-                     size_t *cp_index)
+static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const size_t tuples_len,
+                             uint32_t visited_mask,
+                             uint8_t *cycle_path, size_t *cp_index)
 {
+    // Bitmask instead of a bool array for speed and minimizing recursion overhead
+
+    /*  Once again for the interested reader:
+     *  Instead of using a boolean array to track which Tuples are visited,
+     *  I used a bitmask where each bit corresponds to a Tuple visited.
+     *  Note: crib can't be longer than 26 chars.
+     *  Before the function call, we mark the corresponding bit of the "entry point" as active using an OR operation.
+     *  In the function, we annotate the path and traverse through the tuples,
+     *  retrieving the next letter which is not already visited.
+     *  For the visited check we bitshift the bit into the wanted position and using an AND operation to see if its toggled.
+     *  After we retrieved the next letter, we set the corresponding bit.
+     *  If backtracking goes back, we disable the bit with a more complex bit manipulation:
+     *  The bit gets shifted into the right place, and then the whole mask gets flipped with a NOT operation.
+     *  Now all bits are 1 except the bit we want to disable.
+     *  We then use an AND which leaves the whole visited_mask as it is but disables the unwanted bit.
+     */
+
     cycle_path[(*cp_index)++] = c;
     if (c == start)
     {
-        // printing for debugging
-        // print_cycle(cycle_path, *cp_index);
         return true;
     }
     for (size_t i = 0; i < tuples_len; ++i)
     {
-        if (!visited[i])
+        if (!(visited_mask & (1 << i)))
         {
-            if (tuples[i].first == c)
+            // I know...
+            const uint8_t next_letter = (tuples[i].first == c)
+                                       ? tuples[i].second
+                                       : (tuples[i].second == c)
+                                             ? tuples[i].first
+                                             : 0;
+            if (next_letter != 0)
             {
-                visited[i] = true;
-                if (is_cycle(start, tuples[i].second, tuples, tuples_len, visited, cycle_path, cp_index))
+                visited_mask |= (1 << i);
+                if (is_cycle(start, next_letter, tuples, tuples_len, visited_mask, cycle_path, cp_index))
+                {
                     return true;
-                visited[i] = false;
-            }
-            if (tuples[i].second == c)
-            {
-                visited[i] = true;
-                if (is_cycle(start, tuples[i].first, tuples, tuples_len, visited, cycle_path, cp_index))
-                    return true;
-                visited[i] = false;
+                }
+                visited_mask &= ~(1 << i);
             }
         }
     }
     (*cp_index)--;
-    return false;
-}
-
-
-/**
- * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
- * using a mix of iterative and recursive approach.
- * @param start the start position of the potential cycle
- * @param c the other letter from the tuple where a letter is matched
- * @param tuples array with all the letter tuples
- * @param tuples_len the array length
- * @param visited_bits the visited chars as a bitmask
- * @param cycle_length the cycle length
- * @return bool: true or falsehood for cycle or stub
- */
-static bool is_cycle_iter(const char start, const char c, Tuple *tuples, const size_t tuples_len, uint32_t *visited_bits, size_t *cycle_length)
-{
-    uint32_t visited_mask = *visited_bits;
-    visited_mask |= 1 << (c - 'A');
-    *visited_bits = visited_mask;
-    (*cycle_length)++;
-
-    if (c == start)
-        {
-        return true;
-    }
-
-    for (size_t i = 0; i < tuples_len; ++i)
-    {
-        const char next_char = (tuples[i].first == c) ? tuples[i].second :
-                         (tuples[i].second == c) ? tuples[i].first : 0;
-
-        if (next_char != 0 && !(visited_mask & 1 << (next_char - 'A'))) {
-            if (is_cycle_iter(start, next_char, tuples, tuples_len, visited_bits, cycle_length)) {
-                return true;
-            }
-        }
-    }
-
-    *cycle_length = 0;
     return false;
 }
 
@@ -185,13 +162,13 @@ static size_t eliminate_duplicates(char *cycles[], const size_t num_cycles)
  * @param ciphertext the enciphered text
  * @return void
  */
-Cycles* find_cycles(const char *crib, const char *ciphertext)
+Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
 {
     Cycles *res = malloc(sizeof(Cycles));
     memset(res->cycles, 0, sizeof(res->cycles));
     memset(res->stubs, 0, sizeof(res->stubs));
 
-    const size_t crib_len = strlen(crib);
+    // const size_t crib_len = strlen(crib);
 
     Tuple tuples[ALPHABET_SIZE];
     for (size_t i = 0; i < crib_len; i++)
@@ -204,11 +181,11 @@ Cycles* find_cycles(const char *crib, const char *ciphertext)
     size_t stubs_counter = 0;
     for (size_t i = 0; i < crib_len; i++)
     {
-        bool visited[ALPHABET_SIZE] = {false};
-        char path[ASCII_SIZE]       = {0};
-        visited[i]                  = true;
-        size_t cp_index             = 0;
-        if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited, path, &cp_index))
+        uint32_t visited_mask = 0;
+        uint8_t path[ASCII_SIZE] = {0};
+        visited_mask |= (1 << i);
+        size_t cp_index = 0;
+        if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index))
         {
             res->cycles[cycle_counter++] = get_cycle_str(path, cp_index);
         }
@@ -218,6 +195,7 @@ Cycles* find_cycles(const char *crib, const char *ciphertext)
         }
     }
     cycle_counter = eliminate_duplicates(res->cycles, cycle_counter);
+    puts("stubs");
     for (size_t i = 0; i < stubs_counter; i++)
     {
         puts(res->stubs[i]);
@@ -229,5 +207,6 @@ Cycles* find_cycles(const char *crib, const char *ciphertext)
     }
     res->num_cycles = cycle_counter;
     res->num_stubs  = stubs_counter;
+
     return res;
 }

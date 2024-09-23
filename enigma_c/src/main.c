@@ -6,6 +6,14 @@
  * Die vollständige Lizenz finden Sie hier: https://github.com/DaveGamble/cJSON/blob/master/LICENSE.
  */
 
+//
+// Files that I created include a header marking them.
+// Files that Arif created include no header.
+// Arif's files are highly likely to also be modified/expanded by me, but I didn't explicitly mark the changes
+// because that would clutter everything.
+// For reference here's Arif's GitHub repository: https://github.com/murderbaer/enigma
+//
+
 #include "cli/cli.h"
 #include "enigma/rotor/rotor.h"
 #include "gui/bomb_out.h"
@@ -14,19 +22,15 @@
 #include "turing_bomb/brute_force.h"
 #include "turing_bomb/cycle_finder.h"
 #include "turing_bomb/turing_bomb.h"
+#include "turing_bomb/cycle_finder.h"
 
 int main(int argc, char *argv[])
 {
-    // Rotor *rotor = create_one_notch_rotor("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "UWYGADFPVZBECKMTHXSLRINQOJ", 'Q', 0, 0);
-    // printf("%d", traverse_rotor(rotor, 0));
-    // printf("%d", traverse_rotor(rotor, 0));
-    // crack_enigma("KOMMANDODERWEHR", "CVGTLLBDXKNCZQX");
-    // find_cycles("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
-    // find_cycles("KOMMANDODERWEHR", "NLGAGPQLQUYASLS");
-    // puts("");
-    // find_cycles("KOMMANDODERWEHR", "NLGBNPTLKOYBXLS");
-    // printf("%s\n", is_valid_crip_position("OBERKOMMANDODERWEHRMACHT", "BHNCXSEQKOBIIODWFBTZGCYEHQQJEWOYNBDXHQBALHTSSDPWGW", 4) ? "true" : "false");
-    // return 0;
+    // find_cycles("DASISTEINFREIERFUNDENERTEXT", "PUCXIXNZWUYKDKSXIPIKLVBKUTA");
+    uint8_t *arr_crib = get_int_array_from_string("KOMMANDODERWEHR");
+    uint8_t *arr_cipher = get_int_array_from_string("SSKKEZQRHOTJTDW");
+    find_cycles(arr_crib, arr_cipher, 15);
+    return 0;
     if (argc < 2)
     {
         puts("Usage: ./main [OPTIONS]");

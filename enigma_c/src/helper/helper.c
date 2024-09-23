@@ -2,18 +2,17 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <math.h>
 
 #include "helper.h"
 
-//A bit hack for NaN because including and linking the math library is a bit overkill
-#define NaN (*(double*)&((uint64_t){0x7FF8000000000000}))
 
 // I don't know why, but on my Linux WSL this is undefined
 #ifndef ERANGE
 #define ERANGE 34
 #endif
 
+// The error codes - mainly for debugging.
+// In the code, the function return values are only asserted to be == 0, indicating no error
 #define ERR_NULL_POINTER 1
 //Also empty uint8_t array
 #define ERR_EMPTY_STRING 2
@@ -21,8 +20,6 @@
 #define ERR_INVALID_INPUT 3
 #define ERR_OUT_OF_RANGE 4
 #define ERR_PARTIAL_CONVERSION 5
-
-
 
 /**
  * @brief Gets the number literal from a string
@@ -33,18 +30,19 @@
 int32_t get_number_from_string(const char *str, int32_t *number)
 {
     if (str == NULL) return ERR_NULL_POINTER;
-    if(strlen(str) == 0) return ERR_EMPTY_STRING;
+    if (strlen(str) == 0) return ERR_EMPTY_STRING;
     char *endptr;
 
     while (isspace(*str)) str++;
     size_t len = strlen(str);
     while (len > 0 && isspace(str[len - 1])) len--;
-    if(len == 0) return ERR_EMPTY_STRING;
+    if (len == 0) return ERR_EMPTY_STRING;
 
-    errno = 0;
+    errno          = 0;
     const long res = strtol(str, &endptr, 10);
 
-    if (endptr == str) {
+    if (endptr == str)
+    {
         return ERR_INVALID_INPUT;
     }
 
@@ -53,7 +51,7 @@ int32_t get_number_from_string(const char *str, int32_t *number)
         return ERR_OUT_OF_RANGE;
     }
 
-    if (*endptr != '\0')
+    if (*endptr != 0)
     {
         printf("Invalid input %s. Chars not converted: %s\n", str, endptr);
         return ERR_PARTIAL_CONVERSION;
@@ -181,7 +179,7 @@ uint8_t* get_int_array_from_string(const char *str)
     if (str == NULL) return NULL;
     const size_t len = strlen(str);
     if (len == 0) return NULL;
-    uint8_t *array   = malloc(len * sizeof(uint8_t));
+    uint8_t *array = malloc(len * sizeof(uint8_t));
     assertmsg(array != NULL, "array == NULL");
 
     for (size_t i = 0; i < len; i++)
@@ -281,11 +279,11 @@ size_t count_alphas(const char *str)
  */
 size_t count_c(const char *str, const char c)
 {
-    if(str == NULL) return SIZE_MAX;
+    if (str == NULL) return SIZE_MAX;
     const size_t len = strlen(str);
     if (len == 0) return SIZE_MAX;
 
-    size_t occ       = 0;
+    size_t occ = 0;
     for (size_t i = 0; i < len; ++i)
     {
         if (str[i] == c) occ++;
@@ -312,7 +310,7 @@ bool is_substring(const char *str1, const char *str2)
  */
 double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
 {
-    if(arr == NULL) return NaN;
+    if (arr == NULL) return NaN;
     if (len == 0) return 0;
 
     double numerator = 0;
@@ -334,7 +332,7 @@ double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
     const double len_d = (double) len;
 
     denominator = len_d * (len_d - 1);
-    if(denominator == 0) return NaN;
+    if (denominator == 0) return NaN;
 
     return numerator / denominator;
 }

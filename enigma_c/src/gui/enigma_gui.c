@@ -81,8 +81,11 @@ char* get_plugboard_from_gui(void)
     text[len] = 0;
 
     strcpy(text, plugboard_text);
-    to_uppercase(text);
-    remove_non_alpha(text);
+    int32_t err_code = 0;
+    err_code |= to_uppercase(text);
+    err_code |= remove_non_alpha(text);
+    assertmsg(err_code == 0, "normalization failed");
+
     return text;
 }
 
@@ -99,8 +102,10 @@ char* get_input_text_from_gui(void)
     assertmsg(text != NULL, "malloc failed");
     text[len] = 0;
     strcpy(text, input_text);
-    to_uppercase(text);
-    remove_non_alpha(text);
+    int32_t err_code = 0;
+    err_code |= to_uppercase(text);
+    err_code |= remove_non_alpha(text);
+    assertmsg(err_code == 0, "normalization failed");
     g_free(input_text);
 
     return text;
@@ -251,7 +256,9 @@ static Enigma* create_enigma_from_input(void)
 static void action_listener_start_btn(void)
 {
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
-    if (count_alphas(plugboard_text) % 2 != 0)
+    const size_t alpha_count = count_alphas(plugboard_text);
+    assertmsg(alpha_count != SIZE_MAX, "count alphas failed");
+    if (alpha_count % 2 != 0)
     {
         show_plugboard_dialog();
         return;
@@ -277,6 +284,7 @@ static void action_listener_start_btn(void)
     Enigma *enigma  = create_enigma_from_input();
     uint8_t *text   = traverse_enigma(enigma);
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
+    assertmsg(plaintext != NULL, "int[] to string conversion failed");
     enigma_to_json(plaintext);
     update_output(plaintext);
     char *json_text = read_json();
