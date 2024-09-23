@@ -32,6 +32,8 @@
 #define NUM_ROTATORS 5
 #define NUM_ROTORS_PER_ENIGMA 3
 
+typedef struct Node Node;
+
 static Node *top          = NULL;
 static int64_t stack_size = 0;
 

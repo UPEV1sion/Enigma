@@ -191,7 +191,7 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
 
     enigma->reflector = create_reflector_by_type(enigma_configuration->reflector);
 
-    if (enigma_configuration->plugboard[0] != '\0')
+    if (enigma_configuration->plugboard[0] != 0)
     {
         enigma->plugboard = create_plugboard(enigma_configuration->plugboard);
     }

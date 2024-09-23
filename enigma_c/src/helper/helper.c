@@ -93,7 +93,7 @@ int32_t remove_non_alnum(char *input)
     int32_t i = 0;
     int32_t j = 0;
 
-    while (input[i] != '\0')
+    while (input[i] != 0)
     {
         if (isalnum(input[i]))
         {
