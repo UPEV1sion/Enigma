@@ -125,7 +125,7 @@ $$
 26^2−26 = 650 \text{ Redundant Positions}
 $$
 
-So the actual number of possible combinations is:
+So the actual number of possible rotor positions is:
 
 $$
 26^3–650 = 16.926 \text{ Actual Rotor Positions}
