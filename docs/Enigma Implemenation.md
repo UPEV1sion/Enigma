@@ -58,7 +58,7 @@ so instead of returning the encoded value immediately, it will pass other rotors
 
 As C also does not have a native Map structure, the implementation of one is now not necessary.
 Also,
-getting an item from an array should always be faster than from a Map as it doesn't really get any simpler than that.
+retrieving an item from an array is faster thanmretrieving it from a Map as it doesn't really get any simpler than that.
 
 The last important thing understands how to rotate the rotors.
 As they are represented as an int array, the first solutions could be to just shift the array.
@@ -81,11 +81,11 @@ for (uint16_t i = 0; i < array_size; i++)
     character         = traverse_rotor_inverse(rotorOne, character);
 }
 
-//Todo
+
 uint8_t traverse_rotor(const Rotor *rotor, const uint8_t character)
 {
-    const uint8_t index_from_right = mod26(character + rotor->position);
-    const uint8_t index_from_left  = mod26(rotor->wiring[index_from_right] - rotor->position);
+    const int8_t index_from_right = mod26(character + rotor->position);
+    const int8_t index_from_left  = mod26(rotor->wiring[index_from_right] - rotor->position);
 
     return index_from_left;
 }
