@@ -10,7 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
 else ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wunused-result")
 endif ()
 
 set(FILE_PATH_JSON "${CMAKE_SOURCE_DIR}/src/data/enigma.json")

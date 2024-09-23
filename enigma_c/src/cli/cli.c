@@ -11,10 +11,6 @@
 
 #define INPUT_BUFFER_SIZE  64
 
-/*----------GENERAL----------*/
-#define HELP        "--help"
-#define HELP_SHORT  "-h"
-
 /*----------ENIGMA----------*/
 #define INTERACTIVE            "--interactive"
 #define INTERACTIVE_SHORT      "-i"
@@ -231,17 +227,14 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
         else if (string_equals(PLUGBOARD, argv[i]) ||
                  string_equals(PLUGBOARD_SHORT, argv[i]))
         {
-            size_t bufferSize = 1;
-            for (uint16_t j = i + 1; j < argc && argv[j][0] != '-'; j++)
+            options->plugboard = strdup(argv[++i]);
+            assertmsg(options->plugboard != NULL, "strdup failed");
+
+            while (i + 1 < argc && argv[i + 1][0] != '-')
             {
-                bufferSize += strlen(argv[j]);
-            }
-            options->plugboard = calloc(bufferSize, sizeof(uint8_t));
-            assertmsg(options->plugboard != NULL, "options->plugboard == NULL");
-            for (uint16_t j = i + 1; j < argc && argv[j][0] != '-'; ++j)
-            {
-                strcat(options->plugboard, argv[i + 1]);
-                i++;
+                options->plugboard = realloc(options->plugboard, strlen(options->plugboard) + strlen(argv[++i]) + 1);
+                assertmsg(options->plugboard != NULL, "realloc failed");
+                strcat(options->plugboard, argv[i]);
             }
         }
         else if (string_equals(PLAINTEXT, argv[i]) ||
@@ -342,17 +335,20 @@ static int32_t validate_cli_options(const CliOptions *options)
     if (string_equals(options->enigma_type, "M4")
         && options->rotor_four_type == NULL)
         return 1;
-    int32_t enigma_type = options->enigma_type[1] - '0';
+    const int32_t enigma_type = options->enigma_type[1] - '0';
     int32_t rotor_num[4];
     rotor_num[0] = options->rotor_one_type[0] - '0';
     rotor_num[1] = options->rotor_two_type[0] - '0';
     rotor_num[2] = options->rotor_three_type[0] - '0';
     if (enigma_type == 4) rotor_num[3] = options->rotor_four_type[0] - '0';
+
+
     bool rotor_seen[8] = {false};
     for (uint16_t i = 0; i < enigma_type; ++i)
     {
-        if (rotor_seen[rotor_num[i]]) return 1;
-        rotor_seen[rotor_num[i]] = true;
+        if (rotor_num[i] < 1 || rotor_num[i] > 8) return 1;
+        if (rotor_seen[rotor_num[i] - 1]) return 1;
+        rotor_seen[rotor_num[i] - 1] = true;
     }
     if (options->plugboard != NULL &&
         strlen(options->plugboard) > 0 &&
@@ -365,35 +361,35 @@ static void normalize_cli_options(const CliOptions *options)
 {
     if (options->bomb)
     {
-        to_upper_case(options->ciphertext);
-        remove_none_alnum(options->ciphertext);
-        to_upper_case(options->known_text);
-        remove_none_alnum(options->known_text);
+        to_uppercase(options->ciphertext);
+        remove_non_alnum(options->ciphertext);
+        to_uppercase(options->known_text);
+        remove_non_alnum(options->known_text);
         return;
     }
-    to_upper_case(options->enigma_type);
-    remove_none_alnum(options->enigma_type);
-    to_upper_case(options->rotor_one_type);
-    remove_none_alnum(options->rotor_one_type);
-    to_upper_case(options->rotor_two_type);
-    remove_none_alnum(options->rotor_two_type);
-    to_upper_case(options->rotor_three_type);
-    remove_none_alnum(options->rotor_three_type);
+    to_uppercase(options->enigma_type);
+    remove_non_alnum(options->enigma_type);
+    to_uppercase(options->rotor_one_type);
+    remove_non_alnum(options->rotor_one_type);
+    to_uppercase(options->rotor_two_type);
+    remove_non_alnum(options->rotor_two_type);
+    to_uppercase(options->rotor_three_type);
+    remove_non_alnum(options->rotor_three_type);
     if (string_equals(options->enigma_type, "M4"))
     {
-        to_upper_case(options->rotor_four_type);
-        remove_none_alnum(options->rotor_four_type);
+        to_uppercase(options->rotor_four_type);
+        remove_non_alnum(options->rotor_four_type);
     }
-    to_upper_case(options->rotor_offsets);
-    remove_none_alnum(options->rotor_offsets);
-    to_upper_case(options->rotor_positions);
-    remove_none_alnum(options->rotor_positions);
-    to_upper_case(options->reflector_type);
-    remove_none_alnum(options->reflector_type);
-    to_upper_case(options->plugboard);
-    remove_none_alnum(options->plugboard);
-    to_upper_case(options->plaintext);
-    remove_none_alnum(options->plaintext);
+    to_uppercase(options->rotor_offsets);
+    remove_non_alnum(options->rotor_offsets);
+    to_uppercase(options->rotor_positions);
+    remove_non_alnum(options->rotor_positions);
+    to_uppercase(options->reflector_type);
+    remove_non_alnum(options->reflector_type);
+    to_uppercase(options->plugboard);
+    remove_non_alnum(options->plugboard);
+    to_uppercase(options->plaintext);
+    remove_non_alnum(options->plaintext);
 }
 
 
@@ -410,7 +406,7 @@ static int32_t enigma_type_char_to_int(const char *enigma_type)
     return -1;
 }
 
-static Enigma* query_input_none_interactive(const CliOptions *options)
+static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 {
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "enigma == NULL");
@@ -457,131 +453,67 @@ static Enigma* query_input_none_interactive(const CliOptions *options)
 
 Enigma* query_input_interactive(void)
 {
-    //TODO validate input
-    char input[INPUT_BUFFER_SIZE];
-    char secondary_input[INPUT_BUFFER_SIZE];
-    char ternary_input[INPUT_BUFFER_SIZE];
+    char primary_input[INPUT_BUFFER_SIZE];
 
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "enigma == NULL");
 
-
     printf("Enigma type (M3, M4): ");
-    while (mygetline(input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(input);
-    remove_none_alnum(input);
-    enigma->type   = enigma_type_char_to_int(input);
+    while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0);
+    to_uppercase(primary_input);
+    remove_non_alnum(primary_input);
+    enigma->type   = enigma_type_char_to_int(primary_input);
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
     assertmsg(enigma->rotors != NULL, "enigma->rotors == NULL");
     puts("");
 
-    printf("First rotor type (1, 2, 3, 4, 5, 6, 7, 8): ");
-    while (mygetline(input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(input);
-    remove_none_alnum(input);
-    printf("First rotor position (A, B, C, etc): ");
-    while (mygetline(secondary_input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(secondary_input);
-    remove_none_alnum(secondary_input);
-    printf("First rotor offset (A, B, C, etc): ");
-    while (mygetline(ternary_input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(ternary_input);
-    remove_none_alnum(ternary_input);
-    enigma->rotors[0] = create_rotor(input[0] - '0', secondary_input[0] - 'A',
-                                     ternary_input[0] - 'A');
-
-    puts("");
-
-    printf("Second rotor type (1, 2, 3, 4, 5, 6, 7, 8): ");
-    while (mygetline(input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(input);
-    remove_none_alnum(input);
-    printf("Second rotor position (A, B, C, etc): ");
-    while (mygetline(secondary_input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(secondary_input);
-    remove_none_alnum(secondary_input);
-    printf("Second rotor offset (A, B, C, etc): ");
-    while (mygetline(ternary_input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(ternary_input);
-    remove_none_alnum(ternary_input);
-    enigma->rotors[1] = create_rotor(input[0] - '0', secondary_input[0] - 'A',
-                                     ternary_input[0] - 'A');
-    puts("");
-
-    printf("Third rotor type (1, 2, 3, 4, 5, 6, 7, 8): ");
-    while (mygetline(input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(input);
-    remove_none_alnum(input);
-    printf("Third rotor position (A, B, C, etc): ");
-    while (mygetline(secondary_input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(secondary_input);
-    remove_none_alnum(secondary_input);
-    printf("Third rotor offset (A, B, C, etc): ");
-    while (mygetline(ternary_input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(ternary_input);
-    remove_none_alnum(ternary_input);
-    enigma->rotors[2] = create_rotor(input[0] - '0', secondary_input[0] - 'A',
-                                     ternary_input[0] - 'A');
-    puts("");
-
-    if (enigma->type == M4)
+    char *numeration[4] = {"First", "Second", "Third", "Fourth"};
+    for (uint8_t rotor_num = 0; rotor_num < enigma->type; ++rotor_num)
     {
-        printf("Fourth rotor type (1, 2, 3, 4, 5, 6, 7, 8): ");
-        while (mygetline(input, INPUT_BUFFER_SIZE) == 0)
-            ;
-        to_upper_case(input);
-        remove_none_alnum(input);
-        printf("Fourth rotor position (A, B, C, etc): ");
-        while (mygetline(secondary_input, INPUT_BUFFER_SIZE) == 0)
-            ;
-        to_upper_case(secondary_input);
-        remove_none_alnum(secondary_input);
-        printf("Fourth rotor offset (A, B, C, etc): ");
-        while (mygetline(ternary_input, INPUT_BUFFER_SIZE) == 0)
-            ;
-        to_upper_case(ternary_input);
-        remove_none_alnum(ternary_input);
-        enigma->rotors[3] = create_rotor(
-            input[0] - '0', secondary_input[0] - 'A', ternary_input[0] - 'A');
+        char secondary_input[INPUT_BUFFER_SIZE];
+        char tertiary_input[INPUT_BUFFER_SIZE];
+
+        printf("%s rotor type (1, 2, 3, 4, 5, 6, 7, 8): ", numeration[rotor_num]);
+        while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0);
+        to_uppercase(primary_input);
+        remove_non_alnum(primary_input);
+        printf("%s rotor position (A, B, C, etc): ", numeration[rotor_num]);
+        while (my_getline(secondary_input, INPUT_BUFFER_SIZE) == 0);
+        to_uppercase(secondary_input);
+        remove_non_alnum(secondary_input);
+        printf("%s rotor offset (A, B, C, etc): ", numeration[rotor_num]);
+        while (my_getline(tertiary_input, INPUT_BUFFER_SIZE) == 0);
+        to_uppercase(tertiary_input);
+        remove_non_alnum(tertiary_input);
+        enigma->rotors[rotor_num] = create_rotor(primary_input[0] - '0', secondary_input[0] - 'A',
+                                                 tertiary_input[0] - 'A');
+
         puts("");
     }
 
     printf("Reflector type (B, C): ");
-    while (mygetline(input, INPUT_BUFFER_SIZE) == 0)
-        ;
-    to_upper_case(input);
-    remove_none_alnum(input);
-    enigma->reflector = create_reflector_by_type(input[0]);
+    while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0);
+    to_uppercase(primary_input);
+    remove_non_alnum(primary_input);
+    enigma->reflector = create_reflector_by_type(primary_input[0]);
     puts("");
 
     printf("Plugboard (e.g. AB CD EF, EMPTY for standard): ");
-    if (mygetline(input, INPUT_BUFFER_SIZE) > 0)
+    if (my_getline(primary_input, INPUT_BUFFER_SIZE) > 0)
     {
-        to_upper_case(input);
-        remove_none_alnum(input);
-        enigma->plugboard = create_plugboard(input);
+        to_uppercase(primary_input);
+        remove_non_alnum(primary_input);
+        enigma->plugboard = create_plugboard(primary_input);
     }
     enigma->plugboard = create_plugboard(NULL);
     puts("");
 
     printf("Plaintext: ");
-
-    const size_t plain_len = mygetline(input, INPUT_BUFFER_SIZE);
-    enigma->plaintext      = malloc(plain_len);
-    to_upper_case(input);
-    remove_none_alnum(input);
-    strcpy(enigma->plaintext, input);
-    puts("");
+    while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0);
+    enigma->plaintext = strdup(primary_input);
+    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
+    to_uppercase(enigma->plaintext);
+    remove_non_alnum(enigma->plaintext);
 
     return enigma;
 }
@@ -625,6 +557,7 @@ void query_input(const int32_t argc, char *argv[])
 
     if (options.bomb)
     {
+        assertmsg(options.known_text != NULL && options.ciphertext != NULL, "Input a valid known and cipher text");
         crack_enigma(options.known_text, options.ciphertext);
         exit(0);
     }
@@ -637,7 +570,7 @@ void query_input(const int32_t argc, char *argv[])
     }
     else
     {
-        enigma = query_input_none_interactive(&options);
+        enigma = create_enigma_from_cli_configuration(&options);
     }
 
     uint8_t *text              = traverse_enigma(enigma);

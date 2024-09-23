@@ -31,15 +31,15 @@ int main(int argc, char *argv[])
     {
         puts("Usage: ./main [OPTIONS]");
         puts("Options:");
-        puts("-gui for GUI");
+        puts(GUI " / " GUI_SHORT " for GUI");
         puts("CLI use is implicit");
-        puts("-h for help");
+        puts(HELP " / " HELP_SHORT " for help");
         return EXIT_FAILURE;
     }
 
-    if (strcmp("-gui", argv[1]) == 0)
+    if (strcmp(GUI, argv[1]) == 0 || strcmp(GUI_SHORT, argv[1]) == 0)
         run_start_gui(argv);
-    else if (strcmp("-h", argv[1]) == 0 || strcmp("--help", argv[1]) == 0)
+    else if (strcmp(HELP, argv[1]) == 0 || strcmp(HELP_SHORT, argv[1]) == 0)
         query_help();
     else
         query_input(argc, argv);

@@ -152,7 +152,7 @@ uint8_t* traverse_enigma(const Enigma *enigma)
 {
     char *plaintext          = enigma->plaintext;
     const size_t array_size = strlen(plaintext);
-    to_upper_case(plaintext);
+    to_uppercase(plaintext);
     uint8_t *text_in_numbers = get_int_array_from_string(plaintext);
 
     if(enigma->type == M3)

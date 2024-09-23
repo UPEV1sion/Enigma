@@ -28,7 +28,7 @@
 
 
 /**
-* @brief This a branching hint macro for CPU pipelining but MSVC does not currently support this
+* @brief This a branching hint macro for CPU pipelining but MSVC doesn't currently support this
 * @param cond the condition for which the hint should take place
 */
 #if defined(__clang__) || defined(__GNUC__)
@@ -40,16 +40,16 @@
 #endif
 
 int32_t get_number_from_string(const char *str, int32_t *number);
-int32_t to_upper_case(char *input);
-int32_t remove_none_alnum(char *input);
-int32_t remove_none_alpha(char *input);
+int32_t to_uppercase(char *input);
+int32_t remove_non_alnum(char *input);
+int32_t remove_non_alpha(char *input);
 bool is_permutation(const char *first, const char *second);
 uint8_t* get_int_array_from_string(const char *str);
 char* get_string_from_int_array(const uint8_t *array, size_t size);
 bool has_duplicates(const char *str);
 bool contains_spaces(const char *str);
-int32_t count_alphas(const char *str);
-int32_t count(const char *str, char c);
+size_t count_alphas(const char *str);
+size_t count_c(const char *str, char c);
 bool is_substring(const char *str1, const char *str2);
-double calc_index_of_coincidence(const uint8_t *str, size_t len);
-size_t mygetline(char *str, size_t lim);
+double calc_index_of_coincidence(const uint8_t *arr, size_t len);
+size_t my_getline(char *str, size_t lim);

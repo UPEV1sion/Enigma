@@ -81,8 +81,8 @@ char* get_plugboard_from_gui(void)
     text[len] = 0;
 
     strcpy(text, plugboard_text);
-    to_upper_case(text);
-    remove_none_alpha(text);
+    to_uppercase(text);
+    remove_non_alpha(text);
     return text;
 }
 
@@ -99,8 +99,8 @@ char* get_input_text_from_gui(void)
     assertmsg(text != NULL, "malloc failed");
     text[len] = 0;
     strcpy(text, input_text);
-    to_upper_case(text);
-    remove_none_alpha(text);
+    to_uppercase(text);
+    remove_non_alpha(text);
     g_free(input_text);
 
     return text;
@@ -225,13 +225,14 @@ static Enigma* create_enigma_from_input(void)
     uint8_t *rotor_arr               = get_rotors_from_gui();
     uint8_t *rotor_position_arr      = get_rotor_positions_from_gui();
     uint8_t *rotor_ring_position_arr = get_rotor_ring_positions_from_gui();
-    const enum TYPE enigma_type           = get_enigma_type_from_gui();
+    const enum TYPE enigma_type      = get_enigma_type_from_gui();
     const char reflector             = get_reflector_type_from_gui();
     char *plugboard                  = get_plugboard_from_gui();
     char *input_text                 = get_input_text_from_gui();
 
     EnigmaConfiguration configuration = {
-        .rotors = rotor_arr, rotor_position_arr, rotor_ring_position_arr, enigma_type, reflector, .message = input_text
+        .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
+        .type = enigma_type, .reflector = reflector, .message = input_text
     };
     memcpy(configuration.plugboard, plugboard, strlen(plugboard));
     Enigma *enigma = create_enigma_from_configuration(&configuration);
@@ -255,16 +256,20 @@ static void action_listener_start_btn(void)
         show_plugboard_dialog();
         return;
     }
-    bool seen_rotors[8] = {false};
+
+    //More efficient than a bool array
+    uint8_t rotor_mask = 0;
     for (uint16_t i = 0; i < gtk_combo_box_get_active(GTK_COMBO_BOX(model)) + 3; ++i)
     {
-        const int32_t rot = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
-        if (seen_rotors[rot])
+        const gint rot             = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
+        //More efficient than a bool array
+        const uint8_t active_rotor = 1 << rot;
+        if (rotor_mask & active_rotor)
         {
             show_rotor_dialog();
             return;
         }
-        seen_rotors[rot] = true;
+        rotor_mask |= active_rotor;
     }
 
     enigma_to_json("");

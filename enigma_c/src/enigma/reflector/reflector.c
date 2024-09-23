@@ -27,10 +27,14 @@ Reflector* create_reflector(const char *wiring)
 
 Reflector* create_reflector_by_type(const char type)
 {
+    if(type == 'B')
+    {
+        return create_reflector(UKW_B);
+    }
     if ('C' == type)
     {
         return create_reflector(UKW_C);
     }
-
-    return create_reflector(UKW_B);
+    printf("Error, Rotor definition not found");
+    exit(1);
 }

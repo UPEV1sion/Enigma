@@ -1,38 +1,78 @@
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <math.h>
 
 #include "helper.h"
+
+//A bit hack for NaN because including and linking the math library is a bit overkill
+#define NaN (*(double*)&((uint64_t){0x7FF8000000000000}))
+
+// I don't know why, but on my Linux WSL this is undefined
+#ifndef ERANGE
+#define ERANGE 34
+#endif
+
+#define ERR_NULL_POINTER 1
+//Also empty uint8_t array
+#define ERR_EMPTY_STRING 2
+
+#define ERR_INVALID_INPUT 3
+#define ERR_OUT_OF_RANGE 4
+#define ERR_PARTIAL_CONVERSION 5
+
+
 
 /**
  * @brief Gets the number literal from a string
  * @param str the string containing the number literal
  * @param number the number to be extracted
- * @return int: error code
+ * @return int32_t: error code
  */
 int32_t get_number_from_string(const char *str, int32_t *number)
 {
-    if (strlen(str) == 0) return 1;
+    if (str == NULL) return ERR_NULL_POINTER;
+    if(strlen(str) == 0) return ERR_EMPTY_STRING;
     char *endptr;
 
-    *number = (int32_t) strtol(str, &endptr, 10);
-    if (*endptr != '\0')
-    {
-        printf("Invalid input %s", str);
+    while (isspace(*str)) str++;
+    size_t len = strlen(str);
+    while (len > 0 && isspace(str[len - 1])) len--;
+    if(len == 0) return ERR_EMPTY_STRING;
+
+    errno = 0;
+    const long res = strtol(str, &endptr, 10);
+
+    if (endptr == str) {
+        return ERR_INVALID_INPUT;
     }
 
+    if (errno == ERANGE || res < INT32_MIN || res > INT32_MAX)
+    {
+        return ERR_OUT_OF_RANGE;
+    }
+
+    if (*endptr != '\0')
+    {
+        printf("Invalid input %s. Chars not converted: %s\n", str, endptr);
+        return ERR_PARTIAL_CONVERSION;
+    }
+
+    *number = (int32_t) res;
     return 0;
 }
 
 /**
  * @brief Capitalizes the string
  * @param input the string to be capitalized
- * @return int: error code
+ * @return int32_t: error code
  */
-int32_t to_upper_case(char *input)
+int32_t to_uppercase(char *input)
 {
-    if (input == NULL) return 1;
+    if (input == NULL) return ERR_NULL_POINTER;
     const size_t length = strlen(input);
-    if (length == 0) return 1;
+    if (length == 0) return ERR_EMPTY_STRING;
 
 
     for (size_t i = 0; i < length; ++i)
@@ -44,14 +84,14 @@ int32_t to_upper_case(char *input)
 }
 
 /**
- * @brief Removes all none alphabetic and numeric chars from a string
+ * @brief Removes all non-alphabetic and numeric chars from a string
  * @param input the string where the alnums chars should be removed
- * @return int: error code
+ * @return int32_t: error code
  */
-int32_t remove_none_alnum(char *input)
+int32_t remove_non_alnum(char *input)
 {
-    if (input == NULL) return 1;
-    if (strlen(input) == 0) return 1;
+    if (input == NULL) return ERR_NULL_POINTER;
+    if (strlen(input) == 0) return ERR_EMPTY_STRING;
     int32_t i = 0;
     int32_t j = 0;
 
@@ -70,14 +110,14 @@ int32_t remove_none_alnum(char *input)
 }
 
 /**
- * @brief Removes all none alphabetic chars
+ * @brief Removes all non-alphabetic chars
  * @param input the string where the none alphabetic chars should be removed
- * @return int: error code
+ * @return int32_t: error code
  */
-int32_t remove_none_alpha(char *input)
+int32_t remove_non_alpha(char *input)
 {
-    if (input == NULL) return 1;
-    if (strlen(input) == 0) return 1;
+    if (input == NULL) return ERR_NULL_POINTER;
+    if (strlen(input) == 0) return ERR_EMPTY_STRING;
     int32_t i = 0;
     int32_t j = 0;
 
@@ -134,12 +174,13 @@ bool is_permutation(const char *first, const char *second)
  * @brief Subtracts 'A' from all chars
  * @note All letters must be uppercase
  * @param str the original string
- * @return int32_t*: to the processed array
+ * @return uint8_t*: to the processed array, NULL for error
  */
 uint8_t* get_int_array_from_string(const char *str)
 {
     if (str == NULL) return NULL;
     const size_t len = strlen(str);
+    if (len == 0) return NULL;
     uint8_t *array   = malloc(len * sizeof(uint8_t));
     assertmsg(array != NULL, "array == NULL");
 
@@ -155,11 +196,12 @@ uint8_t* get_int_array_from_string(const char *str)
  * @brief Adds 'A' to all chars
  * @param array the int array to be converted
  * @param size the array size
- * @return char*: to the processed string
+ * @return char*: to the processed string, NULL for error
  */
 char* get_string_from_int_array(const uint8_t *array, const size_t size)
 {
     if (array == NULL) return NULL;
+    if (size == 0) return NULL;
     char *str = malloc(size + 1);
     assertmsg(str != NULL, "str == NULL");
 
@@ -205,6 +247,7 @@ bool contains_spaces(const char *str)
     if (str == NULL) return false;
     const size_t len = strlen(str);
     if (len == 0) return false;
+
     for (size_t i = 0; i < len; ++i)
     {
         if (isspace(str[i])) return true;
@@ -215,18 +258,39 @@ bool contains_spaces(const char *str)
 /**
  * @brief Counts alphabetic characters in a string
  * @param str the string where the alphas should be counted
- * @return int: num of alphas
+ * @return int32_t: num of alphas, SIZE_MAX for errors
  */
-int32_t count_alphas(const char *str)
+size_t count_alphas(const char *str)
 {
-    int32_t counter  = 0;
+    if (str == NULL) return SIZE_MAX;
     const size_t len = strlen(str);
+    size_t counter   = 0;
     for (size_t i = 0; i < len; ++i)
     {
         if (isalpha(str[i])) counter++;
     }
 
     return counter;
+}
+
+/**
+ * @brief Tests if str2 is a substring of str1
+ * @param str string where the chars should be counted
+ * @param c the char which is to be counted
+ * @return size_t: the number of chars, SIZE_MAX for error
+ */
+size_t count_c(const char *str, const char c)
+{
+    if(str == NULL) return SIZE_MAX;
+    const size_t len = strlen(str);
+    if (len == 0) return SIZE_MAX;
+
+    size_t occ       = 0;
+    for (size_t i = 0; i < len; ++i)
+    {
+        if (str[i] == c) occ++;
+    }
+    return occ;
 }
 
 /**
@@ -240,25 +304,17 @@ bool is_substring(const char *str1, const char *str2)
     return strstr(str1, str2) != NULL;
 }
 
-int32_t count(const char *str, const char c)
-{
-    int32_t occ      = 0;
-    const size_t len = strlen(str);
-    for (size_t i = 0; i < len; ++i)
-    {
-        if (str[i] == c) occ++;
-    }
-    return occ;
-}
-
 /**
  * @brief Calculates the index of coincidence
- * @param str int array from which the IC should be calculated
+ * @param arr int array from which the IC should be calculated
  * @param len size of the array
- * @return double: the IC
+ * @return double: the IC, NaN for error
  */
-double calc_index_of_coincidence(const uint8_t *str, const size_t len)
+double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
 {
+    if(arr == NULL) return NaN;
+    if (len == 0) return 0;
+
     double numerator = 0;
     double denominator;
     int32_t occ[ALPHABET_SIZE] = {0};
@@ -267,7 +323,7 @@ double calc_index_of_coincidence(const uint8_t *str, const size_t len)
 
     for (size_t i = 0; i < len; ++i)
     {
-        occ[toupper(str[i])]++;
+        occ[toupper(arr[i])]++;
     }
 
     for (uint16_t i = 0; i < ALPHABET_SIZE; ++i)
@@ -278,6 +334,7 @@ double calc_index_of_coincidence(const uint8_t *str, const size_t len)
     const double len_d = (double) len;
 
     denominator = len_d * (len_d - 1);
+    if(denominator == 0) return NaN;
 
     return numerator / denominator;
 }
@@ -289,8 +346,10 @@ double calc_index_of_coincidence(const uint8_t *str, const size_t len)
  * @param lim upper limit of how much characters are to be read
  * @return size_t: number of characters read
  */
-size_t mygetline(char *str, size_t lim)
+size_t my_getline(char *str, size_t lim)
 {
+    if (str == NULL) return 0;
+
     int32_t c;
     const char *temp = str;
     while (--lim > 0 && (c = getchar()) != EOF && c != '\n')
