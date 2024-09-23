@@ -6,16 +6,16 @@
 #include "reflector/reflector.h"
 #include "rotor/rotor.h"
 
-enum TYPE
+enum ENIGMA_TYPE
 {
-    M3 = 3,
-    M4 = 4
+    ENIGMA_M3 = 3,
+    ENIGMA_M4 = 4
 };
 
 typedef struct
 {
     Rotor **rotors;
-    enum TYPE type; // 3 for M3, 4 for M4
+    enum ENIGMA_TYPE type; // 3 for M3, 4 for M4
     Reflector *reflector;
     Plugboard *plugboard;
     char *plaintext;
@@ -26,7 +26,7 @@ typedef struct
     uint8_t *rotors;
     uint8_t *rotor_positions;
     uint8_t *ring_settings;
-    enum TYPE type;
+    enum ENIGMA_TYPE type;
     char reflector;
     char plugboard[26];
     char *message;

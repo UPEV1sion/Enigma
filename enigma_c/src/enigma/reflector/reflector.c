@@ -31,10 +31,10 @@ Reflector* create_reflector_by_type(const char type)
     {
         return create_reflector(UKW_B);
     }
-    if ('C' == type)
+    if (type == 'C')
     {
         return create_reflector(UKW_C);
     }
-    printf("Error, Rotor definition not found");
+    printf("Error, Reflector definition not found");
     exit(1);
 }

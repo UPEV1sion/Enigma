@@ -113,7 +113,7 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
                             uint8_t ring_settings[NUM_ROTORS_PER_ENIGMA]   = {0};
                             EnigmaConfiguration conf                       = {
                                 .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings,
-                                .type = M3, .reflector = 'B', .message = crib
+                                .type = ENIGMA_M3, .reflector = 'B', .message = crib
                             };
                             memcpy(conf.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
                             uint8_t *output = traverse_m3_enigma_at_position(&conf, crib_pos, plain_len);

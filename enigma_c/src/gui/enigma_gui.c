@@ -222,13 +222,13 @@ static void action_listener_plugboard(GtkEntry *entry,
 
 static Enigma* create_enigma_from_input(void)
 {
-    uint8_t *rotor_arr               = get_rotors_from_gui();
-    uint8_t *rotor_position_arr      = get_rotor_positions_from_gui();
-    uint8_t *rotor_ring_position_arr = get_rotor_ring_positions_from_gui();
-    const enum TYPE enigma_type      = get_enigma_type_from_gui();
-    const char reflector             = get_reflector_type_from_gui();
-    char *plugboard                  = get_plugboard_from_gui();
-    char *input_text                 = get_input_text_from_gui();
+    uint8_t *rotor_arr                 = get_rotors_from_gui();
+    uint8_t *rotor_position_arr        = get_rotor_positions_from_gui();
+    uint8_t *rotor_ring_position_arr   = get_rotor_ring_positions_from_gui();
+    const enum ENIGMA_TYPE enigma_type = get_enigma_type_from_gui();
+    const char reflector               = get_reflector_type_from_gui();
+    char *plugboard                    = get_plugboard_from_gui();
+    char *input_text                   = get_input_text_from_gui();
 
     EnigmaConfiguration configuration = {
         .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
@@ -261,7 +261,7 @@ static void action_listener_start_btn(void)
     uint8_t rotor_mask = 0;
     for (uint16_t i = 0; i < gtk_combo_box_get_active(GTK_COMBO_BOX(model)) + 3; ++i)
     {
-        const gint rot             = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
+        const gint rot = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
         //More efficient than a bool array
         const uint8_t active_rotor = 1 << rot;
         if (rotor_mask & active_rotor)

@@ -442,7 +442,7 @@ void crack_enigma(const char *known_plaintext, char *encrypted_text)
                         malloc(sizeof(EnigmaConfiguration));
                 assertmsg(conf != NULL, "conf == NULL");
 
-                conf->type            = M3;
+                conf->type            = ENIGMA_M3;
                 conf->reflector       = 'B';
                 conf->rotors          = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(uint8_t));
                 conf->rotor_positions = calloc(NUM_ROTORS_PER_ENIGMA, sizeof(uint8_t));

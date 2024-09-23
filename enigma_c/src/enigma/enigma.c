@@ -155,7 +155,7 @@ uint8_t* traverse_enigma(const Enigma *enigma)
     to_uppercase(plaintext);
     uint8_t *text_in_numbers = get_int_array_from_string(plaintext);
 
-    if(enigma->type == M3)
+    if(enigma->type == ENIGMA_M3)
         return traverse_m3_enigma(enigma, text_in_numbers, array_size);
     return traverse_m4_enigma(enigma, text_in_numbers, array_size);
 }

@@ -138,7 +138,7 @@ static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configu
     uint8_t rotor_positions[NUM_ROTORS]     = {0};
     char message[MESSAGE_SIZE]              = {0};
     EnigmaConfiguration configuration = {
-        .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings, .type = M3, .reflector = 'B', .message = message
+        .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings, .type = ENIGMA_M3, .reflector = 'B', .message = message
     };
     memcpy(configuration.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
 
