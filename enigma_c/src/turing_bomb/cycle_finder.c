@@ -10,15 +10,9 @@
 // Created by Emanuel on 30.08.2024.
 //
 
-/* A very useful resource was a YouTube video by Gustav Vogels named
- * TURING WELCHMAN BOMBE - Beschreibung des kompletten Entschlüsselungsverfahrens der ENIGMA.
- * In which explained the inner workings of the bombe in great depth and detail.
- * https://youtu.be/7pOsBhwwmhI
-*/
-
-// This is the heart of the turing bomb. And currently solved with a recursive backtracking algorithm.
-// TODO find a iterable way of doing thinks because of speed benefits.
-// -> After thinking about it I don't think this is realizable because of the backtracking
+// After my research, this process of finding cycles between crib and ciphertext was actually done by hand
+// as well as plugging up the diagonal board.
+// Here I solved this using a recursive backtracking algorithm.
 
 typedef struct
 {
@@ -209,7 +203,7 @@ Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t
             res->stubs[stubs_counter++] = get_stub_str(path);
         }
     }
-    cycle_counter = eliminate_duplicate_cycles(res->cycles, cycle_counter);
+    // cycle_counter = eliminate_duplicate_cycles(res->cycles, cycle_counter);
     puts("stubs");
     for (size_t i = 0; i < stubs_counter; i++)
     {
@@ -224,4 +218,23 @@ Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t
     res->num_stubs  = stubs_counter;
 
     return res;
+}
+
+int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
+{
+    Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+    char *longest_cycle;
+    size_t longest_cycle_length = 0;
+    for(uint8_t cycle = 0; cycle < cycles->num_cycles; ++cycle)
+    {
+        char *current_cycle = cycles->cycles[cycle];
+        const size_t current_cycle_length = strlen(current_cycle);
+        if (current_cycle_length > longest_cycle_length)
+        {
+            longest_cycle_length = current_cycle_length;
+            longest_cycle = current_cycle;
+        }
+    }
+
+    free(cycles);
 }

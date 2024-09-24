@@ -14,8 +14,8 @@ enum ENIGMA_TYPE
 
 typedef struct
 {
-    Rotor **rotors;
     enum ENIGMA_TYPE type; // 3 for M3, 4 for M4
+    Rotor **rotors;
     Reflector *reflector;
     Plugboard *plugboard;
     char *plaintext;

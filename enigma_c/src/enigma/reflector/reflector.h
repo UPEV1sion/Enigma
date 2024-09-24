@@ -12,4 +12,4 @@ enum REFLECTOR_TYPE
 };
 
 Reflector* create_reflector(const char *wiring);
-Reflector* create_reflector_by_type(char type);
+Reflector* create_reflector_by_type(enum REFLECTOR_TYPE type);

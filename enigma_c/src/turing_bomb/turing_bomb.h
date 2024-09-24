@@ -2,8 +2,30 @@
 
 #include <stdint.h>
 
+#include "diagonal_board.h"
+#include "enigma/rotor/rotor.h"
+#include "enigma/reflector/reflector.h"
+
 //
 // Created by Emanuel on 07.09.2024.
 //
+
+// This also defines the max crib length
+#define NUM_SCRAMBLERS_PER_ROW 12
+#define NUM_ROTORS_PER_ENIGMA  3
+
+typedef struct
+{
+    Reflector reflector;
+    Rotor *rotors[NUM_ROTORS_PER_ENIGMA];
+} ScramblerEnigma;
+
+// This is almost 700 bytes be careful with wasteful allocations!
+// Only allocate this on Stack. Heap will too slow.
+typedef struct TuringBomb
+{
+    ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
+    DiagonalBoard diagonal_board;
+} TuringBomb;
 
 int32_t start_turing_bomb(char *crib, const char *ciphertext, uint32_t crib_pos);

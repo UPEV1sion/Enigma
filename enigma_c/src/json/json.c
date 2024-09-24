@@ -6,6 +6,8 @@
 * Die vollständige Lizenz finden Sie hier: https://github.com/GNOME/gtk/blob/main/COPYING.
 */
 
+#include <gtk/gtk.h>
+
 #include "cJSON.h"
 
 #include "json.h"
@@ -206,7 +208,7 @@ static void save_input_to_conf(EnigmaConfiguration *configuration)
     const cJSON *input_item = cJSON_GetObjectItem(root, "input");
     if (cJSON_IsString(input_item))
     {
-        configuration->message = configuration->message = strdup(input_item->valuestring);
+        configuration->message = strdup(input_item->valuestring);
         assertmsg(configuration->message != NULL, "strdup failed");
     }
 }

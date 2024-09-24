@@ -9,7 +9,7 @@
 // Created by Emanuel on 23.07.2024.
 //
 
-#include <gtk/gtk.h>
+#include "enigma/enigma.h"
 
 enum ENIGMA_TYPE get_enigma_type_from_gui(void);
 enum ROTOR_TYPE* get_rotors_from_gui(void);

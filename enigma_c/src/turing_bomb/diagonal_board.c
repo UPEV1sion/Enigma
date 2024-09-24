@@ -9,7 +9,7 @@
 // Created by Emanuel on 30.08.2024.
 //
 
-bool cycles_equals(const Cycles *candidate_cycles, const Cycles *current_cycles)
+static bool cycles_equals(const Cycles *candidate_cycles, const Cycles *current_cycles)
 {
     if (candidate_cycles->num_cycles != current_cycles->num_cycles) return false;
 
@@ -38,7 +38,7 @@ bool cycles_equals(const Cycles *candidate_cycles, const Cycles *current_cycles)
     return true;
 }
 
-bool stubs_equals(const Cycles *candidate_stubs, const Cycles *current_stubs)
+static bool stubs_equals(const Cycles *candidate_stubs, const Cycles *current_stubs)
 {
     if (candidate_stubs->num_stubs != current_stubs->num_stubs) return false;
 
@@ -67,17 +67,28 @@ bool stubs_equals(const Cycles *candidate_stubs, const Cycles *current_stubs)
     return true;
 }
 
-bool is_candidate(const Cycles *candidate_cycles, const Cycles *current_cycles)
+static bool is_candidate(const Cycles *candidate_cycles, const Cycles *current_cycles)
 {
     return cycles_equals(candidate_cycles, current_cycles) &&
            stubs_equals(candidate_cycles, current_cycles);
+}
+
+static is_valid_graph_compare(char graph_compare[ALPHABET_SIZE])
+{
+    for(uint8_t i = 0; i < ALPHABET_SIZE; ++i)
+    {
+        // if(graph_compare[i] )
+    }
 }
 
 bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles)
 {
     if (!is_candidate(candidate_cycles, current_cycles)) return false;
     char graph_compare[ALPHABET_SIZE] = {0};
+    for(uint16_t cycle = 0; cycle < candidate_cycles->num_cycles; ++cycle)
+    {
 
+    }
 
     return false;
 }

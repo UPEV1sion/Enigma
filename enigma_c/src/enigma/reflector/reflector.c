@@ -25,13 +25,13 @@ Reflector* create_reflector(const char *wiring)
     return ukw;
 }
 
-Reflector* create_reflector_by_type(const char type)
+Reflector* create_reflector_by_type(const enum REFLECTOR_TYPE type)
 {
-    if(type == 'B')
+    if(type == UKW_B)
     {
         return create_reflector(UKW_B_WIRING);
     }
-    if (type == 'C')
+    if (type == UKW_C)
     {
         return create_reflector(UKW_C_WIRING);
     }

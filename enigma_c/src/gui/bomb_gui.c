@@ -3,11 +3,12 @@
 * Die vollständige Lizenz finden Sie hier: https://github.com/GNOME/gtk/blob/main/COPYING.
 */
 
+#include <gtk/gtk.h>
+
 #include "bomb_gui.h"
 #include "turing_bomb/brute_force.h"
 #include "helper/helper.h"
 
-#include <gtk/gtk.h>
 
 //
 // Created by Emanuel on 07.08.2024.

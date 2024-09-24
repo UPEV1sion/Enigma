@@ -509,7 +509,7 @@ Enigma* query_input_interactive(void)
     err_code |= to_uppercase(primary_input);
     err_code |= remove_non_alnum(primary_input);
     assertmsg(err_code == 0, "normalization failed");
-    enigma->reflector = create_reflector_by_type(primary_input[0]);
+    enigma->reflector = create_reflector_by_type(*primary_input);
     puts("");
 
     printf("Plugboard (e.g. AB CD EF, EMPTY for standard): ");

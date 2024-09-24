@@ -3,6 +3,8 @@
 * Die vollständige Lizenz finden Sie hier: https://github.com/GNOME/gtk/blob/main/COPYING.
 */
 
+#include <gtk/gtk.h>
+
 #include "start_gui.h"
 #include "enigma_gui.h"
 #include "helper/helper.h"

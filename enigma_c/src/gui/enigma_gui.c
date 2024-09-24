@@ -3,6 +3,7 @@
 * Die vollständige Lizenz finden Sie hier: https://github.com/GNOME/gtk/blob/main/COPYING.
 */
 
+#include <gtk/gtk.h>
 #include <ctype.h>
 #include <stdbool.h>
 
@@ -154,12 +155,12 @@ static void show_rotor_dialog(void)
     gtk_widget_destroy(dialog);
 }
 
-static void action_listener_rot_comb(GtkComboBox *combo_box)
+static void action_listener_rot_comb(void)
 {
     // g_print("%d\n", gtk_combo_box_get_active(combo_box));
 }
 
-static void action_listener_rot_pos_ring(GtkSpinButton *button)
+static void action_listener_rot_pos_ring(void)
 {
     // gint value = gtk_spin_button_get_value_as_int(button);
     // g_print("%d", value);

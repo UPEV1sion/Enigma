@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include "turing_bomb.h"
+
 //
 // Created by Emanuel on 30.08.2024.
 //
@@ -13,13 +15,20 @@
 #define ASCII_SIZE 256
 #endif
 
+typedef struct
+{
+    uint8_t start_index;
+    char *cycle;
+    char *stubs[ALPHABET_SIZE];
+    uint32_t num_stubs;
+} Cycle;
 
 typedef struct
 {
-    char *cycles[ALPHABET_SIZE];
-    char *stubs[ALPHABET_SIZE];
+    Cycle cycles[NUM_SCRAMBLERS_PER_ROW];
     uint32_t num_cycles;
     uint32_t num_stubs;
 } Cycles;
 
-Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, size_t crib_len);
+// Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, size_t crib_len);
+int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len);
