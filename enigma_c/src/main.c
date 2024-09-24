@@ -27,11 +27,11 @@
 int main(int argc, char *argv[])
 {
     // find_cycles("PUCXIXNZWUYKDKS", "PUCXIXNZWUYKDKSXIPIKLVBKUTA");
-    uint8_t *arr_crib = get_int_array_from_string("BEACHHEAD");
-    uint8_t *arr_cipher = get_int_array_from_string("EDBGEAHDB");
+    // uint8_t *arr_crib = get_int_array_from_string("BEACHHEAD");
+    // uint8_t *arr_cipher = get_int_array_from_string("EDBGEAHDB");
     // find_cycles(arr_crib, arr_cipher, 9);
-    start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
-    return 0;
+    // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
+    // return 0;
     if (argc < 2)
     {
         puts("Usage: ./main [OPTIONS]");

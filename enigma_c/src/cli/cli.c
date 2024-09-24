@@ -566,7 +566,7 @@ void query_input(const int32_t argc, char *argv[])
         exit(0);
     }
 
-    const Enigma *enigma;
+    Enigma *enigma;
 
     if (options.interactive)
     {
@@ -585,6 +585,6 @@ void query_input(const int32_t argc, char *argv[])
     }
     printf("\n");
 
-    free_stack_enigma(enigma);
+    free_enigma(enigma);
     free(text);
 }

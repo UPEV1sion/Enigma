@@ -98,7 +98,8 @@ char* get_input_text_from_gui(void)
     gchar *input_text =
             gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, FALSE);
     const size_t len = strlen(input_text);
-    char *text       = malloc(len + 1);
+    if (len == 0) return NULL;
+    char *text = malloc(len + 1);
     assertmsg(text != NULL, "malloc failed");
     text[len] = 0;
     strcpy(text, input_text);
@@ -167,9 +168,7 @@ static void action_listener_rot_pos_ring(void)
 }
 
 static void action_listener_input_in(GtkTextBuffer *buffer,
-                                     __attribute__((unused)) GtkTextIter *location,
-                                     const gchar *text, const gint len,
-                                     __attribute__((unused)) gpointer user_data)
+                                     const gchar *text, const gint len)
 {
     for (uint16_t i = 0; i < len; i++)
     {
@@ -253,10 +252,12 @@ static Enigma* create_enigma_from_input(void)
 //TODO refactor
 static void action_listener_start_btn(void)
 {
-    const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
-    const size_t alpha_count    = count_alphas(plugboard_text);
-    assertmsg(alpha_count != SIZE_MAX, "count alphas failed");
-    if (alpha_count % 2 != 0)
+    const char *input_text = get_input_text_from_gui();
+    if (input_text == NULL) return;
+    const gchar *plugboard_text        = gtk_entry_get_text(GTK_ENTRY(plugboard));
+    const size_t alpha_count_plugboard = count_alphas(plugboard_text);
+    assertmsg(alpha_count_plugboard != SIZE_MAX, "count alphas failed");
+    if (alpha_count_plugboard % 2 != 0)
     {
         show_plugboard_dialog();
         return;
@@ -266,7 +267,7 @@ static void action_listener_start_btn(void)
     uint8_t rotor_mask = 0;
     for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
     {
-        const gint rot = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
+        const gint rot             = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
         const uint8_t active_rotor = 1 << rot;
         if (rotor_mask & active_rotor)
         {
@@ -278,8 +279,8 @@ static void action_listener_start_btn(void)
 
     enigma_to_json("");
 
-    Enigma *enigma  = create_enigma_from_input();
-    uint8_t *text   = traverse_enigma(enigma);
+    Enigma *enigma = create_enigma_from_input();
+    uint8_t *text  = traverse_enigma(enigma);
 
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
@@ -382,7 +383,6 @@ static void activate(void)
 
     g_signal_connect(start, "clicked", G_CALLBACK(action_listener_start_btn),
                      NULL);
-
 
     //    gtk_window_set_icon(GTK_WINDOW(window), pixbuf);
 

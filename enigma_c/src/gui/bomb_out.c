@@ -72,6 +72,7 @@ static void add_title_row(const gchar *text1, const gchar *text2, const gchar *t
 
     gtk_list_box_insert(GTK_LIST_BOX(list), row, -1);
     gtk_widget_show_all(row);
+    g_object_unref(attr_list);
 }
 
 static void activate(void)
@@ -96,8 +97,6 @@ static void activate(void)
     add_output_row("I II III", "A B C", "01 02 03", "AB CD EF");
     add_output_row("IV V VI", "D E F", "04 05 06", "GH IJ KL");
 
-
-    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 }
 
 
