@@ -28,6 +28,7 @@ typedef struct
 typedef struct
 {
     ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
+    //TODO this might need to be a struct
     uint8_t diagonal_board[ALPHABET_SIZE][ALPHABET_SIZE];
 } TuringBomb;
 
