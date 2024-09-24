@@ -14,22 +14,22 @@ enum ENIGMA_TYPE
 
 typedef struct
 {
-    enum ENIGMA_TYPE type; // 3 for M3, 4 for M4
     Rotor **rotors;
     Reflector *reflector;
     Plugboard *plugboard;
     char *plaintext;
+    enum ENIGMA_TYPE type; // 3 for M3, 4 for M4
 } Enigma;
 
 typedef struct
 {
-    enum ROTOR_TYPE *rotors;
-    uint8_t *rotor_positions;
-    uint8_t *ring_settings;
-    enum ENIGMA_TYPE type;
-    char reflector;
     char plugboard[26];
     char *message;
+    uint8_t *rotor_positions;
+    uint8_t *ring_settings;
+    enum ROTOR_TYPE *rotors;
+    enum ENIGMA_TYPE type;
+    char reflector;
 } EnigmaConfiguration;
 
 Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_configuration);

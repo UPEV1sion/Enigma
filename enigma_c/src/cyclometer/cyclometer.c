@@ -31,8 +31,8 @@ static const uint8_t possible_rotor_permutations[6][3] = {
 
 typedef struct
 {
-    int32_t length;
     int32_t *cycle_values;
+    int32_t length;
 } Cycle;
 
 typedef struct

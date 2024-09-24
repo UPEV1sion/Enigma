@@ -29,8 +29,10 @@ int main(int argc, char *argv[])
     // find_cycles("PUCXIXNZWUYKDKS", "PUCXIXNZWUYKDKSXIPIKLVBKUTA");
     uint8_t *arr_crib = get_int_array_from_string("KOMMANDODERWEHR");
     uint8_t *arr_cipher = get_int_array_from_string("SSKKEZQRHOTJTDW");
-    find_cycles(arr_crib, arr_cipher, 15);
+    // find_cycles(arr_crib, arr_cipher, 15);
     // start_turing_bomb("ATTACKATDAWN", "WSNPNLKLSTCS", 0);
+    TuringBomb turing_bomb;
+    create_bomb_menu(&turing_bomb, arr_crib, arr_cipher, 15);
     return 0;
     if (argc < 2)
     {

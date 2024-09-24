@@ -49,10 +49,6 @@
 
 typedef struct
 {
-    uint8_t enigma: 1;
-    uint8_t bomb: 1;
-    uint8_t interactive: 1;
-    uint8_t help: 1;
     enum ENIGMA_TYPE enigma_type;
     enum ROTOR_TYPE rotor_one_type;
     enum ROTOR_TYPE rotor_two_type;
@@ -65,6 +61,10 @@ typedef struct
     char *plaintext;
     char *ciphertext;
     char *known_text;
+    uint8_t enigma: 1;
+    uint8_t bomb: 1;
+    uint8_t interactive: 1;
+    uint8_t help: 1;
 } CliOptions;
 
 static int32_t string_equals(const char *str1, const char *str2)
@@ -159,24 +159,6 @@ void query_help(void)
         }
         options = strtok(NULL, " ");
     }
-}
-
-static void init_cli_options(CliOptions *options)
-{
-    options->enigma_type      = 0;
-    options->rotor_one_type   = 0;
-    options->rotor_two_type   = 0;
-    options->rotor_three_type = 0;
-    options->rotor_four_type  = 0;
-    options->reflector_type   = 0;
-    options->interactive      = 0;
-    options->help             = 0;
-    options->bomb             = 0;
-    options->enigma           = 0;
-    options->rotor_offsets    = NULL;
-    options->rotor_positions  = NULL;
-    options->plaintext        = NULL;
-    options->plugboard        = NULL;
 }
 
 static void parse_rotor_input(CliOptions *options, char *argv[], int32_t *i, const enum ROTOR_TYPE rotor_num)
@@ -566,9 +548,8 @@ void query_input(const int32_t argc, char *argv[])
         exit(0);
     }
 
-    CliOptions options;
+    CliOptions options = {0};
 
-    init_cli_options(&options);
     save_input(&options, argc, argv);
 
     if (options.help)

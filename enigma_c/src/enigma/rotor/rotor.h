@@ -7,8 +7,8 @@ typedef struct
 {
     uint8_t wiring[26];
     uint8_t inverse_wiring[26];
-    uint8_t position;
     uint8_t *notch;
+    uint8_t position;
     uint8_t notch_count;
     uint8_t offset;
 } Rotor;

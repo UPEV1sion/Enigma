@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 
+#include <stdint.h>
 #include "turing_bomb.h"
 
 //
@@ -17,9 +17,9 @@
 
 typedef struct
 {
-    uint8_t start_index;
-    char *cycle;
     char *stubs[ALPHABET_SIZE];
+    uint8_t indexes_cycle[NUM_SCRAMBLERS_PER_ROW];
+    char *cycle;
     uint32_t num_stubs;
 } Cycle;
 

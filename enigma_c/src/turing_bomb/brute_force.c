@@ -387,7 +387,7 @@ static void test_configs_sorted(const char *known_plaintext)
                                 // assertmsg(conf_copy != NULL, "conf_copy == NULL");
 
                                 conf_copy                 = *conf;
-                                conf_copy.rotors          = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(uint8_t));
+                                conf_copy.rotors          = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(enum ROTOR_TYPE));
                                 conf_copy.rotor_positions = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(uint8_t));
                                 conf_copy.ring_settings   = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(uint8_t));
                                 assertmsg(conf_copy.rotors != NULL
@@ -453,7 +453,7 @@ void crack_enigma(const char *known_plaintext, char *encrypted_text)
 
                 conf->type            = ENIGMA_M3;
                 conf->reflector       = 'B';
-                conf->rotors          = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(uint8_t));
+                conf->rotors          = malloc(NUM_ROTORS_PER_ENIGMA * sizeof(enum ROTOR_TYPE));
                 conf->rotor_positions = calloc(NUM_ROTORS_PER_ENIGMA, sizeof(uint8_t));
                 conf->ring_settings   = calloc(NUM_ROTORS_PER_ENIGMA, sizeof(uint8_t));
                 assertmsg(conf->rotors != NULL
