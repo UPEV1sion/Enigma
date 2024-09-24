@@ -5,7 +5,6 @@
 
 #include "helper/helper.h"
 #include "cycle_finder.h"
-#include "turing_bomb.h"
 
 //
 // Created by Emanuel on 30.08.2024.
@@ -20,63 +19,61 @@
  * It May run multiple times until the Enigma is cracked due to bad crib placement.
  */
 
-#define ERR_NO_CYCLES_FOUND 1
-
 typedef struct
 {
     uint8_t first;
     uint8_t second;
 } Tuple;
 
-// static void print_cycle(const char *cycle, const size_t cycle_length)
-// {
-//     printf("Cycle detected: ");
-//     for (size_t i = 0; i < cycle_length; i++)
-//     {
-//         printf("%c -> ", cycle[i]);
-//     }
-//     // printf("%c\n", cycle[0]);
-// }
-//
-// static char* get_cycle_str(const int8_t *cycle, const size_t cycle_length)
-// {
-//     char *cycle_str = malloc(cycle_length + 1);
-//     assertmsg(cycle_str != NULL, "malloc failed");
-//     for (size_t i = 0; i < cycle_length; i++)
-//     {
-//         cycle_str[i] = cycle[i] + 'A';
-//     }
-//     cycle_str[cycle_length] = 0;
-//
-//     return cycle_str;
-// }
-//
-// /**
-//  * @brief finds the length of a -1 terminated string
-//  * @param str the string literal
-//  * @return the length
-//  */
-// static size_t strlen_neg1(const int8_t *str)
-// {
-//     const int8_t *start = str;
-//     while (*str != -1) str++;
-//
-//     return str - start;
-// }
-//
-// static char* get_stub_str(const int8_t *stub)
-// {
-//     const size_t stub_length = strlen_neg1(stub);
-//     char *stub_str           = malloc(stub_length + 1);
-//     assertmsg(stub_str != NULL, "malloc failed");
-//     for (size_t i = 0; i < stub_length; i++)
-//     {
-//         stub_str[i] = stub[i] + 'A';
-//     }
-//     stub_str[stub_length] = 0;
-//
-//     return stub_str;
-// }
+static void print_cycle(const char *cycle, const size_t cycle_length)
+{
+    printf("Cycle detected: ");
+    for (size_t i = 0; i < cycle_length; i++)
+    {
+        printf("%c -> ", cycle[i]);
+    }
+    // printf("%c\n", cycle[0]);
+}
+
+static char* get_cycle_str(const int8_t *cycle, const size_t cycle_length)
+{
+    char *cycle_str = malloc(cycle_length + 1);
+    assertmsg(cycle_str != NULL, "malloc failed");
+    for (size_t i = 0; i < cycle_length; i++)
+    {
+        cycle_str[i] = cycle[i] + 'A';
+    }
+    cycle_str[cycle_length] = 0;
+
+    return cycle_str;
+}
+
+/**
+ * @brief finds the length of a -1 terminated string
+ * @param str the string literal
+ * @return the length
+ */
+static size_t strlen_neg1(const int8_t *str)
+{
+    const int8_t *start = str;
+    while (*str != -1) str++;
+
+    return str - start;
+}
+
+static char* get_stub_str(const int8_t *stub)
+{
+    const size_t stub_length = strlen_neg1(stub);
+    char *stub_str           = malloc(stub_length + 1);
+    assertmsg(stub_str != NULL, "malloc failed");
+    for (size_t i = 0; i < stub_length; i++)
+    {
+        stub_str[i] = stub[i] + 'A';
+    }
+    stub_str[stub_length] = 0;
+
+    return stub_str;
+}
 
 /**
  * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
@@ -180,89 +177,51 @@ static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const 
  */
 Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
 {
-    // TODO rewrite this whole thing
 
-    // Cycles *res = malloc(sizeof(Cycles));
-    // memset(res->cycles, 0, sizeof(res->cycles));
-    // // memset(res->stubs, 0, sizeof(res->stubs));
-    //
-    // // const size_t crib_len = strlen(crib);
-    //
-    // Tuple tuples[ALPHABET_SIZE];
-    // for (size_t i = 0; i < crib_len; i++)
-    // {
-    //     tuples[i].first  = crib[i];
-    //     tuples[i].second = ciphertext[i];
-    // }
-    //
-    // size_t cycle_counter = 0;
-    // size_t stubs_counter = 0;
-    // for (size_t i = 0; i < crib_len; i++)
-    // {
-    //     uint32_t visited_mask = 0;
-    //     int8_t path[ASCII_SIZE];
-    //     memset(path, -1, ASCII_SIZE); //since 'A' is represented by 0, we must use a different terminator.
-    //     visited_mask |= (1 << i);
-    //     size_t cp_index = 0;
-    //     if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index))
-    //     {
-    //         res->cycles[cycle_counter++].cycle = get_cycle_str(path, cp_index);
-    //     }
-    //     else
-    //     {
-    //         // res->stubs[stubs_counter++] = get_stub_str(path);
-    //     }
-    // }
-    // // cycle_counter = eliminate_duplicate_cycles(res->cycles, cycle_counter);
-    // puts("stubs");
-    // for (size_t i = 0; i < stubs_counter; i++)
-    // {
-    //     // puts(res->stubs[i]);
-    // }
-    // puts("cycles");
-    // for (size_t i = 0; i < cycle_counter; i++)
-    // {
-    //     // puts(res->cycles[i]);
-    // }
-    // res->num_cycles = cycle_counter;
-    // res->num_stubs  = stubs_counter;
-    //
-    // return res;
-}
+    Cycles *res = malloc(sizeof(Cycles));
+    memset(res->cycles, 0, sizeof(res->cycles));
+    // memset(res->stubs, 0, sizeof(res->stubs));
 
-int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
-{
-    Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
-    if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
+    // const size_t crib_len = strlen(crib);
 
-    Cycle longest_cycle = cycles->cycles[0];
-    size_t longest_cycle_length = 0;
-    for(uint8_t cycle = 1; cycle < cycles->num_cycles; ++cycle)
+    Tuple tuples[ALPHABET_SIZE];
+    for (size_t i = 0; i < crib_len; i++)
     {
-        const Cycle current_cycle = cycles->cycles[cycle];
-        const size_t current_cycle_length = strlen(current_cycle.cycle);
-        if (current_cycle_length > longest_cycle_length)
+        tuples[i].first  = crib[i];
+        tuples[i].second = ciphertext[i];
+    }
+
+    size_t cycle_counter = 0;
+    size_t stubs_counter = 0;
+    for (size_t i = 0; i < crib_len; i++)
+    {
+        uint32_t visited_mask = 0;
+        int8_t path[ASCII_SIZE];
+        memset(path, -1, ASCII_SIZE); //since 'A' is represented by 0, we must use a different terminator.
+        visited_mask |= (1 << i);
+        size_t cp_index = 0;
+        if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index))
         {
-            longest_cycle_length = current_cycle_length;
-            longest_cycle = current_cycle;
+            res->cycles[cycle_counter++] = get_cycle_str(path, cp_index);
+        }
+        else
+        {
+            res->stubs[stubs_counter++] = get_stub_str(path);
         }
     }
-
-    uint8_t last_scrambler_column = longest_cycle.indexes_cycle[0];
-    char last_cycle_char = longest_cycle.cycle[0];
-
-    for(uint8_t i = 1; i < longest_cycle_length; ++i)
+    // cycle_counter = eliminate_duplicate_cycles(res->cycles, cycle_counter);
+    puts("stubs");
+    for (size_t i = 0; i < stubs_counter; i++)
     {
-        const uint8_t scrambler_column = longest_cycle.indexes_cycle[i];
-        const char cycle_char = longest_cycle.cycle[i];
-        turing_bomb->diagonal_board[last_scrambler_column][(int) last_cycle_char] = cycle_char;
-        turing_bomb->diagonal_board[scrambler_column][(int) cycle_char] = last_cycle_char;
-
-        last_cycle_char = cycle_char;
-        last_scrambler_column = scrambler_column;
+        puts(res->stubs[i]);
     }
+    puts("cycles");
+    for (size_t i = 0; i < cycle_counter; i++)
+    {
+        puts(res->cycles[i]);
+    }
+    res->num_cycles = cycle_counter;
+    res->num_stubs  = stubs_counter;
 
-
-    free(cycles);
-    return 0;
+    return res;
 }

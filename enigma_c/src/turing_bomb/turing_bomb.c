@@ -5,6 +5,7 @@
 #include "enigma/enigma.h"
 #include "helper/helper.h"
 #include "cycle_finder.h"
+#include "diagonal_board.h"
 
 //
 // Created by Emanuel on 07.09.2024.
@@ -80,16 +81,16 @@ static uint8_t* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, 
     return output;
 }
 
-int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t crib_pos)
+int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_pos)) return 1;
-    const size_t plain_len = strlen(crib);
-    if (plain_len >= NUM_SCRAMBLERS_PER_ROW)
+    const size_t crib_len = strlen(crib);
+    if (crib_len > NUM_SCRAMBLERS_PER_ROW)
     {
         fprintf(stderr, "Try a shorter crib\n");
         return 1;
     }
-    if (crib_pos + plain_len > strlen(ciphertext))
+    if (crib_pos + crib_len > strlen(ciphertext))
     {
         fprintf(stderr, "Plain outside crib\n");
         return 1;
@@ -98,8 +99,8 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
     uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
 
     TuringBomb turing_bomb;
-
-    // const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, plain_len);
+    create_bomb_menu(&turing_bomb, crib_as_ints, ciphertext_as_ints, crib_len);
+    // const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, crib_len);
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
@@ -148,9 +149,9 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
     //     .type = ENIGMA_M3, .reflector = UKW_B, .message = crib
     // };
     // memcpy(conf.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
-    // uint8_t *output = traverse_m3_enigma_at_position(&conf, crib_pos, plain_len);
+    // uint8_t *output = traverse_m3_enigma_at_position(&conf, crib_pos, crib_len);
 
-    const Cycles *current_cycles = find_cycles(crib_as_ints, output, plain_len);
+    const Cycles *current_cycles = find_cycles(crib_as_ints, output, crib_len);
 
 
     if (passes_welchman_test(candidate_cycles, current_cycles))

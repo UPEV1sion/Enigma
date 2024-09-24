@@ -8,5 +8,4 @@
 
 #include "cycle_finder.h"
 
-
 bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles);

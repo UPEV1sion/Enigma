@@ -16,7 +16,6 @@
 
 
 //TODO cycle reference
-typedef struct DiagonalBoard DiagonalBoard;
 
 typedef struct
 {
@@ -24,12 +23,12 @@ typedef struct
     Reflector reflector;
 } ScramblerEnigma;
 
-// This is almost 700 bytes be careful with wasteful allocations!
-// Only allocate this on Stack. Heap will too slow.
+// This is over 1 KB be careful with wasteful allocations!
+// Only allocate this on Stack. Heap will be too slow.
 typedef struct
 {
     ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
-    uint8_t diagonal_board[NUM_SCRAMBLERS_PER_ROW][ALPHABET_SIZE];
+    uint8_t diagonal_board[ALPHABET_SIZE][ALPHABET_SIZE];
 } TuringBomb;
 
-int32_t start_turing_bomb(char *crib, const char *ciphertext, uint32_t crib_pos);
+int32_t start_turing_bomb(const char *crib, const char *ciphertext, uint32_t crib_pos);
