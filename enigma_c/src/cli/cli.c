@@ -47,24 +47,6 @@
 #define KNOWN_TEXT        "--known-plaintext"
 #define KNOWN_TEXT_SHORT  "-kp"
 
-enum ROTOR_TYPE
-{
-    ROTOR_1 = 1,
-    ROTOR_2,
-    ROTOR_3,
-    ROTOR_4,
-    ROTOR_5,
-    ROTOR_6,
-    ROTOR_7,
-    ROTOR_8
-};
-
-enum REFLECTOR_TYPE
-{
-    UKW_B = 'B',
-    UKW_C = 'C',
-};
-
 typedef struct
 {
     uint8_t enigma: 1;
@@ -267,12 +249,10 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
             while (i + 1 < argc && argv[i + 1][0] != '-')
             {
                 const size_t next_len = strlen(argv[++i]);
-                char *new_plugboard = realloc(options->plugboard, total_len + next_len + 1);
-                assertmsg(new_plugboard != NULL, "realloc failed");
+                options->plugboard = realloc(options->plugboard, total_len + next_len + 1);
+                assertmsg(options->plugboard != NULL, "realloc failed");
 
-                options->plugboard = new_plugboard;
-                const int ret_val = snprintf(options->plugboard + total_len, next_len + 1, "%s", argv[i]);
-                assertmsg(ret_val >= 0 && ret_val == (int) next_len, "snprintf failed");
+                strcpy(options->plugboard + total_len, argv[i]);
                 total_len += next_len;
             }
         }

@@ -23,7 +23,7 @@ typedef struct
 
 typedef struct
 {
-    uint8_t *rotors;
+    enum ROTOR_TYPE *rotors;
     uint8_t *rotor_positions;
     uint8_t *ring_settings;
     enum ENIGMA_TYPE type;

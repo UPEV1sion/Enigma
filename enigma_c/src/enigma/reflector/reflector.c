@@ -5,8 +5,8 @@
 #include "reflector.h"
 #include "helper/helper.h"
 
-#define UKW_B  "YRUHQSLDPXNGOKMIEBFZCWVJAT"
-#define UKW_C  "FVPJIAOYEDRZXWGCTKUQSBNMHL"
+#define UKW_B_WIRING  "YRUHQSLDPXNGOKMIEBFZCWVJAT"
+#define UKW_C_WIRING  "FVPJIAOYEDRZXWGCTKUQSBNMHL"
 
 Reflector* create_reflector(const char *wiring)
 {
@@ -29,11 +29,11 @@ Reflector* create_reflector_by_type(const char type)
 {
     if(type == 'B')
     {
-        return create_reflector(UKW_B);
+        return create_reflector(UKW_B_WIRING);
     }
     if (type == 'C')
     {
-        return create_reflector(UKW_C);
+        return create_reflector(UKW_C_WIRING);
     }
     printf("Error, Reflector definition not found");
     exit(1);

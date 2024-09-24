@@ -46,12 +46,10 @@ uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
 
         if (should_rotate(rotor_one))
         {
-            puts("Rot 2");
             rotor_two->position = (rotor_two->position + 1) % 26;
 
             if (should_rotate(rotor_two))
             {
-                puts("Rot 3");
                 rotor_three->position = (rotor_three->position + 1) % 26;
             }
         }
@@ -110,16 +108,13 @@ uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
 
         if (should_rotate(rotor_one))
         {
-            puts("Rot 2");
             rotor_two->position = (rotor_two->position + 1) % 26;
 
             if (should_rotate(rotor_two))
             {
-                puts("Rot 3");
                 rotor_three->position = (rotor_three->position + 1) % 26;
                 if(should_rotate(rotor_three))
                 {
-                    puts("Rot 4");
                     rotor_four->position = (rotor_four->position + 1) % 26;
                 }
             }

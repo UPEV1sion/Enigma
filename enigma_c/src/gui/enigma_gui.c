@@ -14,22 +14,21 @@
 // Created by Emanuel on 25.07.2024.
 //
 
-
 #define BUFFER_SIZE 1024
 
 static GtkWidget *window, *model, *reflector, *plugboard, *start, *input, *output;
 static GtkWidget *rotors[4], *positions[4], *rings[4];
 static GtkTextBuffer *in_buffer;
 
-uint8_t get_enigma_type_from_gui(void)
+enum ENIGMA_TYPE get_enigma_type_from_gui(void)
 {
-    return gtk_combo_box_get_active(GTK_COMBO_BOX(model)) + 3;
+    return gtk_combo_box_get_active(GTK_COMBO_BOX(model)) == 0 ? ENIGMA_M3 : ENIGMA_M4;
 }
 
-uint8_t* get_rotors_from_gui(void)
+enum ROTOR_TYPE* get_rotors_from_gui(void)
 {
-    const uint8_t num_rotors = get_enigma_type_from_gui();
-    uint8_t *rotor_arr       = malloc(sizeof(uint8_t) * num_rotors);
+    const uint8_t num_rotors   = get_enigma_type_from_gui();
+    enum ROTOR_TYPE *rotor_arr = malloc(sizeof(enum ROTOR_TYPE) * num_rotors);
     assertmsg(rotor_arr != NULL, "rotors == NULL");
     for (uint8_t i = 0; i < num_rotors; ++i)
     {
@@ -37,6 +36,11 @@ uint8_t* get_rotors_from_gui(void)
     }
 
     return rotor_arr;
+}
+
+enum REFLECTOR_TYPE get_reflector_type_from_gui(void)
+{
+    return gtk_combo_box_get_active(GTK_COMBO_BOX(model)) == 0 ? UKW_B : UKW_C;
 }
 
 uint8_t* get_rotor_positions_from_gui(void)
@@ -66,11 +70,6 @@ uint8_t* get_rotor_ring_positions_from_gui(void)
     return rotor_position_arr;
 }
 
-char get_reflector_type_from_gui(void)
-{
-    return gtk_combo_box_get_active(GTK_COMBO_BOX(model));
-}
-
 char* get_plugboard_from_gui(void)
 {
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
@@ -81,10 +80,10 @@ char* get_plugboard_from_gui(void)
     text[len] = 0;
 
     strcpy(text, plugboard_text);
-    int32_t err_code = 0;
-    err_code |= to_uppercase(text);
-    err_code |= remove_non_alpha(text);
-    assertmsg(err_code == 0, "normalization failed");
+    // Error checking has been omitted,
+    // since the only two errors ERR_EMPTY_STRING and ERR_NULL_POINTER are "valid inputs"
+    to_uppercase(text);
+    remove_non_alpha(text);
 
     return text;
 }
@@ -102,10 +101,8 @@ char* get_input_text_from_gui(void)
     assertmsg(text != NULL, "malloc failed");
     text[len] = 0;
     strcpy(text, input_text);
-    int32_t err_code = 0;
-    err_code |= to_uppercase(text);
-    err_code |= remove_non_alpha(text);
-    assertmsg(err_code == 0, "normalization failed");
+    to_uppercase(text);
+    remove_non_alpha(text);
     g_free(input_text);
 
     return text;
@@ -227,13 +224,13 @@ static void action_listener_plugboard(GtkEntry *entry,
 
 static Enigma* create_enigma_from_input(void)
 {
-    uint8_t *rotor_arr                 = get_rotors_from_gui();
-    uint8_t *rotor_position_arr        = get_rotor_positions_from_gui();
-    uint8_t *rotor_ring_position_arr   = get_rotor_ring_positions_from_gui();
-    const enum ENIGMA_TYPE enigma_type = get_enigma_type_from_gui();
-    const char reflector               = get_reflector_type_from_gui();
-    char *plugboard                    = get_plugboard_from_gui();
-    char *input_text                   = get_input_text_from_gui();
+    enum ROTOR_TYPE *rotor_arr          = get_rotors_from_gui();
+    const enum ENIGMA_TYPE enigma_type  = get_enigma_type_from_gui();
+    const enum REFLECTOR_TYPE reflector = get_reflector_type_from_gui();
+    uint8_t *rotor_position_arr         = get_rotor_positions_from_gui();
+    uint8_t *rotor_ring_position_arr    = get_rotor_ring_positions_from_gui();
+    char *plugboard                     = get_plugboard_from_gui();
+    char *input_text                    = get_input_text_from_gui();
 
     EnigmaConfiguration configuration = {
         .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
@@ -256,7 +253,7 @@ static Enigma* create_enigma_from_input(void)
 static void action_listener_start_btn(void)
 {
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
-    const size_t alpha_count = count_alphas(plugboard_text);
+    const size_t alpha_count    = count_alphas(plugboard_text);
     assertmsg(alpha_count != SIZE_MAX, "count alphas failed");
     if (alpha_count % 2 != 0)
     {
@@ -264,12 +261,11 @@ static void action_listener_start_btn(void)
         return;
     }
 
-    //More efficient than a bool array
+    //More efficient than a bool array - probably doesn't matter here, but I leave it in
     uint8_t rotor_mask = 0;
-    for (uint16_t i = 0; i < gtk_combo_box_get_active(GTK_COMBO_BOX(model)) + 3; ++i)
+    for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
     {
         const gint rot = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
-        //More efficient than a bool array
         const uint8_t active_rotor = 1 << rot;
         if (rotor_mask & active_rotor)
         {
@@ -283,8 +279,10 @@ static void action_listener_start_btn(void)
 
     Enigma *enigma  = create_enigma_from_input();
     uint8_t *text   = traverse_enigma(enigma);
+
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
+
     enigma_to_json(plaintext);
     update_output(plaintext);
     char *json_text = read_json();

@@ -11,11 +11,11 @@
 
 #include <gtk/gtk.h>
 
-uint8_t get_enigma_type_from_gui(void);
-uint8_t* get_rotors_from_gui(void);
+enum ENIGMA_TYPE get_enigma_type_from_gui(void);
+enum ROTOR_TYPE* get_rotors_from_gui(void);
+enum REFLECTOR_TYPE get_reflector_type_from_gui(void);
 uint8_t* get_rotor_positions_from_gui(void);
 uint8_t* get_rotor_ring_positions_from_gui(void);
-char get_reflector_type_from_gui(void);
 char* get_plugboard_from_gui(void);
 char* get_input_text_from_gui(void);
 

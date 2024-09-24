@@ -26,7 +26,6 @@
     } \
 } while (0)
 
-
 /**
 * @brief This a branching hint macro for CPU pipelining but MSVC doesn't currently support this
 * @param cond the condition for which the hint should take place
@@ -41,9 +40,20 @@
 
 // A bit hack for NaN because including without including the math library.
 // IEEE 745-1985 NaN coding: s = 0||1, exponent = 11111111111, mantissa != 0
-// (uint64_t){0x7FFFFFFFFFFFFFFF} is a compound literal and the {} is needed
+// (uint64_t){0x7FFFFFFFFFFFFFFF} is a compound literal and the {} is necessary
 // ...Turns out this can be done way easier with 0.0/0.0 but this is a cool bit hack, so I leave it here
 #define NaN (*(double*)&((uint64_t){0x7FFFFFFFFFFFFFFF}))
+
+// The error codes - mainly for debugging.
+// In the code, the function return values are only asserted to be == 0, indicating no error
+#define ERR_NULL_POINTER 1
+//Also empty uint8_t array
+#define ERR_EMPTY_STRING 2
+
+#define ERR_INVALID_INPUT 3
+#define ERR_OUT_OF_RANGE 4
+#define ERR_PARTIAL_CONVERSION 5
+
 
 int32_t get_number_from_string(const char *str, int32_t *number);
 int32_t to_uppercase(char *input);

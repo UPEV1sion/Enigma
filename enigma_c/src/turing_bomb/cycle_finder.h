@@ -22,4 +22,4 @@ typedef struct
     uint32_t num_stubs;
 } Cycles;
 
-Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, size_t len);
+Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, size_t crib_len);

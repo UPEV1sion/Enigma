@@ -36,7 +36,7 @@ static void print_cycle(const char *cycle, const size_t cycle_length)
     // printf("%c\n", cycle[0]);
 }
 
-static char* get_cycle_str(const uint8_t *cycle, const size_t cycle_length)
+static char* get_cycle_str(const int8_t *cycle, const size_t cycle_length)
 {
     char *cycle_str = malloc(cycle_length + 1);
     assertmsg(cycle_str != NULL, "malloc failed");
@@ -49,9 +49,22 @@ static char* get_cycle_str(const uint8_t *cycle, const size_t cycle_length)
     return cycle_str;
 }
 
-static char* get_stub_str(const uint8_t *stub)
+/**
+ * @brief finds the length of a -1 terminated string
+ * @param str the string literal
+ * @return the length
+ */
+static size_t strlen_neg1(const int8_t *str)
 {
-    const size_t stub_length = strlen(stub);
+    const int8_t *start = str;
+    while (*str != -1) str++;
+
+    return str - start;
+}
+
+static char* get_stub_str(const int8_t *stub)
+{
+    const size_t stub_length = strlen_neg1(stub);
     char *stub_str           = malloc(stub_length + 1);
     assertmsg(stub_str != NULL, "malloc failed");
     for (size_t i = 0; i < stub_length; i++)
@@ -78,7 +91,7 @@ static char* get_stub_str(const uint8_t *stub)
  */
 static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const size_t tuples_len,
                              uint32_t visited_mask,
-                             uint8_t *cycle_path, size_t *cp_index)
+                             int8_t *cycle_path, size_t *cp_index)
 {
     // Bitmask instead of a bool array for speed and minimizing recursion overhead
 
@@ -134,7 +147,7 @@ static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const 
  * @param num_cycles the number of cycles found
  * @return size_t: num of cycles left
  */
-static size_t eliminate_duplicates(char *cycles[], const size_t num_cycles)
+static size_t eliminate_duplicate_cycles(char *cycles[], const size_t num_cycles)
 {
     size_t valid_cycles = 0;
     for (size_t i = 0; i < num_cycles; ++i)
@@ -160,6 +173,7 @@ static size_t eliminate_duplicates(char *cycles[], const size_t num_cycles)
  * @note plain and crib length must be equal
  * @param crib the crib suspected to be the deciphered ciphertext
  * @param ciphertext the enciphered text
+ * @param crib_len the length of the crib
  * @return void
  */
 Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
@@ -182,7 +196,8 @@ Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t
     for (size_t i = 0; i < crib_len; i++)
     {
         uint32_t visited_mask = 0;
-        uint8_t path[ASCII_SIZE] = {0};
+        int8_t path[ASCII_SIZE];
+        memset(path, -1, ASCII_SIZE); //since 'A' is represented by 0, we must use a different terminator.
         visited_mask |= (1 << i);
         size_t cp_index = 0;
         if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index))
@@ -194,7 +209,7 @@ Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t
             res->stubs[stubs_counter++] = get_stub_str(path);
         }
     }
-    cycle_counter = eliminate_duplicates(res->cycles, cycle_counter);
+    cycle_counter = eliminate_duplicate_cycles(res->cycles, cycle_counter);
     puts("stubs");
     for (size_t i = 0; i < stubs_counter; i++)
     {

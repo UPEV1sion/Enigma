@@ -5,5 +5,6 @@
 	"positions":	[0, 0, 0],
 	"rings":	[0, 0, 0],
 	"plugboard":	"",
-	"input":	""
+	"input":	"TEST",
+	"output":	"ZFDU"
 }

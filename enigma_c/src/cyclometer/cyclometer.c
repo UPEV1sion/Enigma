@@ -134,7 +134,7 @@ static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configu
     CycleOfRotorSetting *cycle = malloc(sizeof(CycleOfRotorSetting));
     assertmsg(cycle != NULL, "cycle == NULL");
 
-    uint8_t rotors[NUM_ROTORS]          = {0};
+    enum ROTOR_TYPE rotors[NUM_ROTORS]          = {0};
     uint8_t rotor_positions[NUM_ROTORS] = {0};
     char message[MESSAGE_SIZE]          = {0};
     EnigmaConfiguration configuration   = {

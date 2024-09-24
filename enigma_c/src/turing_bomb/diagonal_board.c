@@ -78,6 +78,6 @@ bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_
     if (!is_candidate(candidate_cycles, current_cycles)) return false;
     char graph_compare[ALPHABET_SIZE] = {0};
 
-    // TODO Order cycles?
+
     return false;
 }

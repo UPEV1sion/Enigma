@@ -38,15 +38,14 @@ static void add_enigma_model_to_json(void)
 
 static void add_reflector_to_json()
 {
-    // somewhat scuffed but works for now
-    char reflector[2] = {0};
-    reflector[0] = get_reflector_type_from_gui() + 'B';
+    // I don't really like this but works for now
+    const char reflector[2] = {get_reflector_type_from_gui(), 0};
     cJSON_AddStringToObject(root, "reflector", reflector);
 }
 
 static void add_rotors_to_json(void)
 {
-    uint8_t *rotors = get_rotors_from_gui();
+    enum ROTOR_TYPE *rotors = get_rotors_from_gui();
     cJSON *rotors_array      = cJSON_AddArrayToObject(root, "rotors");
     for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
     {
@@ -207,8 +206,8 @@ static void save_input_to_conf(EnigmaConfiguration *configuration)
     const cJSON *input_item = cJSON_GetObjectItem(root, "input");
     if (cJSON_IsString(input_item))
     {
-        configuration->message = malloc(strlen(input_item->valuestring) + 1);
-        strcpy(configuration->message, input_item->valuestring);
+        configuration->message = configuration->message = strdup(input_item->valuestring);
+        assertmsg(configuration->message != NULL, "strdup failed");
     }
 }
 

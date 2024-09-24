@@ -111,7 +111,7 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
                     {
                         for (uint8_t rotor_three_pos = 0; rotor_three_pos < ALPHABET_SIZE; ++rotor_three_pos)
                         {
-                            uint8_t rotors[NUM_ROTORS_PER_ENIGMA]          = {rotor_one, rotor_two, rotor_three};
+                            enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA]          = {rotor_one, rotor_two, rotor_three};
                             uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA] = {0};
                             uint8_t ring_settings[NUM_ROTORS_PER_ENIGMA]   = {0};
                             EnigmaConfiguration conf                       = {
@@ -123,7 +123,7 @@ int32_t start_turing_bomb(char *crib, const char *ciphertext, const uint32_t cri
                             //TODO rewrite
 
                             const Cycles *current_cycles = find_cycles(crib_as_ints, output, plain_len);
-                            free(output);
+
 
                             if (passes_welchman_test(candidate_cycles, current_cycles))
                             // {
