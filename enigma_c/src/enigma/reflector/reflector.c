@@ -5,6 +5,7 @@
 #include "reflector.h"
 #include "helper/helper.h"
 
+#define UKW_A_WIRING  "EJMZALYXVBWFCRQUONTSPIKHGD"
 #define UKW_B_WIRING  "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 #define UKW_C_WIRING  "FVPJIAOYEDRZXWGCTKUQSBNMHL"
 
@@ -27,6 +28,10 @@ Reflector* create_reflector(const char *wiring)
 
 Reflector* create_reflector_by_type(const enum REFLECTOR_TYPE type)
 {
+    if(type == UKW_A)
+    {
+        return create_reflector(UKW_A_WIRING);
+    }
     if(type == UKW_B)
     {
         return create_reflector(UKW_B_WIRING);

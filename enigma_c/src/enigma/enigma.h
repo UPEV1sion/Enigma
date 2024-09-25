@@ -29,7 +29,7 @@ typedef struct
     uint8_t *ring_settings;
     enum ROTOR_TYPE *rotors;
     enum ENIGMA_TYPE type;
-    char reflector;
+    enum REFLECTOR_TYPE reflector;
 } EnigmaConfiguration;
 
 Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_configuration);

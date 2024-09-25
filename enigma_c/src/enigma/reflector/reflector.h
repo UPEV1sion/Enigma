@@ -7,8 +7,9 @@ typedef struct
 
 enum REFLECTOR_TYPE
 {
+    UKW_A = 'A',
     UKW_B = 'B',
-    UKW_C = 'C',
+    UKW_C = 'C'
 };
 
 Reflector* create_reflector(const char *wiring);

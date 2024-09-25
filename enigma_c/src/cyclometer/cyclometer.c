@@ -1,3 +1,5 @@
+// ReSharper disable CppDFAMemoryLeak
+// This to disable a false positive CLion memory leak warning. Tested multiple times with Valgrind.
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -8,9 +10,9 @@
 #include "helper/helper.h"
 #include "enigma/enigma.h"
 
-#define NUM_ROTORS      3
-#define MESSAGE_SIZE    7
-#define PLUGBOARD       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define NUM_ROTORS_PER_ENIGMA      3
+#define MESSAGE_SIZE               7
+#define PLUGBOARD                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 /*
  * Advice from Juergen Wolfs C von A bis Z:
@@ -38,17 +40,17 @@ typedef struct
 typedef struct
 {
     Cycle *cycles[3];
-    int32_t rotor_positions[3];
-    int32_t rotors[3];
+    uint8_t rotor_positions[3];
+    enum ROTOR_TYPE rotors[3];
 } CycleOfRotorSetting;
 
 typedef struct
 {
-    int32_t rotor_one;
-    int32_t rotor_two;
-    int32_t rotor_three;
-    int32_t rotor_permutation;
-    char reflector_index;
+    enum REFLECTOR_TYPE reflector;
+    uint8_t rotor_one_position;
+    uint8_t rotor_two_position;
+    uint8_t rotor_three_position;
+    uint8_t rotor_permutation;
 } CycleConfiguration;
 
 
@@ -113,14 +115,14 @@ static FILE* open_file(void)
     return file;
 }
 
-static void print_cycle(const Cycle cycle, FILE *file)
+static void print_cycle(const Cycle *cycle, FILE *file)
 {
     fprintf(file, "( ");
-    for (uint16_t i = 0; i < cycle.length; i++)
+    for (uint16_t i = 0; i < cycle->length; i++)
     {
-        fprintf(file, "%d", cycle.cycle_values[i]);
+        fprintf(file, "%d", cycle->cycle_values[i]);
 
-        if (i < cycle.length - 1)
+        if (i < cycle->length - 1)
         {
             fprintf(file, " ");
         }
@@ -128,35 +130,40 @@ static void print_cycle(const Cycle cycle, FILE *file)
     fprintf(file, " )");
 }
 
+static void print_whole_cycle(const CycleOfRotorSetting *cycle, FILE *file)
+{
+    print_cycle(cycle->cycles[0], file);
+    fprintf(file, " / ");
+    print_cycle(cycle->cycles[1], file);
+    fprintf(file, " / ");
+    print_cycle(cycle->cycles[2], file);
+
+    fprintf(file, ": %c %c %c: ", cycle->rotor_positions[0] + 'A',
+            cycle->rotor_positions[1] + 'A', cycle->rotor_positions[2] + 'A');
+    fprintf(file, "%d %d %d\n", cycle->rotors[0],
+            cycle->rotors[1], cycle->rotors[2]);
+}
+
 static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configuration,
-                                         const uint8_t *rotor_permutation, FILE *file)
+                                         const uint8_t *rotor_permutation)
 {
     CycleOfRotorSetting *cycle = malloc(sizeof(CycleOfRotorSetting));
     assertmsg(cycle != NULL, "cycle == NULL");
 
-    enum ROTOR_TYPE rotors[NUM_ROTORS]          = {0};
-    uint8_t rotor_positions[NUM_ROTORS] = {0};
-    char message[MESSAGE_SIZE]          = {0};
-    EnigmaConfiguration configuration   = {
+    enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA]  = {rotor_permutation[0], rotor_permutation[1], rotor_permutation[2]};
+    uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA] = {
+        cycle_configuration->rotor_one_position, cycle_configuration->rotor_two_position,
+        cycle_configuration->rotor_three_position
+    };
+    char message[MESSAGE_SIZE]        = {0};
+    EnigmaConfiguration configuration = {
         .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings, .type = ENIGMA_M3,
-        .reflector = 'B', .message = message
+        .reflector = cycle_configuration->reflector, .message = message
     };
     memcpy(configuration.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
 
-    configuration.rotor_positions[0] = cycle_configuration->rotor_one;
-    configuration.rotor_positions[1] = cycle_configuration->rotor_two;
-    configuration.rotor_positions[2] = cycle_configuration->rotor_three;
-    cycle->rotor_positions[0]        = cycle_configuration->rotor_one;
-    cycle->rotor_positions[1]        = cycle_configuration->rotor_two;
-    cycle->rotor_positions[2]        = cycle_configuration->rotor_three;
-
-    // FIXME: Rotor 1,1,1 should not be possible, values have to be unique
-    configuration.rotors[0] = rotor_permutation[0];
-    configuration.rotors[1] = rotor_permutation[1];
-    configuration.rotors[2] = rotor_permutation[2];
-    cycle->rotors[0]        = rotor_permutation[0];
-    cycle->rotors[1]        = rotor_permutation[1];
-    cycle->rotors[2]        = rotor_permutation[2];
+    memcpy(cycle->rotor_positions, rotor_positions, sizeof(rotor_positions));
+    memcpy(cycle->rotors, rotors, NUM_ROTORS_PER_ENIGMA * sizeof(enum ROTOR_TYPE));
 
     int32_t rotor_one_permutation[ALPHABET_SIZE]   = {0};
     int32_t rotor_two_permutation[ALPHABET_SIZE]   = {0};
@@ -164,12 +171,7 @@ static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configu
 
     for (uint16_t letter = 0; letter < 26; letter++)
     {
-        configuration.message[0] = (char) (letter + 'A');
-        configuration.message[1] = (char) (letter + 'A');
-        configuration.message[2] = (char) (letter + 'A');
-        configuration.message[3] = (char) (letter + 'A');
-        configuration.message[4] = (char) (letter + 'A');
-        configuration.message[5] = (char) (letter + 'A');
+        memset(configuration.message, letter + 'A', 6);
 
         Enigma *enigma = create_enigma_from_configuration(&configuration);
 
@@ -185,19 +187,17 @@ static CycleOfRotorSetting* create_cycle(const CycleConfiguration *cycle_configu
     cycle->cycles[1] = get_cycle_count(rotor_two_permutation);
     cycle->cycles[2] = get_cycle_count(rotor_three_permutation);
 
-    //TODO: implement mmap files platform independent to yield faster results
-    print_cycle(*cycle->cycles[0], file);
-    fprintf(file, " / ");
-    print_cycle(*cycle->cycles[1], file);
-    fprintf(file, " / ");
-    print_cycle(*cycle->cycles[2], file);
-
-    fprintf(file, ": %d %d %d: ", cycle_configuration->rotor_one,
-            cycle_configuration->rotor_two, cycle_configuration->rotor_three);
-    fprintf(file, "%d %d %d\n", configuration.rotors[0],
-            configuration.rotors[1], configuration.rotors[2]);
-
     return cycle;
+}
+
+static void free_cycle(CycleOfRotorSetting *cycle)
+{
+    for (uint8_t j = 0; j < NUM_ROTORS_PER_ENIGMA; ++j)
+    {
+        free(cycle->cycles[j]->cycle_values);
+        free(cycle->cycles[j]);
+    }
+    free(cycle);
 }
 
 void create_cycles(void)
@@ -205,28 +205,30 @@ void create_cycles(void)
     // 3 rotors and 26 possible settings for each rotor, 5 * 4 * 3 rotor
     // permutations, 2 reflectors
 
-    CycleOfRotorSetting *cycles[TOTAL_CYCLES];
+    // CycleOfRotorSetting *cycles[TOTAL_CYCLES];
 
     FILE *file         = open_file();
     int32_t iterations = 0;
 
-    for (uint16_t rotor_one = 0; rotor_one < ALPHABET_SIZE; rotor_one++)
+    for (uint16_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
     {
-        for (uint16_t rotor_two = 0; rotor_two < ALPHABET_SIZE; rotor_two++)
+        for (uint16_t rotor_two_position = 0; rotor_two_position < ALPHABET_SIZE; ++rotor_two_position)
         {
-            for (uint16_t rotor_three = 0; rotor_three < ALPHABET_SIZE; rotor_three++)
+            for (uint16_t rotor_three_position = 0; rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
             {
                 for (uint16_t rotor_permutation = 0; rotor_permutation < 3 * 2 * 1;
                      rotor_permutation++)
                 {
                     CycleConfiguration cycle_configuration = {
-                        .rotor_one = rotor_one, .rotor_two = rotor_two, .rotor_three = rotor_three,
-                        .rotor_permutation = rotor_permutation, .reflector_index = 'B'
+                        .rotor_one_position = rotor_one_position, .rotor_two_position = rotor_two_position,
+                        .rotor_three_position = rotor_three_position,
+                        .rotor_permutation = rotor_permutation, .reflector = UKW_A
                     };
-                    cycles[iterations] = create_cycle(
+                    CycleOfRotorSetting *cycle = create_cycle(
                         &cycle_configuration,
-                        possible_rotor_permutations[rotor_permutation], file);
-                    // free(cycle_configuration);
+                        possible_rotor_permutations[rotor_permutation]);
+                    print_whole_cycle(cycle, file);
+                    free_cycle(cycle);
                     iterations++;
                 }
             }
@@ -234,14 +236,4 @@ void create_cycles(void)
     }
 
     fclose(file);
-
-    for (uint32_t i = 0; i < TOTAL_CYCLES; i++)
-    {
-        for (uint32_t j = 0; j < NUM_ROTORS; ++j)
-        {
-            free(cycles[i]->cycles[j]->cycle_values);
-            free(cycles[i]->cycles[j]);
-        }
-        free(cycles[i]);
-    }
 }

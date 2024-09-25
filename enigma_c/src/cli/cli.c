@@ -517,27 +517,6 @@ Enigma* query_input_interactive(void)
     return enigma;
 }
 
-static void free_stack_enigma(const Enigma *enigma)
-{
-    free(enigma->rotors[0]->notch);
-    free(enigma->rotors[0]);
-    free(enigma->rotors[1]->notch);
-    free(enigma->rotors[1]);
-    free(enigma->rotors[2]->notch);
-    free(enigma->rotors[2]);
-    if(enigma->type == ENIGMA_M4)
-    {
-        free(enigma->rotors[3]->notch);
-        free(enigma->rotors[3]);
-    }
-    free(enigma->rotors);
-    free(enigma->plugboard->plugboard_data);
-    free(enigma->plugboard);
-    free(enigma->reflector->wiring);
-    free(enigma->reflector);
-    free(enigma->plaintext);
-}
-
 // TODO: refactor into more functions
 void query_input(const int32_t argc, char *argv[])
 {

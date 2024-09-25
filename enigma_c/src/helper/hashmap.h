@@ -20,7 +20,7 @@ typedef size_t (*hash)(const void *key, size_t key_size);
  * @param hm_capacity The initial capacity of the HashMap
  * @param key_size The sizeof value of the key
  * @param value_size The sizeof value of the value
- * @param hash_func a custom hash function. Pass NULL for generic hashing.
+ * @param hash_func A custom hash function. Pass NULL for generic hashing.
  * @return HashMap
  */
 HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);

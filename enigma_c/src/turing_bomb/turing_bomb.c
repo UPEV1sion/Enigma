@@ -118,16 +118,16 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
                 {
                     continue;
                 }
-                enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA]  = {rotor_one, rotor_two, rotor_three};
+                // enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA]  = {rotor_one, rotor_two, rotor_three};
                 for (uint8_t rotor_one_pos = 0; rotor_one_pos < ALPHABET_SIZE; ++rotor_one_pos)
                 {
                     for (uint8_t rotor_two_pos = 0; rotor_two_pos < ALPHABET_SIZE; ++rotor_two_pos)
                     {
                         for (uint8_t rotor_three_pos = 0; rotor_three_pos < ALPHABET_SIZE; ++rotor_three_pos)
                         {
-                            uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA] = {
-                                rotor_one_pos, rotor_two_pos, rotor_three_pos
-                            };
+                            // uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA] = {
+                            //     rotor_one_pos, rotor_two_pos, rotor_three_pos
+                            // };
 
 
                         }

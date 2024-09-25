@@ -20,7 +20,6 @@
 typedef struct
 {
     Rotor *rotors[NUM_ROTORS_PER_ENIGMA];
-    Reflector reflector;
 } ScramblerEnigma;
 
 // This is over 1 KB be careful with wasteful allocations!
@@ -30,6 +29,7 @@ typedef struct
     ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
     //TODO this might need to be a struct
     uint8_t diagonal_board[ALPHABET_SIZE][ALPHABET_SIZE];
+    Reflector reflector;
 } TuringBomb;
 
 int32_t start_turing_bomb(const char *crib, const char *ciphertext, uint32_t crib_pos);
