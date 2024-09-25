@@ -427,11 +427,9 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
     {
         enigma->plugboard = create_plugboard(options->plugboard);
     }
-    const size_t plaintext_len = strlen(options->plaintext);
-    enigma->plaintext          =
-            malloc(plaintext_len + 1);
+
+    enigma->plaintext = strdup(options->plaintext);
     assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
-    memcpy(enigma->plaintext, options->plaintext, plaintext_len + 1);
     free(options->plugboard);
     return enigma;
 }

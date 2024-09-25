@@ -194,28 +194,19 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
     {
         enigma->plugboard = create_plugboard(NULL);
     }
-    const size_t len_message = strlen(enigma_configuration->message);
-    enigma->plaintext        = malloc(len_message + 1);
-    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
 
-    memcpy(enigma->plaintext, enigma_configuration->message, len_message);
-    enigma->plaintext[len_message] = 0;
+    enigma->plaintext = strdup(enigma_configuration->message);
+    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
 
     return enigma;
 }
 
 void free_enigma(Enigma *enigma)
 {
-    free(enigma->rotors[0]->notch);
-    free(enigma->rotors[0]);
-    free(enigma->rotors[1]->notch);
-    free(enigma->rotors[1]);
-    free(enigma->rotors[2]->notch);
-    free(enigma->rotors[2]);
-    if(enigma->type == ENIGMA_M4)
+    for (uint8_t i = 0; i < enigma->type; ++i)
     {
-        free(enigma->rotors[3]->notch);
-        free(enigma->rotors[3]);
+        free(enigma->rotors[0]->notch);
+        free(enigma->rotors[0]);
     }
     free(enigma->rotors);
     free(enigma->plugboard->plugboard_data);

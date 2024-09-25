@@ -68,11 +68,11 @@ Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, co
         rotor->inverse_wiring[i] = inverse_wiring[i] - 'A';
     }
 
-    rotor->position    = mod26((int8_t) (position - offset));
+    rotor->position    = mod26(position - offset);
     rotor->notch_count = 1;
     rotor->notch       = malloc(sizeof(uint8_t));
     assertmsg(rotor->notch != NULL, "rotor->notch == NULL");
-    rotor->notch[0] = mod26((int8_t) (notch - 'A' - offset));
+    rotor->notch[0] = mod26(notch - 'A' - offset);
 
     return rotor;
 }

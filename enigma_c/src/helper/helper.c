@@ -341,7 +341,7 @@ size_t my_getline(char *str, size_t lim)
     int32_t c;
     const char *temp = str;
     while (--lim > 0 && (c = getchar()) != EOF && c != '\n')
-        *str++             = (char) c;
+        *str++ = (char) c;
 
     *str = 0;
     return str - temp;
