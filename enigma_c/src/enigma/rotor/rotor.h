@@ -25,7 +25,7 @@ enum ROTOR_TYPE
     ROTOR_8
 };
 
-Rotor* create_rotor(uint8_t type, uint8_t position, uint8_t offset);
+Rotor* create_rotor_by_type(enum ROTOR_TYPE type, uint8_t position, uint8_t offset);
 uint8_t traverse_rotor(const Rotor *rotor, uint8_t character);
 uint8_t traverse_rotor_inverse(const Rotor *rotor, uint8_t character);
 bool should_rotate(const Rotor *rotor);

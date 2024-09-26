@@ -87,7 +87,7 @@ static void print_enigma_help(void)
     printf("%6s, %-15s | %-40s\n", "-r4", "--rotor-four", "fourth rotor type (1 - 8)");
     printf("%6s, %-15s | %-40s\n", "-ro", "--offsets", "rotor offset (ABC, AABC, etc)");
     printf("%6s, %-15s | %-40s\n", "-rp", "--positions", "rotor position (ABC, AABC, etc)");
-    printf("%6s, %-15s | %-40s\n", "-rf", "--reflector", "reflector type (B, C)");
+    printf("%6s, %-15s | %-40s\n", "-rf", "--reflector", "reflector type (A, B, C)");
     printf("%6s, %-15s | %-40s\n", "-pb", "--plugboard", "plugboard (e.g. AB CD EF)");
     printf("%6s, %-15s | %-40s\n\n", "-pt", "--plaintext", "plaintext (A secret Text)");
     puts("Example:");
@@ -164,13 +164,18 @@ void query_help(void)
 static void parse_rotor_input(CliOptions *options, char *argv[], int32_t *i, const enum ROTOR_TYPE rotor_num)
 {
     int32_t rotor_type = 0;
-    assertmsg(get_number_from_string(argv[++(*i)], &rotor_type) == 0, "Number parsing failed");
+    assertmsg(get_number_from_string(argv[++*i], &rotor_type) == 0, "Number parsing failed");
 
-    switch (rotor_num) {
-        case ROTOR_1: options->rotor_one_type = rotor_type; break;
-        case ROTOR_2: options->rotor_two_type = rotor_type; break;
-        case ROTOR_3: options->rotor_three_type = rotor_type; break;
-        case ROTOR_4: options->rotor_four_type = rotor_type; break;
+    switch (rotor_num)
+    {
+        case ROTOR_1: options->rotor_one_type = rotor_type;
+            break;
+        case ROTOR_2: options->rotor_two_type = rotor_type;
+            break;
+        case ROTOR_3: options->rotor_three_type = rotor_type;
+            break;
+        case ROTOR_4: options->rotor_four_type = rotor_type;
+            break;
         default: break;
     }
 }
@@ -218,7 +223,7 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
         else if (string_equals(REFLECTOR, argv[i]) ||
                  string_equals(REFLECTOR_SHORT, argv[i]))
         {
-            options->reflector_type = string_equals(argv[++i], "B") ? UKW_B : UKW_C;
+            options->reflector_type = *argv[++i];
         }
         else if (string_equals(PLUGBOARD, argv[i]) ||
                  string_equals(PLUGBOARD_SHORT, argv[i]))
@@ -231,7 +236,7 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
             while (i + 1 < argc && argv[i + 1][0] != '-')
             {
                 const size_t next_len = strlen(argv[++i]);
-                options->plugboard = realloc(options->plugboard, total_len + next_len + 1);
+                options->plugboard    = realloc(options->plugboard, total_len + next_len + 1);
                 assertmsg(options->plugboard != NULL, "realloc failed");
 
                 strcpy(options->plugboard + total_len, argv[i]);
@@ -326,14 +331,21 @@ static int32_t validate_cli_options(const CliOptions *options)
     if (options->plaintext == NULL) return 1;
     if (options->rotor_offsets == NULL) return 1;
     if (options->rotor_positions == NULL) return 1;
-    if (options->reflector_type != UKW_B && options->reflector_type != UKW_C) return 1;
+
+    // This will fail in the create_reflector_by_type switch case and give a clearer error
+    // if (options->reflector_type < UKW_A || options->reflector_type > UKW_C) return 1;
+
     if (options->rotor_one_type < ROTOR_1 || options->rotor_one_type > ROTOR_8) return 1;
     if (options->rotor_two_type < ROTOR_1 || options->rotor_two_type > ROTOR_8) return 1;
     if (options->rotor_three_type < ROTOR_1 || options->rotor_three_type > ROTOR_8) return 1;
 
+    if (options->enigma_type == ENIGMA_M3
+        && options->rotor_four_type != 0)
+        return 1;
     if (options->enigma_type == ENIGMA_M4
         && (options->rotor_four_type < ROTOR_1 || options->rotor_four_type > ROTOR_8))
         return 1;
+
     int32_t rotor_num[4];
     rotor_num[0] = options->rotor_one_type;
     rotor_num[1] = options->rotor_two_type;
@@ -377,9 +389,10 @@ static void normalize_cli_options(const CliOptions *options)
     assertmsg(err_code == 0, "normalization failed");
 }
 
-static int32_t enigma_type_char_to_int(const char *enigma_type)
+static enum ENIGMA_TYPE parse_enigma_type(const char *enigma_type)
 {
-    if (string_equals("M3", enigma_type))
+    // The Enigma M1 is just like the M3 but without the plugboard.
+    if (string_equals("M3", enigma_type) ||string_equals("M1", enigma_type))
     {
         return ENIGMA_M3;
     }
@@ -387,7 +400,8 @@ static int32_t enigma_type_char_to_int(const char *enigma_type)
     {
         return ENIGMA_M4;
     }
-    return -1;
+    fprintf(stderr, "Invalid enigma type: %s\n", enigma_type);
+    exit(1);
 }
 
 
@@ -401,20 +415,20 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
     enigma->type   = options->enigma_type;
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
     assertmsg(enigma->rotors, "enigma->rotors == NULL");
-    enigma->rotors[0] = create_rotor(options->rotor_one_type,
-                                     options->rotor_positions[0] - 'A',
-                                     options->rotor_offsets[0] - 'A');
-    enigma->rotors[1] = create_rotor(options->rotor_two_type,
-                                     options->rotor_positions[1] - 'A',
-                                     options->rotor_offsets[1] - 'A');
-    enigma->rotors[2] = create_rotor(options->rotor_three_type,
-                                     options->rotor_positions[2] - 'A',
-                                     options->rotor_offsets[2] - 'A');
+    enigma->rotors[0] = create_rotor_by_type(options->rotor_one_type,
+                                             options->rotor_positions[0] - 'A',
+                                             options->rotor_offsets[0] - 'A');
+    enigma->rotors[1] = create_rotor_by_type(options->rotor_two_type,
+                                             options->rotor_positions[1] - 'A',
+                                             options->rotor_offsets[1] - 'A');
+    enigma->rotors[2] = create_rotor_by_type(options->rotor_three_type,
+                                             options->rotor_positions[2] - 'A',
+                                             options->rotor_offsets[2] - 'A');
     if (enigma->type == ENIGMA_M4)
     {
-        enigma->rotors[3] = create_rotor(options->rotor_four_type,
-                                         options->rotor_positions[3] - 'A',
-                                         options->rotor_offsets[3] - 'A');
+        enigma->rotors[3] = create_rotor_by_type(options->rotor_four_type,
+                                                 options->rotor_positions[3] - 'A',
+                                                 options->rotor_offsets[3] - 'A');
     }
 
     enigma->reflector = create_reflector_by_type(options->reflector_type);
@@ -448,7 +462,7 @@ Enigma* query_input_interactive(void)
     err_code |= to_uppercase(primary_input);
     err_code |= remove_non_alnum(primary_input);
     assertmsg(err_code == 0, "normalization failed");
-    enigma->type   = enigma_type_char_to_int(primary_input);
+    enigma->type   = parse_enigma_type(primary_input);
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
     assertmsg(enigma->rotors != NULL, "enigma->rotors == NULL");
     puts("");
@@ -463,7 +477,7 @@ Enigma* query_input_interactive(void)
         while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
             ;
         err_code |= to_uppercase(primary_input);
-        err_code |=remove_non_alnum(primary_input);
+        err_code |= remove_non_alnum(primary_input);
         assertmsg(err_code == 0, "normalization failed");
         printf("%s rotor position (A, B, C, etc): ", numeration[rotor_num]);
         while (my_getline(secondary_input, INPUT_BUFFER_SIZE) == 0)
@@ -477,8 +491,8 @@ Enigma* query_input_interactive(void)
         err_code |= to_uppercase(tertiary_input);
         err_code |= remove_non_alnum(tertiary_input);
         assertmsg(err_code == 0, "normalization failed");
-        enigma->rotors[rotor_num] = create_rotor(primary_input[0] - '0', secondary_input[0] - 'A',
-                                                 tertiary_input[0] - 'A');
+        enigma->rotors[rotor_num] = create_rotor_by_type(primary_input[0] - '0', secondary_input[0] - 'A',
+                                                         tertiary_input[0] - 'A');
 
         puts("");
     }

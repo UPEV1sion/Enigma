@@ -6,6 +6,8 @@
 #include "reflector/reflector.h"
 #include "rotor/rotor.h"
 
+// I really like the simplicity of using this in loops and malloc's.
+// But when I add the ENIGMA_M1 and assign it to value 3, the two became synonymous.
 enum ENIGMA_TYPE
 {
     ENIGMA_M3 = 3,

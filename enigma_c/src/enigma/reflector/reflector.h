@@ -5,6 +5,7 @@ typedef struct
     uint8_t *wiring;
 } Reflector;
 
+//TODO implement the UKW D reflector.
 enum REFLECTOR_TYPE
 {
     UKW_A = 'A',

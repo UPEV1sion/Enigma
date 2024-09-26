@@ -174,7 +174,7 @@ uint8_t* get_int_array_from_string(const char *str)
 
     for (size_t i = 0; i < len; i++)
     {
-        array[i] = str[i] - 'A';
+        array[i] = (uint8_t) (str[i] - 'A');
     }
 
     return array;

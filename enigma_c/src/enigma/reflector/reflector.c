@@ -14,11 +14,11 @@ Reflector* create_reflector(const char *wiring)
     Reflector *ukw = malloc(sizeof(Reflector));
     assertmsg(ukw != NULL, "ukw == NULL");
     ukw->wiring = malloc(ALPHABET_SIZE + 1);
-    assertmsg(ukw->wiring, "ukw == NULL");
+    assertmsg(ukw->wiring, "ukw->wiring == NULL");
 
     for (uint16_t i = 0; i < ALPHABET_SIZE; i++)
     {
-        ukw->wiring[i] = (uint8_t) (wiring[i] - 'A');
+        ukw->wiring[i] = wiring[i] - 'A';
     }
 
     ukw->wiring[ALPHABET_SIZE] = 0;
@@ -28,18 +28,16 @@ Reflector* create_reflector(const char *wiring)
 
 Reflector* create_reflector_by_type(const enum REFLECTOR_TYPE type)
 {
-    if(type == UKW_A)
+    switch (type)
     {
-        return create_reflector(UKW_A_WIRING);
+        case UKW_A:
+            return create_reflector(UKW_A_WIRING);
+        case UKW_B:
+            return create_reflector(UKW_B_WIRING);
+        case UKW_C:
+            return create_reflector(UKW_C_WIRING);
+        default:
+            fprintf(stderr, "Error, Reflector definition not found: %d", type);
+            exit(1);
     }
-    if(type == UKW_B)
-    {
-        return create_reflector(UKW_B_WIRING);
-    }
-    if (type == UKW_C)
-    {
-        return create_reflector(UKW_C_WIRING);
-    }
-    printf("Error, Reflector definition not found");
-    exit(1);
 }

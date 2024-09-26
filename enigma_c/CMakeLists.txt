@@ -7,10 +7,12 @@ project(enigma VERSION 0.1.0
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Although I've provided MSCV support, I recommend GCC or Clang, because of the better compiler flags.
+# Clang offers exceptional performance while GCC is the standard.
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall /WX")
 else ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wunused-result")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wunused-result")
 endif ()
 
 set(FILE_PATH_JSON "${CMAKE_SOURCE_DIR}/src/data/enigma.json")

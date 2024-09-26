@@ -102,10 +102,10 @@ int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uin
     if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
     free(cycles);
 
-    char *crib_str = get_string_from_int_array(crib, crib_len);
-    char *ciphertext_str = get_string_from_int_array(ciphertext, crib_len);
+    // char *crib_str = get_string_from_int_array(crib, crib_len);
+    // char *ciphertext_str = get_string_from_int_array(ciphertext, crib_len);
 
-    printf("");
+    // printf("");
     // char *longest_cycle = cycles->cycles[0];
     // size_t longest_cycle_length = 0;
     // for(uint8_t cycle = 1; cycle < cycles->num_cycles; ++cycle)
@@ -137,14 +137,14 @@ int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uin
     return 0;
 }
 
-bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles)
-{
+// bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles)
+// {
     // if (!is_candidate(candidate_cycles, current_cycles)) return false;
-    char graph_compare[ALPHABET_SIZE] = {0};
-    for(uint16_t cycle = 0; cycle < candidate_cycles->num_cycles; ++cycle)
-    {
+    // char graph_compare[ALPHABET_SIZE] = {0};
+    // for(uint16_t cycle = 0; cycle < candidate_cycles->num_cycles; ++cycle)
+    // {
 
-    }
+    // }
 
-    return false;
-}
+    // return false;
+// }

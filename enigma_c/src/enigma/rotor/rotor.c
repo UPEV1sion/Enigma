@@ -5,6 +5,7 @@
 #include "rotor.h"
 #include "helper/helper.h"
 
+//TODO probably should append _WIRING to the wirings
 #define ROTOR_I             "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
 #define ROTOR_I_INV         "UWYGADFPVZBECKMTHXSLRINQOJ"
 #define ROTOR_I_NOTCH       'Q'
@@ -101,37 +102,37 @@ Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wiring, co
     return rotor;
 }
 
-Rotor* create_rotor(const uint8_t type, const uint8_t position, const uint8_t offset)
+Rotor* create_rotor_by_type(const enum ROTOR_TYPE type, const uint8_t position, const uint8_t offset)
 {
     switch (type)
     {
-        case 1:
+        case ROTOR_1:
             return create_one_notch_rotor(ROTOR_I, ROTOR_I_INV, ROTOR_I_NOTCH,
                                           position, offset);
-        case 2:
+        case ROTOR_2:
             return create_one_notch_rotor(ROTOR_II, ROTOR_II_INV, ROTOR_II_NOTCH,
                                           position, offset);
-        case 3:
+        case ROTOR_3:
             return create_one_notch_rotor(ROTOR_III, ROTOR_III_INV, ROTOR_III_NOTCH,
                                           position, offset);
-        case 4:
+        case ROTOR_4:
             return create_one_notch_rotor(ROTOR_IV, ROTOR_IV_INV, ROTOR_IV_NOTCH,
                                           position, offset);
-        case 5:
+        case ROTOR_5:
             return create_one_notch_rotor(ROTOR_V, ROTOR_V_INV, ROTOR_V_NOTCH,
                                           position, offset);
-        case 6:
+        case ROTOR_6:
             return create_two_notch_rotor(ROTOR_VI, ROTOR_VI_INV,
                                           ROTOR_VI_NOTCH_ONE, ROTOR_VI_NOTCH_TWO, position, offset);
-        case 7:
+        case ROTOR_7:
             return create_two_notch_rotor(ROTOR_VII, ROTOR_VII_INV,
                                           ROTOR_VII_NOTCH_ONE, ROTOR_VII_NOTCH_TWO, position, offset);
-        case 8:
+        case ROTOR_8:
             return create_two_notch_rotor(ROTOR_VIII, ROTOR_VIII_INV,
                                           ROTOR_VIII_NOTCH_ONE,
                                           ROTOR_VIII_NOTCH_TWO, position, offset);
         default:
-            printf("Error, Rotor definition not found");
+            fprintf(stderr, "Error, Rotor definition not found: %d", type);
             exit(1);
     }
 }

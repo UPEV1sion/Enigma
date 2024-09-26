@@ -12,7 +12,6 @@
 
 #define NUM_ROTORS_PER_ENIGMA      3
 #define MESSAGE_SIZE               7
-#define PLUGBOARD                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 /*
  * Advice from Juergen Wolfs C von A bis Z:
@@ -54,6 +53,25 @@ typedef struct
     uint8_t rotor_permutation;
 } CycleConfiguration;
 
+static void sort_cycles(const Cycle *cycle)
+{
+    // Sort the cycles.
+    // QSort is NOT beneficial here.
+    // Selection Sort -although it's O(n^2) algorithm- is the fastest one so far.
+    for (uint16_t i = 0; i < cycle->length; i++)
+    {
+        for (uint16_t j = i + 1; j < cycle->length; j++)
+        {
+            if (cycle->cycle_values[i] < cycle->cycle_values[j])
+            {
+                const int32_t temp    = cycle->cycle_values[i];
+                cycle->cycle_values[i] = cycle->cycle_values[j];
+                cycle->cycle_values[j] = temp;
+            }
+        }
+    }
+}
+
 
 /**
  * @brief Get cycles by hopping through the rotor permutation using the next
@@ -78,7 +96,6 @@ static Cycle get_cycle_count(const int32_t *rotor_permutation)
             visited[base]                = true;
             int32_t current              = rotor_permutation[base];
             int32_t current_cycle_length = 1;
-            // TODO: cycles should be sorted
 
             while (current != base)
             {
@@ -90,19 +107,8 @@ static Cycle get_cycle_count(const int32_t *rotor_permutation)
         }
     }
 
-    // Sort the cycles. QSort is NOT beneficial here. Selection Sort is the fastest one so far.
-    for (uint16_t i = 0; i < cycle.length; i++)
-    {
-        for (uint16_t j = i + 1; j < cycle.length; j++)
-        {
-            if (cycle.cycle_values[i] < cycle.cycle_values[j])
-            {
-                const int32_t temp    = cycle.cycle_values[i];
-                cycle.cycle_values[i] = cycle.cycle_values[j];
-                cycle.cycle_values[j] = temp;
-            }
-        }
-    }
+    sort_cycles(&cycle);
+
     return cycle;
 }
 
@@ -161,8 +167,9 @@ static void create_cycle(const CycleConfiguration *cycle_configuration,
         cycle_configuration->rotor_three_position
     };
 
+    // Plugboard is implicitly the normal one
     char message[MESSAGE_SIZE]        = {0};
-    EnigmaConfiguration configuration = {
+    const EnigmaConfiguration configuration = {
         .rotors = rotors,
         .rotor_positions = rotor_positions,
         .ring_settings = ring_settings,
@@ -170,7 +177,6 @@ static void create_cycle(const CycleConfiguration *cycle_configuration,
         .reflector = cycle_configuration->reflector,
         .message = message
     };
-    memcpy(configuration.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
 
     memcpy(cycle->rotor_positions, rotor_positions, sizeof(rotor_positions));
     memcpy(cycle->rotors, rotors, NUM_ROTORS_PER_ENIGMA * sizeof(enum ROTOR_TYPE));
@@ -181,7 +187,7 @@ static void create_cycle(const CycleConfiguration *cycle_configuration,
 
     for (uint16_t letter = 0; letter < ALPHABET_SIZE; letter++)
     {
-        memset(configuration.message, letter + 'A', 6);
+        memset(message, letter + 'A', 6);
 
         Enigma *enigma = create_enigma_from_configuration(&configuration);
 
@@ -216,13 +222,13 @@ void create_cycles(void)
     FILE *file                = open_file();
     CycleOfRotorSetting cycle = {0};
 
-    for (uint16_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
+    for (uint8_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
     {
-        for (uint16_t rotor_two_position = 0; rotor_two_position < ALPHABET_SIZE; ++rotor_two_position)
+        for (uint8_t rotor_two_position = 0; rotor_two_position < ALPHABET_SIZE; ++rotor_two_position)
         {
-            for (uint16_t rotor_three_position = 0; rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
+            for (uint8_t rotor_three_position = 0; rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
             {
-                for (uint16_t rotor_permutation = 0; rotor_permutation < 3 * 2 * 1;
+                for (uint8_t rotor_permutation = 0; rotor_permutation < 3 * 2 * 1;
                      rotor_permutation++)
                 {
                     CycleConfiguration cycle_configuration = {
@@ -235,7 +241,8 @@ void create_cycles(void)
 
                     create_cycle(
                         &cycle_configuration,
-                        possible_rotor_permutations[rotor_permutation], &cycle);
+                        possible_rotor_permutations[rotor_permutation],
+                        &cycle);
 
                     print_whole_cycle(&cycle, file);
                     free_cycle(&cycle);
@@ -243,7 +250,8 @@ void create_cycles(void)
             }
         }
     }
+
     fclose(file);
     puts("Cycles have been written to: " FILE_PATH_CYCLO);
-    printf("Total cycles: %d", TOTAL_CYCLES);
+    printf("Total cycles: %d\n", TOTAL_CYCLES);
 }

@@ -38,7 +38,7 @@ static void add_enigma_model_to_json(void)
                           cJSON_CreateNumber(get_enigma_type_from_gui()));
 }
 
-static void add_reflector_to_json()
+static void add_reflector_to_json(void)
 {
     // I don't really like this but works for now
     const char reflector[2] = {get_reflector_type_from_gui(), 0};
@@ -48,7 +48,7 @@ static void add_reflector_to_json()
 static void add_rotors_to_json(void)
 {
     enum ROTOR_TYPE *rotors = get_rotors_from_gui();
-    cJSON *rotors_array      = cJSON_AddArrayToObject(root, "rotors");
+    cJSON *rotors_array     = cJSON_AddArrayToObject(root, "rotors");
     for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
     {
         cJSON_AddItemToArray(rotors_array, cJSON_CreateNumber(rotors[i]));
@@ -58,8 +58,8 @@ static void add_rotors_to_json(void)
 
 static void add_positions_to_json(void)
 {
-    uint8_t *positions = get_rotor_positions_from_gui();
-    cJSON *positions_array      = cJSON_AddArrayToObject(root, "positions");
+    uint8_t *positions     = get_rotor_positions_from_gui();
+    cJSON *positions_array = cJSON_AddArrayToObject(root, "positions");
     for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
     {
         cJSON_AddItemToArray(positions_array, cJSON_CreateNumber(positions[i]));
@@ -69,8 +69,8 @@ static void add_positions_to_json(void)
 
 static void add_rings_to_json(void)
 {
-    uint8_t *rings = get_rotor_ring_positions_from_gui();
-    cJSON *rings_array      = cJSON_AddArrayToObject(root, "rings");
+    uint8_t *rings     = get_rotor_ring_positions_from_gui();
+    cJSON *rings_array = cJSON_AddArrayToObject(root, "rings");
     for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
     {
         cJSON_AddItemToArray(rings_array, cJSON_CreateNumber(rings[i]));
@@ -110,12 +110,10 @@ static void write_json_to_file(void)
 
 void enigma_to_json(const char *out)
 {
-    root                   = cJSON_CreateObject();
-    GtkTreeModel *modelT   = NULL;
-    const GtkTreeIter iter = {0, NULL, NULL, NULL};
+    root = cJSON_CreateObject();
 
     add_enigma_model_to_json();
-    add_reflector_to_json(modelT, iter);
+    add_reflector_to_json();
     add_rotors_to_json();
     add_positions_to_json();
     add_rings_to_json();

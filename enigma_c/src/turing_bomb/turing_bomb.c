@@ -44,42 +44,43 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
 
     return true;
 }
-
-static uint8_t* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, const uint32_t crib_pos,
-                                               const size_t crib_len)
-{
-    uint8_t *text = get_int_array_from_string(conf->message);
-    assertmsg(text != NULL, "string to int[] conversion failed");
-    uint8_t *output = malloc(sizeof(uint8_t) * crib_len);
-    assertmsg(output != NULL, "malloc failed");
-
-    Enigma *enigma = create_enigma_from_configuration(conf);
-    assertmsg(enigma != NULL, "enigma == NULL");
-    Rotor *rotorOne            = enigma->rotors[0];
-    const Rotor *rotorTwo      = enigma->rotors[1];
-    const Rotor *rotorThree    = enigma->rotors[2];
-    const Reflector *reflector = enigma->reflector;
-    const Plugboard *plugboard = enigma->plugboard;
-
-    // The crib was placed so that there were no contradictions with the encrypted text
-    // and in a place where it was assumed that only the first rotor was turned
-    const size_t crip_end = crib_pos + crib_len;
-    for (size_t i = crib_pos; i < crip_end; ++i)
-    {
-        rotorOne->position = (rotorOne->position + 1) % 26;
-        uint8_t character  = traverse_rotor(rotorOne, text[i]);
-        character          = traverse_rotor(rotorTwo, character);
-        character          = traverse_rotor(rotorThree, character);
-        character          = reflector->wiring[character];
-        character          = traverse_rotor_inverse(rotorThree, character);
-        character          = traverse_rotor_inverse(rotorTwo, character);
-        character          = traverse_rotor_inverse(rotorOne, character);
-        output[i]          = plugboard->plugboard_data[character];
-    }
-    free(text);
-    free_enigma(enigma);
-    return output;
-}
+//TODO modify for "Crib Enigmas"
+//
+// static uint8_t* traverse_m3_enigma_at_position(const EnigmaConfiguration *conf, const uint32_t crib_pos,
+//                                                const size_t crib_len)
+// {
+//     uint8_t *text = get_int_array_from_string(conf->message);
+//     assertmsg(text != NULL, "string to int[] conversion failed");
+//     uint8_t *output = malloc(sizeof(uint8_t) * crib_len);
+//     assertmsg(output != NULL, "malloc failed");
+//
+//     Enigma *enigma = create_enigma_from_configuration(conf);
+//     assertmsg(enigma != NULL, "enigma == NULL");
+//     Rotor *rotorOne            = enigma->rotors[0];
+//     const Rotor *rotorTwo      = enigma->rotors[1];
+//     const Rotor *rotorThree    = enigma->rotors[2];
+//     const Reflector *reflector = enigma->reflector;
+//     const Plugboard *plugboard = enigma->plugboard;
+//
+//     // The crib was placed so that there were no contradictions with the encrypted text
+//     // and in a place where it was assumed that only the first rotor was turned
+//     const size_t crip_end = crib_pos + crib_len;
+//     for (size_t i = crib_pos; i < crip_end; ++i)
+//     {
+//         rotorOne->position = (rotorOne->position + 1) % 26;
+//         uint8_t character  = traverse_rotor(rotorOne, text[i]);
+//         character          = traverse_rotor(rotorTwo, character);
+//         character          = traverse_rotor(rotorThree, character);
+//         character          = reflector->wiring[character];
+//         character          = traverse_rotor_inverse(rotorThree, character);
+//         character          = traverse_rotor_inverse(rotorTwo, character);
+//         character          = traverse_rotor_inverse(rotorOne, character);
+//         output[i]          = plugboard->plugboard_data[character];
+//     }
+//     free(text);
+//     free_enigma(enigma);
+//     return output;
+// }
 
 int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {

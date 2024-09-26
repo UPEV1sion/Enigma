@@ -25,15 +25,15 @@ typedef struct
     uint8_t second;
 } Tuple;
 
-static void print_cycle(const char *cycle, const size_t cycle_length)
-{
-    printf("Cycle detected: ");
-    for (size_t i = 0; i < cycle_length; i++)
-    {
-        printf("%c -> ", cycle[i]);
-    }
-    // printf("%c\n", cycle[0]);
-}
+// static void print_cycle(const char *cycle, const size_t cycle_length)
+// {
+//     printf("Cycle detected: ");
+//     for (size_t i = 0; i < cycle_length; i++)
+//     {
+//         printf("%c -> ", cycle[i]);
+//     }
+//      printf("%c\n", cycle[0]);
+// }
 
 static char* get_cycle_str(const int8_t *cycle, const size_t cycle_length)
 {

@@ -89,7 +89,7 @@ uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
     Rotor *rotor_one   = enigma->rotors[0];
     Rotor *rotor_two   = enigma->rotors[1];
     Rotor *rotor_three = enigma->rotors[2];
-    Rotor *rotor_four = enigma->rotors[3];
+    Rotor *rotor_four  = enigma->rotors[3];
 
     const Plugboard *plugboard = enigma->plugboard;
     assertmsg(plugboard != NULL, "plugboard == NULL");
@@ -113,7 +113,8 @@ uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
             if (should_rotate(rotor_two))
             {
                 rotor_three->position = (rotor_three->position + 1) % 26;
-                if(should_rotate(rotor_three))
+
+                if (should_rotate(rotor_three))
                 {
                     rotor_four->position = (rotor_four->position + 1) % 26;
                 }
@@ -145,13 +146,13 @@ uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
  */
 uint8_t* traverse_enigma(const Enigma *enigma)
 {
-    char *plaintext          = enigma->plaintext;
+    char *plaintext         = enigma->plaintext;
     const size_t array_size = strlen(plaintext);
     assertmsg(to_uppercase(plaintext) == 0, "to_uppercase failed");
     uint8_t *text_in_numbers = get_int_array_from_string(plaintext);
     assertmsg(text_in_numbers != NULL, "string to int[] conversion failed");
 
-    if(enigma->type == ENIGMA_M3)
+    if (enigma->type == ENIGMA_M3)
         return traverse_m3_enigma(enigma, text_in_numbers, array_size);
     return traverse_m4_enigma(enigma, text_in_numbers, array_size);
 }
@@ -174,11 +175,11 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
 
     for (uint16_t i = 0; i < (uint16_t) enigma->type; i++)
     {
-        const int32_t rotor_type = enigma_configuration->rotors[i];
-        const int32_t position   = enigma_configuration->rotor_positions[i];
-        const int32_t offset     = enigma_configuration->ring_settings[i];
+        const enum ROTOR_TYPE rotor_type = enigma_configuration->rotors[i];
+        const uint8_t position           = enigma_configuration->rotor_positions[i];
+        const uint8_t offset             = enigma_configuration->ring_settings[i];
 
-        Rotor *rotor = create_rotor(rotor_type, position, offset);
+        Rotor *rotor = create_rotor_by_type(rotor_type, position, offset);
         assertmsg(rotor != NULL, "rotor == NULL");
 
         enigma->rotors[i] = rotor;
@@ -205,11 +206,10 @@ void free_enigma(Enigma *enigma)
 {
     for (uint8_t i = 0; i < enigma->type; ++i)
     {
-        free(enigma->rotors[0]->notch);
-        free(enigma->rotors[0]);
+        free(enigma->rotors[i]->notch);
+        free(enigma->rotors[i]);
     }
     free(enigma->rotors);
-    free(enigma->plugboard->plugboard_data);
     free(enigma->plugboard);
     free(enigma->reflector->wiring);
     free(enigma->reflector);

@@ -113,21 +113,21 @@ static void free_config(EnigmaConfiguration *conf)
     free(conf);
 }
 
-static void pop_and_print_whole_stack(void)
-{
-    for (EnigmaConfiguration *conf_temp = pop(); conf_temp != NULL; conf_temp = pop())
-    {
-        for (uint16_t i = 0; i < NUM_ROTORS_PER_ENIGMA; i++)
-        {
-            printf("%d :", conf_temp->rotors[i]);
-            printf(" %d :", conf_temp->rotor_positions[i] + 1);
-            printf(" %d\n", conf_temp->ring_settings[i] + 1);
-        }
-        puts(conf_temp->message);
-        puts("");
-        free_config(conf_temp);
-    }
-}
+// static void pop_and_print_whole_stack(void)
+// {
+//     for (EnigmaConfiguration *conf_temp = pop(); conf_temp != NULL; conf_temp = pop())
+//     {
+//         for (uint16_t i = 0; i < NUM_ROTORS_PER_ENIGMA; i++)
+//         {
+//             printf("%d :", conf_temp->rotors[i]);
+//             printf(" %d :", conf_temp->rotor_positions[i] + 1);
+//             printf(" %d\n", conf_temp->ring_settings[i] + 1);
+//         }
+//         puts(conf_temp->message);
+//         puts("");
+//         free_config(conf_temp);
+//     }
+// }
 
 static void advance_enigma_back(const EnigmaConfiguration *conf, const Enigma *enigma)
 {
@@ -166,9 +166,11 @@ static uint8_t* traverse_enigma_w_checks(register const char *known_plaintext,
 {
     uint8_t *text           = get_int_array_from_string(enigma->plaintext);
     assertmsg(text != NULL, "string to int[] conversion failed");
+
     const size_t array_size = strlen(known_plaintext);
     uint8_t *output         = malloc(array_size * sizeof(uint8_t));
     assertmsg(output != NULL, "malloc failed");
+
     Rotor *rotorOne         = enigma->rotors[0];
     Rotor *rotorTwo         = enigma->rotors[1];
     Rotor *rotorThree       = enigma->rotors[2];
@@ -193,7 +195,7 @@ static uint8_t* traverse_enigma_w_checks(register const char *known_plaintext,
         uint8_t character      = traverse_rotor(rotorOne, text[i]);
         character              = traverse_rotor(rotorTwo, character);
         character              = traverse_rotor(rotorThree, character);
-        character              = (unsigned char) reflector->wiring[character];
+        character              = reflector->wiring[character];
         character              = traverse_rotor_inverse(rotorThree, character);
         character              = traverse_rotor_inverse(rotorTwo, character);
         character              = traverse_rotor_inverse(rotorOne, character);
@@ -217,11 +219,13 @@ static double check_enigma_rotors(register const EnigmaConfiguration *conf)
     const size_t array_size = strlen(conf->message);
     uint8_t *text           = get_int_array_from_string(conf->message);
     assertmsg(text != NULL, "string to int[] conversion failed");
+
     uint8_t *output         = malloc(array_size * sizeof(uint8_t));
     assertmsg(output != NULL, "malloc failed");
 
     Enigma *enigma = create_enigma_from_configuration(conf);
     assertmsg(enigma != NULL, "enigma == NULL");
+
     Rotor *rotorOne            = enigma->rotors[0];
     Rotor *rotorTwo            = enigma->rotors[1];
     Rotor *rotorThree          = enigma->rotors[2];
@@ -261,9 +265,10 @@ static char* create_positions_string(const EnigmaConfiguration *conf)
 {
     char *position_string = malloc(OUTPUT_STRING_SIZE);
     assertmsg(position_string != NULL, "position_string == NULL");
-    const int ret = snprintf(position_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->rotor_positions[0] + 1,
-             conf->rotor_positions[1] + 1,
-             conf->rotor_positions[2] + 1);
+    const int ret = snprintf(position_string, OUTPUT_STRING_SIZE, "%d : %d : %d",
+        conf->rotor_positions[0] + 1,
+        conf->rotor_positions[1] + 1,
+        conf->rotor_positions[2] + 1);
     assertmsg(ret >= 0 && ret < OUTPUT_STRING_SIZE, "snprintf failed");
     return position_string;
 }
@@ -272,8 +277,10 @@ static char* create_ring_string(const EnigmaConfiguration *conf)
 {
     char *ring_string = malloc(OUTPUT_STRING_SIZE);
     assertmsg(ring_string != NULL, "ring_string == NULL");
-    const int ret = snprintf(ring_string, OUTPUT_STRING_SIZE, "%d : %d : %d", conf->ring_settings[0] + 1, conf->ring_settings[1] + 1,
-             conf->ring_settings[2] + 1);
+    const int ret = snprintf(ring_string, OUTPUT_STRING_SIZE, "%d : %d : %d",
+        conf->ring_settings[0] + 1,
+        conf->ring_settings[1] + 1,
+        conf->ring_settings[2] + 1);
     assertmsg(ret >= 0 && ret < OUTPUT_STRING_SIZE, "snprintf failed");
     return ring_string;
 }

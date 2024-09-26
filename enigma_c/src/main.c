@@ -15,6 +15,7 @@
 //
 
 #include "cli/cli.h"
+#include "enigma/enigma.h"
 #include "enigma/rotor/rotor.h"
 #include "gui/bomb_out.h"
 #include "gui/start_gui.h"

@@ -19,4 +19,4 @@ uint8_t* get_rotor_ring_positions_from_gui(void);
 char* get_plugboard_from_gui(void);
 char* get_input_text_from_gui(void);
 
-void run_gui();
+void run_gui(void);
