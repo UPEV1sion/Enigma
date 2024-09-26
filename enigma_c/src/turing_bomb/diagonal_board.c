@@ -90,7 +90,7 @@ static void init_diagonal_board(TuringBomb *turing_bomb)
 {
     for(int8_t wire = 0; wire < ALPHABET_SIZE; ++wire)
     {
-        memcpy(turing_bomb->diagonal_board[wire], ALPHABET, ALPHABET_SIZE);
+        memcpy(turing_bomb->diagonal_board->alphabet[wire], ALPHABET, ALPHABET_SIZE);
     }
 }
 
@@ -101,6 +101,8 @@ int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uin
     Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
     if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
     free(cycles);
+
+
 
     // char *crib_str = get_string_from_int_array(crib, crib_len);
     // char *ciphertext_str = get_string_from_int_array(ciphertext, crib_len);

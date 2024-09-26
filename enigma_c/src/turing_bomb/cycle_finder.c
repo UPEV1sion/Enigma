@@ -196,8 +196,8 @@ Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t
     for (size_t i = 0; i < crib_len; i++)
     {
         uint32_t visited_mask = 0;
-        int8_t path[ASCII_SIZE];
-        memset(path, -1, ASCII_SIZE); //since 'A' is represented by 0, we must use a different terminator.
+        int8_t path[ALPHABET_SIZE];
+        memset(path, -1, ALPHABET_SIZE); //since 'A' is represented by 0, we must use a different terminator.
         visited_mask |= (1 << i);
         size_t cp_index = 0;
         if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index))

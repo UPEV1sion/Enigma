@@ -5,6 +5,7 @@
 #include "enigma/rotor/rotor.h"
 #include "enigma/reflector/reflector.h"
 #include "helper/helper.h"
+#include "diagonal_board.h"
 
 //
 // Created by Emanuel on 07.09.2024.
@@ -14,11 +15,10 @@
 #define NUM_SCRAMBLERS_PER_ROW 12
 #define NUM_ROTORS_PER_ENIGMA  3
 
-
-//TODO cycle reference
-
+//TODO cycle reference header
 typedef struct
 {
+    cable_t in, out;
     Rotor *rotors[NUM_ROTORS_PER_ENIGMA];
 } ScramblerEnigma;
 
@@ -28,7 +28,7 @@ typedef struct
 {
     ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
     //TODO this might need to be a struct
-    uint8_t diagonal_board[ALPHABET_SIZE][ALPHABET_SIZE];
+    DiagonalBoard *diagonal_board;
     Reflector reflector;
 } TuringBomb;
 

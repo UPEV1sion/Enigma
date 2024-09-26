@@ -27,12 +27,13 @@
 
 int main(int argc, char *argv[])
 {
+    // find_cycles("SNMKGGSTZZUGARLV", "WETTERVORHERSAGE");
     // find_cycles("PUCXIXNZWUYKDKS", "PUCXIXNZWUYKDKSXIPIKLVBKUTA");
-    // uint8_t *arr_crib = get_int_array_from_string("BEACHHEAD");
-    // uint8_t *arr_cipher = get_int_array_from_string("EDBGEAHDB");
-    // find_cycles(arr_crib, arr_cipher, 9);
+    uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
+    uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
+    find_cycles(arr_crib, arr_cipher, 16);
     // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
-    // return 0;
+    return 0;
     if (argc < 2)
     {
         puts("Usage: ./main [OPTIONS]");
