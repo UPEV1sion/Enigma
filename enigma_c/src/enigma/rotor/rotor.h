@@ -3,10 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "helper/helper.h"
+
 typedef struct
 {
-    uint8_t wiring[26];
-    uint8_t inverse_wiring[26];
+    uint8_t wiring[ALPHABET_SIZE];
+    uint8_t inverse_wiring[ALPHABET_SIZE];
     uint8_t *notch;
     uint8_t position;
     uint8_t notch_count;

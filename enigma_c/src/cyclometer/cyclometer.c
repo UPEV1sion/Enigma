@@ -33,7 +33,7 @@ static const uint8_t possible_rotor_permutations[6][3] = {
 
 typedef struct
 {
-    int32_t *cycle_values;
+    uint8_t *cycle_values;
     int32_t length;
 } Cycle;
 
@@ -64,7 +64,7 @@ static void sort_cycles(const Cycle *cycle)
         {
             if (cycle->cycle_values[i] < cycle->cycle_values[j])
             {
-                const int32_t temp    = cycle->cycle_values[i];
+                const int32_t temp     = cycle->cycle_values[i];
                 cycle->cycle_values[i] = cycle->cycle_values[j];
                 cycle->cycle_values[j] = temp;
             }
@@ -79,22 +79,22 @@ static void sort_cycles(const Cycle *cycle)
  * @param rotor_permutation: Array containing the next index of the cycle
  * @return Cycle: A cycle of the rotor permutation
  */
-static Cycle get_cycle_count(const int32_t *rotor_permutation)
+static Cycle get_cycle_count(const uint8_t *rotor_permutation)
 {
     Cycle cycle;
     cycle.length       = 0;
-    cycle.cycle_values = malloc(ALPHABET_SIZE * sizeof(int32_t));
+    cycle.cycle_values = malloc(ALPHABET_SIZE * sizeof(uint8_t));
     assertmsg(cycle.cycle_values != NULL, "cycle.cycle_values == NULL");
 
     bool visited[26] = {false};
 
-    for (uint16_t i = 0; i < ALPHABET_SIZE; i++)
+    for (uint8_t i = 0; i < ALPHABET_SIZE; i++)
     {
         if (!visited[i])
         {
-            const int32_t base           = i;
+            const uint8_t base          = i;
             visited[base]                = true;
-            int32_t current              = rotor_permutation[base];
+            uint8_t current              = rotor_permutation[base];
             int32_t current_cycle_length = 1;
 
             while (current != base)
@@ -121,7 +121,7 @@ static FILE* open_file(void)
 
 static void print_cycle(const Cycle *cycle, FILE *file)
 {
-    fwrite(" ( ", sizeof(char), 3, file);
+    fwrite("( ", sizeof(char), 2, file);
     for (uint16_t i = 0; i < cycle->length; i++)
     {
         fprintf(file, "%d", cycle->cycle_values[i]);
@@ -141,7 +141,7 @@ static void print_whole_cycle(const CycleOfRotorSetting *cycle, FILE *file)
     fwrite(" / ", sizeof(char), 3, file);
     print_cycle(&cycle->cycles[2], file);
 
-    fprintf(file, ": %c %c %c: ",
+    fprintf(file, " : %c %c %c : ",
             cycle->rotor_positions[0] + 'A',
             cycle->rotor_positions[1] + 'A',
             cycle->rotor_positions[2] + 'A');
@@ -168,7 +168,7 @@ static void create_cycle(const CycleConfiguration *cycle_configuration,
     };
 
     // Plugboard is implicitly the normal one
-    char message[MESSAGE_SIZE]        = {0};
+    char message[MESSAGE_SIZE]              = {0};
     const EnigmaConfiguration configuration = {
         .rotors = rotors,
         .rotor_positions = rotor_positions,
@@ -181,9 +181,9 @@ static void create_cycle(const CycleConfiguration *cycle_configuration,
     memcpy(cycle->rotor_positions, rotor_positions, sizeof(rotor_positions));
     memcpy(cycle->rotors, rotors, NUM_ROTORS_PER_ENIGMA * sizeof(enum ROTOR_TYPE));
 
-    int32_t rotor_one_permutation[ALPHABET_SIZE]   = {0};
-    int32_t rotor_two_permutation[ALPHABET_SIZE]   = {0};
-    int32_t rotor_three_permutation[ALPHABET_SIZE] = {0};
+    uint8_t rotor_one_permutation[ALPHABET_SIZE]   = {0};
+    uint8_t rotor_two_permutation[ALPHABET_SIZE]   = {0};
+    uint8_t rotor_three_permutation[ALPHABET_SIZE] = {0};
 
     for (uint16_t letter = 0; letter < ALPHABET_SIZE; letter++)
     {

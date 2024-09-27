@@ -86,17 +86,10 @@
 //     }
 // }
 
-static void init_diagonal_board(TuringBomb *turing_bomb)
-{
-    for(int8_t wire = 0; wire < ALPHABET_SIZE; ++wire)
-    {
-        memcpy(turing_bomb->diagonal_board->alphabet[wire], ALPHABET, ALPHABET_SIZE);
-    }
-}
 
 int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
 {
-    init_diagonal_board(turing_bomb);
+    // init_diagonal_board(turing_bomb);
 
     Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
     if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
