@@ -3,7 +3,7 @@
 
 #include "brute_force.h"
 #include "helper/helper.h"
-#include "gui/bomb_out.h"
+#include "gui/bomb_out_gui//bomb_out.h"
 #include "enigma/enigma.h"
 
 //

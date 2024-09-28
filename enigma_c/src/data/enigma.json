@@ -1,10 +1,10 @@
 {
 	"model":	3,
 	"reflector":	"B",
-	"rotors":	[1, 2, 3],
+	"rotors":	[1, 2, 4],
 	"positions":	[0, 0, 0],
 	"rings":	[0, 0, 0],
 	"plugboard":	"",
-	"input":	"LOREMIPSUM",
-	"output":	"ILFDFARUBD"
+	"input":	"DWJK",
+	"output":	"TEST"
 }

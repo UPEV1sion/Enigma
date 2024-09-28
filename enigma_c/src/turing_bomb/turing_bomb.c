@@ -45,7 +45,7 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
     return true;
 }
 
-static Rotor* create_
+// static Rotor* create_
 
 int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
@@ -64,8 +64,8 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
     uint8_t *crib_as_ints       = get_int_array_from_string(crib);
     uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
 
-    TuringBomb turing_bomb;
-    create_bomb_menu(&turing_bomb, crib_as_ints, ciphertext_as_ints, crib_len);
+    // TuringBomb turing_bomb;
+    // create_bomb_menu(&turing_bomb, crib_as_ints, ciphertext_as_ints, crib_len);
     // const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, crib_len);
 
     // Different rotor types
@@ -84,7 +84,7 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
                 {
                     continue;
                 }
-                enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA]  = {rotor_one, rotor_two, rotor_three};
+                // enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA]  = {rotor_one, rotor_two, rotor_three};
                 for (uint8_t rotor_one_pos = 0; rotor_one_pos < ALPHABET_SIZE; ++rotor_one_pos)
                 {
                     for (uint8_t rotor_two_pos = 0; rotor_two_pos < ALPHABET_SIZE; ++rotor_two_pos)
@@ -124,4 +124,6 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
                conf.rotor_positions[0], conf.rotor_positions[1], conf.rotors[2]);
         return 0;
     }
-    free(output);*/
+    free(output);
+
+*/

@@ -40,12 +40,12 @@
 #define CYCLOMETER_SHORT       "-c"
 
 /*----------BOMB----------*/
-#define BOMB              "--bomb"
-#define BOMB_SHORT        "-b"
-#define CIPHERTEXT        "--ciphertext"
-#define CIPHERTEXT_SHORT  "-ct"
-#define KNOWN_TEXT        "--known-plaintext"
-#define KNOWN_TEXT_SHORT  "-kp"
+#define BOMB                   "--bomb"
+#define BOMB_SHORT             "-b"
+#define CIPHERTEXT             "--ciphertext"
+#define CIPHERTEXT_SHORT       "-ct"
+#define CRIB                   "--crib"
+#define CRIB_SHORT             "-cr"
 
 typedef struct
 {
@@ -78,20 +78,22 @@ static void print_enigma_help(void)
     puts("Usage: enigma [OPTIONS]...");
     puts("Encrypts/decrypts text using the Enigma machine\n");
     puts("Enigma options:");
-    printf("%6s, %-15s | %-40s\n", "-short", "--long", "description");
-    for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
-    printf("\n%6s, %-15s | %-40s\n", "-e", "--enigma", "Enigma type (M3, M4)");
-    printf("%6s, %-15s | %-40s\n", "-r1", "--rotor-one", "first rotor type (1 - 8)");
-    printf("%6s, %-15s | %-40s\n", "-r2", "--rotor-two", "second rotor type (1 - 8)");
-    printf("%6s, %-15s | %-40s\n", "-r3", "--rotor-three", "third rotor type (1 - 8)");
-    printf("%6s, %-15s | %-40s\n", "-r4", "--rotor-four", "fourth rotor type (1 - 8)");
-    printf("%6s, %-15s | %-40s\n", "-ro", "--offsets", "rotor offset (ABC, AABC, etc)");
-    printf("%6s, %-15s | %-40s\n", "-rp", "--positions", "rotor position (ABC, AABC, etc)");
-    printf("%6s, %-15s | %-40s\n", "-rf", "--reflector", "reflector type (A, B, C)");
-    printf("%6s, %-15s | %-40s\n", "-pb", "--plugboard", "plugboard (e.g. AB CD EF)");
-    printf("%6s, %-15s | %-40s\n\n", "-pt", "--plaintext", "plaintext (A secret Text)");
+    printf("%6s, %-20s | %-40s\n", "-short", "--long", "description");
+    for (uint16_t i = 0; i < 50; ++i) printf("%c", '=');
+    printf("\n%6s, %-20s | %-40s\n", ENIGMA_SHORT, ENIGMA, "Enigma type (M3, M4)");
+    printf("%6s, %-20s | %-40s\n", ROTOR_ONE_SHORT, ROTOR_ONE, "first rotor type (1 - 8)");
+    printf("%6s, %-20s | %-40s\n", ROTOR_TWO_SHORT, ROTOR_TWO, "second rotor type (1 - 8)");
+    printf("%6s, %-20s | %-40s\n", ROTOR_THREE_SHORT, ROTOR_THREE, "third rotor type (1 - 8)");
+    printf("%6s, %-20s | %-40s\n", ROTOR_FOUR_SHORT, ROTOR_FOUR, "fourth rotor type (1 - 8) - Enigma M4 only");
+    printf("%6s, %-20s | %-40s\n", ROTOR_OFFSETS_SHORT, ROTOR_OFFSETS, "rotor offset / ring setting (ABC, AABC, etc)");
+    printf("%6s, %-20s | %-40s\n", ROTOR_POSITIONS_SHORT, ROTOR_POSITIONS, "rotor position (ABC, AABC, etc)");
+    printf("%6s, %-20s | %-40s\n", REFLECTOR_SHORT, REFLECTOR, "reflector type (A, B, C)");
+    printf("%6s, %-20s | %-40s\n", PLUGBOARD_SHORT, PLUGBOARD, "plugboard (e.g. AB CD EF)");
+    printf("%6s, %-20s | %-40s\n\n", PLAINTEXT_SHORT, PLAINTEXT, "plaintext (A secret Text)");
     puts("Example:");
-    puts("\tenigma -e M3 -r1 1 -r2 2 -r3 3 -ro ABC -rp ABC -rf B -pb AB CD EF -pt loremipsum");
+    puts("\tenigma "ENIGMA_SHORT " M3 " ROTOR_ONE_SHORT " 1 " ROTOR_TWO_SHORT " 2 " ROTOR_THREE_SHORT " 3 "
+        ROTOR_OFFSETS_SHORT " ABC " ROTOR_POSITIONS_SHORT " ABC " REFLECTOR_SHORT " B " PLUGBOARD_SHORT " AB CD EF "
+        PLAINTEXT_SHORT " loremipsum");
 }
 
 static void print_bomb_help(void)
@@ -100,14 +102,16 @@ static void print_bomb_help(void)
     puts("Usage: enigma [OPTIONS]...");
     puts("Decrypts message text using the a turing bomb implementation\n");
     puts("Bomb options:");
-    printf("%6s, %-20s | %-40s\n", "-short", "--long", "description");
+    printf("%6s, %-15s | %-40s\n", "-short", "--long", "description");
     for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
-    printf("\n%6s, %-20s | %-40s\n", "-b", "--bomb", "bomb mode");
-    printf("%6s, %-20s | %-40s\n", "-ct", "--ciphertext", "ciphertext");
-    printf("%6s, %-20s | %-40s\n\n", "-kp", "--known-plaintext", "known plaintext");
+    printf("\n%6s, %-15s | %-40s\n", BOMB_SHORT, BOMB_SHORT, "bomb mode");
+    printf("%6s, %-15s | %-40s\n", CIPHERTEXT_SHORT, CIPHERTEXT, "ciphertext");
+    printf("%6s, %-15s | %-40s\n\n", CRIB_SHORT, CRIB, "crib");
     puts("Examples:");
     puts(
-        "\tenigma -b -ct OKQDRXACYEHWQDVHBAOXFPNMCQAILNBOGVODGJSZJSRPOWYSKKDBVJSHHMQBSKMBBLRLQUJFAFRDBFWFMCHUSXPBFJNKAINU -kp WETTERBERICHT");
+        "\tenigma " BOMB_SHORT " " CIPHERTEXT_SHORT
+        " OKQDRXACYEHWQDVHBAOXFPNMCQAILNBOGVODGJSZJSRPOWYSKKDBVJSHHMQBSKMBBLRLQUJFAFRDBFWFMCHUSXPBFJNKAINU "
+        CRIB_SHORT " WETTERBERICHT");
 }
 
 static void print_help(void)
@@ -116,12 +120,12 @@ static void print_help(void)
     puts("Usage: enigma [OPTIONS]...");
     printf("%6s, %-15s | %-40s\n", "-short", "--long", "description");
     for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
-    printf("\n%6s, %-15s | %-40s\n", "-h", "--help", "display this help and exit");
-    printf("%6s, %-15s | %-40s\n", "-e", "--help", "enigma mode");
-    printf("%6s, %-15s | %-40s\n", "-i", "--interactive", "configure the enigma interactively");
-    printf("%6s, %-15s | %-80s\n", "-c", "--cyclometer", "generate all possible cycles of an enigma "
+    printf("\n%6s, %-15s | %-40s\n", HELP_SHORT, HELP, "display this help and exit");
+    printf("%6s, %-15s | %-40s\n", ENIGMA_SHORT, ENIGMA, "enigma mode");
+    printf("%6s, %-15s | %-40s\n", INTERACTIVE_SHORT, INTERACTIVE, "configure the enigma interactively");
+    printf("%6s, %-15s | %-80s\n", CYCLOMETER_SHORT, CYCLOMETER, "generate all possible cycles of an enigma "
            "M3 with Rotors 1 - 3");
-    printf("%6s, %-15s | %-40s\n", "-b", "--bomb", "bomb mode");
+    printf("%6s, %-15s | %-40s\n", BOMB_SHORT, BOMB, "bomb mode");
 }
 
 void query_help(void)
@@ -130,13 +134,9 @@ void query_help(void)
     puts("-a to show all options");
     puts("-e for additional enigma help");
     puts("-b for additional bomb help");
-    char buffer[64];
-    fgets(buffer, sizeof buffer, stdin);
-    const size_t len = strlen(buffer);
-    if (len > 0 && buffer[len - 1] == '\n')
-    {
-        buffer[len - 1] = 0;
-    }
+    char buffer[INPUT_BUFFER_SIZE];
+    while(my_getline(buffer, INPUT_BUFFER_SIZE) == 0)
+        ;
 
     //Don't use strtok elsewhere util parsing is finished!
     //strtok stores string internally, and string gets overwritten
@@ -246,6 +246,7 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
         else if (string_equals(PLAINTEXT, argv[i]) ||
                  string_equals(PLAINTEXT_SHORT, argv[i]))
         {
+            //TODO SPLITTED TEXT
             options->plaintext = argv[i + 1];
             i++;
         }
@@ -269,8 +270,8 @@ static void save_bomb_input(CliOptions *options, const int32_t argc, char *argv[
         {
             options->ciphertext = argv[++i];
         }
-        else if (string_equals(KNOWN_TEXT, argv[i]) ||
-                 string_equals(KNOWN_TEXT_SHORT, argv[i]))
+        else if (string_equals(CRIB, argv[i]) ||
+                 string_equals(CRIB_SHORT, argv[i]))
         {
             options->known_text = argv[++i];
         }
@@ -392,7 +393,8 @@ static void normalize_cli_options(const CliOptions *options)
 static enum ENIGMA_TYPE parse_enigma_type(const char *enigma_type)
 {
     // The Enigma M1 is just like the M3 but without the plugboard.
-    if (string_equals("M3", enigma_type) ||string_equals("M1", enigma_type))
+    // TODO flag for m1 flagging plugboard
+    if (string_equals("M3", enigma_type) || string_equals("M1", enigma_type))
     {
         return ENIGMA_M3;
     }
@@ -485,7 +487,7 @@ Enigma* query_input_interactive(void)
         err_code |= to_uppercase(secondary_input);
         err_code |= remove_non_alnum(secondary_input);
         assertmsg(err_code == 0, "normalization failed");
-        printf("%s rotor offset (A, B, C, etc): ", numeration[rotor_num]);
+        printf("%s rotor offset / ring setting (A, B, C, etc): ", numeration[rotor_num]);
         while (my_getline(tertiary_input, INPUT_BUFFER_SIZE) == 0)
             ;
         err_code |= to_uppercase(tertiary_input);
@@ -497,7 +499,7 @@ Enigma* query_input_interactive(void)
         puts("");
     }
 
-    printf("Reflector type (B, C): ");
+    printf("Reflector type (A, B, C): ");
     while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
         ;
     err_code |= to_uppercase(primary_input);
@@ -527,6 +529,20 @@ Enigma* query_input_interactive(void)
     assertmsg(err_code == 0, "normalization failed");
 
     return enigma;
+}
+
+static void pretty_print_enigma_output(const Enigma *enigma)
+{
+    uint8_t *text              = traverse_enigma(enigma);
+    const size_t plaintext_len = strlen(enigma->plaintext);
+    for (size_t i = 0; i < plaintext_len; i++)
+    {
+        if(i % 5 == 0 && i != 0) printf(" ");
+        printf("%c", text[i] + 'A');
+    }
+    printf("\n");
+
+    free(text);
 }
 
 // TODO: refactor into more functions
@@ -568,14 +584,7 @@ void query_input(const int32_t argc, char *argv[])
         enigma = create_enigma_from_cli_configuration(&options);
     }
 
-    uint8_t *text              = traverse_enigma(enigma);
-    const size_t plaintext_len = strlen(enigma->plaintext);
-    for (size_t i = 0; i < plaintext_len; i++)
-    {
-        printf("%c", text[i] + 'A');
-    }
-    printf("\n");
+    pretty_print_enigma_output(enigma);
 
     free_enigma(enigma);
-    free(text);
 }

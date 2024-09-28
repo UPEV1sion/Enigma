@@ -334,15 +334,19 @@ double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
  * @param lim upper limit of how much characters are to be read
  * @return size_t: number of characters read
  */
-size_t my_getline(char *str, size_t lim)
+size_t my_getline(char *str, const size_t lim)
 {
     if (str == NULL) return 0;
 
-    int32_t c;
-    const char *temp = str;
-    while (--lim > 0 && (c = getchar()) != EOF && c != '\n')
-        *str++ = (char) c;
+    if(fgets(str, lim, stdin) == NULL) return 0;
 
-    *str = 0;
-    return str - temp;
+    size_t len = strlen(str);
+
+    if (len > 0 && str[len - 1] == '\n')
+    {
+        str[len - 1] = 0;
+        len--;
+    }
+
+    return len;
 }

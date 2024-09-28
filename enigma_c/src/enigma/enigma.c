@@ -10,7 +10,6 @@
 
 /**
  * @brief This function is used to traverse the m3 enigma machine.
- *
  * @param enigma The enigma machine to traverse.
  * @param text_in_integer The text to traverse.
  * @param array_size The size of the text.
@@ -71,7 +70,6 @@ uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
 
 /**
  * @brief This function is used to traverse the m4 enigma machine.
- *
  * @param enigma The enigma machine to traverse.
  * @param text_in_integer The text to traverse.
  * @param array_size The size of the text.
@@ -139,9 +137,8 @@ uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, cons
 }
 
 /**
- * @brief This function is used to traverse the enigma machine.
- *
- * @param enigma The enigma machine to traverse.
+ * @brief Traverses the correct Enigma machine based on the Enigma provided.
+ * @param enigma The enigma machine to be traversed.
  * @return uint8_t*: The traversed text.
  */
 uint8_t* traverse_enigma(const Enigma *enigma)
@@ -159,7 +156,6 @@ uint8_t* traverse_enigma(const Enigma *enigma)
 
 /**
  * @brief This function is used to create an enigma machine.
- *
  * @param enigma_configuration The configuration of the enigma machine.
  * @return Enigma*: The created enigma machine.
  */
@@ -197,7 +193,7 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
     }
 
     enigma->plaintext = strdup(enigma_configuration->message);
-    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
+    assertmsg(enigma->plaintext != NULL, "strdup failed");
 
     return enigma;
 }

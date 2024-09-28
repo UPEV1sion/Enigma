@@ -138,7 +138,7 @@ static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const 
     (*cp_index)--;
     return false;
 }
-//
+// TODO marked for removal
 // /**
 //  * @brief Eliminates duplicate cycles where there loop is the same
 //  * but started at a different point or is traversed backwards

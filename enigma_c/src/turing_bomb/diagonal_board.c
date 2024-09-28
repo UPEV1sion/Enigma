@@ -14,6 +14,7 @@
 
 #define ERR_NO_CYCLES_FOUND 1
 
+// TODO marked for removal
 // static bool cycles_equals(const Cycles *candidate_cycles, const Cycles *current_cycles)
 // {
 //     if (candidate_cycles->num_cycles != current_cycles->num_cycles) return false;
@@ -86,14 +87,14 @@
 //     }
 // }
 
-
-int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
-{
-    // init_diagonal_board(turing_bomb);
-
-    Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
-    if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
-    free(cycles);
+//
+// int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
+// {
+//     // init_diagonal_board(turing_bomb);
+//
+//     Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+//     if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
+//     free(cycles);
 
 
 
@@ -128,9 +129,9 @@ int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uin
     //     // last_scrambler_column = scrambler_column;
     // }
 
-
-    return 0;
-}
+//
+//     return 0;
+// }
 
 // bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles)
 // {

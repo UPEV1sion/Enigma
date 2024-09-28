@@ -11,12 +11,14 @@
 #include "cJSON.h"
 
 #include "json.h"
-#include "gui/enigma_gui.h"
+#include "gui/enigma_gui/enigma_gui.h"
 #include "helper/helper.h"
 
 //
 // Created by Emanuel on 26.07.2024.
 //
+
+// TODO json in CLI
 
 static cJSON *root;
 

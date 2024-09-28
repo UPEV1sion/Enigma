@@ -112,6 +112,7 @@ char* get_input_text_from_gui(void)
 
 static void update_output(const char *plaintext)
 {
+    //TODO format in 5 char blocks.
     GtkTextBuffer *buffer;
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(output));
 
@@ -248,8 +249,27 @@ static Enigma* create_enigma_from_input(void)
     return enigma;
 }
 
+static void generate_output_with_enigma(void)
+{
+    enigma_to_json("");
 
-//TODO refactor
+    Enigma *enigma = create_enigma_from_input();
+    uint8_t *text  = traverse_enigma(enigma);
+
+    char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
+    assertmsg(plaintext != NULL, "int[] to string conversion failed");
+
+    enigma_to_json(plaintext);
+    update_output(plaintext);
+    char *json_text = read_json();
+    puts(json_text);
+
+    free(json_text);
+    free_enigma(enigma);
+    free(text);
+    free(plaintext);
+}
+
 static void action_listener_start_btn(void)
 {
     const char *input_text = get_input_text_from_gui();
@@ -276,24 +296,7 @@ static void action_listener_start_btn(void)
         }
         rotor_mask |= active_rotor;
     }
-
-    enigma_to_json("");
-
-    Enigma *enigma = create_enigma_from_input();
-    uint8_t *text  = traverse_enigma(enigma);
-
-    char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
-    assertmsg(plaintext != NULL, "int[] to string conversion failed");
-
-    enigma_to_json(plaintext);
-    update_output(plaintext);
-    char *json_text = read_json();
-    puts(json_text);
-
-    free(json_text);
-    free_enigma(enigma);
-    free(text);
-    free(plaintext);
+    generate_output_with_enigma();
 }
 
 //TODO refactor

@@ -9,6 +9,11 @@
 #define UKW_B_WIRING  "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 #define UKW_C_WIRING  "FVPJIAOYEDRZXWGCTKUQSBNMHL"
 
+/**
+ * @brief Creates a reflector with the specified wiring
+ * @param wiring The wiring of the reflector
+ * @return Reflector*
+ */
 Reflector* create_reflector(const char *wiring)
 {
     Reflector *ukw = malloc(sizeof(Reflector));
@@ -26,6 +31,11 @@ Reflector* create_reflector(const char *wiring)
     return ukw;
 }
 
+/**
+ * @brief A factory method for creating Reflectors
+ * @param type The type of the reflector
+ * @return Reflector*
+ */
 Reflector* create_reflector_by_type(const enum REFLECTOR_TYPE type)
 {
     switch (type)
@@ -37,7 +47,7 @@ Reflector* create_reflector_by_type(const enum REFLECTOR_TYPE type)
         case UKW_C:
             return create_reflector(UKW_C_WIRING);
         default:
-            fprintf(stderr, "Error, Reflector definition not found: %d", type);
+            fprintf(stderr, "Error, Reflector definition not found: %d\n", type);
             exit(1);
     }
 }

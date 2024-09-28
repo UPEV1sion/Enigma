@@ -74,7 +74,7 @@ static void sort_cycles(const Cycle *cycle)
 
 
 /**
- * @brief Get cycles by hopping through the rotor permutation using the next
+ * @brief Get cycles by hopping through the rotor_permutation using the next
  * index
  * @param rotor_permutation: Array containing the next index of the cycle
  * @return Cycle: A cycle of the rotor permutation
