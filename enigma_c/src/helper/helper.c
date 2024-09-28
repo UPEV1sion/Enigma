@@ -12,6 +12,18 @@
 #endif
 
 /**
+ * @brief The error codes - mainly for debugging.
+ * @note In the code, the function return values are only asserted to be == 0, indicating no error.
+ */
+#define ERR_NULL_POINTER 1
+//Also empty uint8_t array
+#define ERR_EMPTY_STRING 2
+
+#define ERR_INVALID_INPUT 3
+#define ERR_OUT_OF_RANGE 4
+#define ERR_PARTIAL_CONVERSION 5
+
+/**
  * @brief Gets the number literal from a string
  * @param str the string containing the number literal
  * @param number the number to be extracted
@@ -206,7 +218,7 @@ char* get_string_from_int_array(const uint8_t *array, const size_t size)
  * @brief Checks if a string has duplicate chars
  * @note Ignores spaces
  * @param str the string to be checked
- * @return bool: true of falsehood
+ * @return bool: true or falsehood
  */
 bool has_duplicates(const char *str)
 {
@@ -228,7 +240,7 @@ bool has_duplicates(const char *str)
 /**
  * @brief Checks if a string contains spaces
  * @param str the string to be checked
- * @return bool: true of falsehood
+ * @return bool: true or falsehood
  */
 bool contains_spaces(const char *str)
 {
@@ -262,7 +274,7 @@ size_t count_alphas(const char *str)
 }
 
 /**
- * @brief Tests if str2 is a substring of str1
+ * @brief Counts the number of occurrences of c in str
  * @param str string where the chars should be counted
  * @param c the char which is to be counted
  * @return size_t: the number of chars, SIZE_MAX for error

@@ -139,7 +139,7 @@ void query_help(void)
         ;
 
     //Don't use strtok elsewhere util parsing is finished!
-    //strtok stores string internally, and string gets overwritten
+    //strtok stores the string internally, and the string will get overwritten when used elsewhere
     const char *options = strtok(buffer, " ");
     while (options != NULL)
     {
@@ -246,7 +246,7 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
         else if (string_equals(PLAINTEXT, argv[i]) ||
                  string_equals(PLAINTEXT_SHORT, argv[i]))
         {
-            //TODO SPLITTED TEXT
+            //TODO splitted text
             options->plaintext = argv[i + 1];
             i++;
         }
