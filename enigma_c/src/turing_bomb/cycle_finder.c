@@ -75,6 +75,8 @@ static char* get_stub_str(const int8_t *stub)
     return stub_str;
 }
 
+
+// TODO un-uglify this method
 /**
  * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
  * using a backtracking algorithm.
@@ -84,13 +86,15 @@ static char* get_stub_str(const int8_t *stub)
  * @param tuples array with all the letter tuples
  * @param tuples_len the array length
  * @param visited_mask the tuples already visited as a bitmask
- * @param cycle_path to annotate the cycle path
+ * @param cycle_path to note down the cycle path
  * @param cp_index index for cycle_path
+ * @param positions to note down the positions in the crib
  * @return bool: true or falsehood for cycle or stub
  */
-static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const size_t tuples_len,
-                             uint32_t visited_mask,
-                             int8_t *cycle_path, size_t *cp_index)
+static bool find_cycle(const uint8_t start, const uint8_t c,
+                     Tuple *tuples, const size_t tuples_len,
+                     uint32_t visited_mask, int8_t *cycle_path,
+                     size_t *cp_index, int8_t *positions)
 {
     // Bitmask instead of a bool array for speed and minimizing recursion overhead
 
@@ -110,10 +114,12 @@ static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const 
      */
 
     cycle_path[(*cp_index)++] = c;
-    if (c == start)
+
+    if (c == start && *cp_index > 1)
     {
         return true;
     }
+
     for (size_t i = 0; i < tuples_len; ++i)
     {
         if (!(visited_mask & (1 << i)))
@@ -127,17 +133,24 @@ static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const 
             if (next_letter != 0)
             {
                 visited_mask |= (1 << i);
-                if (is_cycle(start, next_letter, tuples, tuples_len, visited_mask, cycle_path, cp_index))
+                positions[*cp_index - 1] = i;
+
+                if (find_cycle(start, next_letter, tuples, tuples_len, visited_mask, cycle_path, cp_index, positions))
                 {
                     return true;
                 }
+
                 visited_mask &= ~(1 << i);
+                positions[*cp_index - 1] = -1;
             }
         }
     }
+
     (*cp_index)--;
+
     return false;
 }
+
 // TODO marked for removal
 // /**
 //  * @brief Eliminates duplicate cycles where there loop is the same
@@ -178,9 +191,9 @@ static bool is_cycle(const uint8_t start, const uint8_t c, Tuple *tuples, const 
 Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
 {
 
-    Cycles *res = malloc(sizeof(Cycles));
-    memset(res->cycles, 0, sizeof(res->cycles));
-    // memset(res->stubs, 0, sizeof(res->stubs));
+    Cycles *cycles = malloc(sizeof(Cycles));
+    memset(cycles->cycles, 0, sizeof(cycles->cycles));
+    // memset(cycles->stubs, 0, sizeof(cycles->stubs));
 
     // const size_t crib_len = strlen(crib);
 
@@ -197,31 +210,36 @@ Cycles* find_cycles(const uint8_t *crib, const uint8_t *ciphertext, const size_t
     {
         uint32_t visited_mask = 0;
         int8_t path[ALPHABET_SIZE];
+        int8_t positions[NUM_SCRAMBLERS_PER_ROW];
         memset(path, -1, ALPHABET_SIZE); //since 'A' is represented by 0, we must use a different terminator.
+        memset(positions, -1, NUM_SCRAMBLERS_PER_ROW);
         visited_mask |= (1 << i);
         size_t cp_index = 0;
-        if (is_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index))
+        if (find_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, path, &cp_index, positions))
         {
-            res->cycles[cycle_counter++] = get_cycle_str(path, cp_index);
+            cycles->cycles[cycle_counter] = get_cycle_str(path, cp_index);
+            cycles->positions[cycle_counter] = malloc(cp_index);
+            assertmsg(cycles->positions[cycle_counter] != NULL, "malloc failed");
+            memcpy(cycles->positions[cycle_counter++], positions, cp_index);
         }
         else
         {
-            res->stubs[stubs_counter++] = get_stub_str(path);
+            cycles->stubs[stubs_counter++] = get_stub_str(path);
         }
     }
-    // cycle_counter = eliminate_duplicate_cycles(res->cycles, cycle_counter);
-    puts("stubs");
-    for (size_t i = 0; i < stubs_counter; i++)
-    {
-        puts(res->stubs[i]);
-    }
-    puts("cycles");
-    for (size_t i = 0; i < cycle_counter; i++)
-    {
-        puts(res->cycles[i]);
-    }
-    res->num_cycles = cycle_counter;
-    res->num_stubs  = stubs_counter;
+    // cycle_counter = eliminate_duplicate_cycles(cycles->cycles, cycle_counter);
+    // puts("stubs");
+    // for (size_t i = 0; i < stubs_counter; i++)
+    // {
+    //     puts(cycles->stubs[i]);
+    // }
+    // puts("cycles");
+    // for (size_t i = 0; i < cycle_counter; i++)
+    // {
+    //     puts(cycles->cycles[i]);
+    // }
+    cycles->num_cycles = cycle_counter;
+    cycles->num_stubs  = stubs_counter;
 
-    return res;
+    return cycles;
 }

@@ -10,9 +10,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Although I've provided MSCV support, I recommend GCC or Clang, because of the better compiler flags.
 # Clang offers exceptional performance while GCC is the standard.
 if (MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall /WX")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall")
 else ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall -Wextra -Wpedantic -Wunused-result")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wunused-result")
 endif ()
 
 set(FILE_PATH_JSON "${CMAKE_SOURCE_DIR}/src/data/enigma.json")
@@ -71,66 +71,6 @@ add_definitions(${GTK3_CFLAGS_OTHER})
 
 cmake_minimum_required(VERSION 3.10)
 project(MyProject)
-
-#if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-#    if (DEFINED ENV{MINGW_INCLUDE_DIR})
-#        set(MINGW_INCLUDE_DIR $ENV{MINGW_INCLUDE_DIR})
-#    else()
-#        set(MINGW_INCLUDE_DIR "C:/msys64/mingw64/include")
-#    endif()
-#
-#    if (DEFINED ENV{MINGW_LIB_DIR})
-#        set(MINGW_LIB_DIR $ENV{MINGW_LIB_DIR})
-#    else()
-#        set(MINGW_LIB_DIR "C:/msys64/mingw64/lib")
-#    endif()
-#
-#    include_directories(${MINGW_INCLUDE_DIR})
-#    link_directories(${MINGW_LIB_DIR})
-#
-#    message(STATUS "Windows Include Directory: ${MINGW_INCLUDE_DIR}")
-#    message(STATUS "Windows Library Directory: ${MINGW_LIB_DIR}")
-#
-#elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-#    if (DEFINED ENV{LINUX_INCLUDE_DIR})
-#        set(LINUX_INCLUDE_DIR $ENV{LINUX_INCLUDE_DIR})
-#    else()
-#        set(LINUX_INCLUDE_DIR "/usr/include")
-#    endif()
-#
-#    if (DEFINED ENV{LINUX_LIB_DIR})
-#        set(LINUX_LIB_DIR $ENV{LINUX_LIB_DIR})
-#    else()
-#        set(LINUX_LIB_DIR "/usr/lib")
-#    endif()
-#
-#    include_directories(${LINUX_INCLUDE_DIR})
-#    link_directories(${LINUX_LIB_DIR})
-#
-#    message(STATUS "Linux Include Directory: ${LINUX_INCLUDE_DIR}")
-#    message(STATUS "Linux Library Directory: ${LINUX_LIB_DIR}")
-#
-#elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-#    if (DEFINED ENV{DARWIN_INCLUDE_DIR})
-#        set(DARWIN_INCLUDE_DIR $ENV{DARWIN_INCLUDE_DIR})
-#    else()
-#        set(DARWIN_INCLUDE_DIR "/usr/local/include")
-#    endif()
-#
-#    if (DEFINED ENV{DARWIN_LIB_DIR})
-#        set(DARWIN_LIB_DIR $ENV{DARWIN_LIB_DIR})
-#    else()
-#        set(DARWIN_LIB_DIR "/usr/local/lib")
-#    endif()
-#
-#    include_directories(${DARWIN_INCLUDE_DIR})
-#    link_directories(${DARWIN_LIB_DIR})
-#
-#    message(STATUS "Darwin Include Directory: ${DARWIN_INCLUDE_DIR}")
-#    message(STATUS "Darwin Library Directory: ${DARWIN_LIB_DIR}")
-#
-#endif()
-
 
 ##################### Backend #####################
 add_subdirectory(src)

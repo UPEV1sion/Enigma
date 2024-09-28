@@ -30,8 +30,8 @@
 #include "helper/helper.h"
 #include "enigma/rotor/rotor.h"
 
-#define NUM_FIELDS_PER_COMMON 5
 #define NUM_ROTORS_PER_ENIGMA  3
+#define NUM_FIELDS_PER_COMMON 5
 #define NUM_COMMONS 6
 
 
@@ -62,3 +62,5 @@ typedef struct DiagonalBoard
     cable_t alphabet[ALPHABET_SIZE];
     CommonConnections commons[NUM_COMMONS];
 } DiagonalBoard;
+
+int32_t create_bomb_menu(DiagonalBoard *diagonal_board, const uint8_t *crib, const uint8_t *ciphertext, size_t crib_len);

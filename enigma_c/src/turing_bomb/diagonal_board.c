@@ -87,60 +87,47 @@
 //     }
 // }
 
-//
-// int32_t create_bomb_menu(TuringBomb *turing_bomb, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
-// {
-//     // init_diagonal_board(turing_bomb);
-//
-//     Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
-//     if(cycles == NULL || cycles->num_cycles == 0) return ERR_NO_CYCLES_FOUND;
-//     free(cycles);
+char* find_longest_cycle(const uint8_t* crib, const uint8_t* ciphertext, const size_t crib_len)
+{
+    const Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+    if(cycles == NULL || cycles->num_cycles == 0) return NULL;
 
+    char *longest_cycle = cycles->cycles[0];
+    size_t longest_cycle_length = 0;
+    for(uint8_t cycle = 1; cycle < cycles->num_cycles; ++cycle)
+    {
+        char *current_cycle = cycles->cycles[cycle];
+        const size_t current_cycle_length = strlen(current_cycle);
+        if (current_cycle_length > longest_cycle_length)
+        {
+            longest_cycle_length = current_cycle_length;
+            longest_cycle = current_cycle;
+        }
+    }
 
+    return longest_cycle;
+}
 
-    // char *crib_str = get_string_from_int_array(crib, crib_len);
-    // char *ciphertext_str = get_string_from_int_array(ciphertext, crib_len);
+int32_t create_bomb_menu(DiagonalBoard *diagonal_board, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
+{
+    // init_diagonal_board(diagonal_board);
 
-    // printf("");
-    // char *longest_cycle = cycles->cycles[0];
-    // size_t longest_cycle_length = 0;
-    // for(uint8_t cycle = 1; cycle < cycles->num_cycles; ++cycle)
-    // {
-    //     char *current_cycle = cycles->cycles[cycle];
-    //     const size_t current_cycle_length = strlen(current_cycle);
-    //     if (current_cycle_length > longest_cycle_length)
-    //     {
-    //         longest_cycle_length = current_cycle_length;
-    //         longest_cycle = current_cycle;
-    //     }
-    // }
-
+    const Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+    //TODO offsets scrambler enigmas after cycles->positions. How to integrate stubs?
 
     // char last_cycle_char = longest_cycle[0];
 
     // for(uint8_t i = 1; i < longest_cycle_length; ++i)
     // {
-    //     // const uint8_t scrambler_column = longest_cycle.indexes_cycle[i];
-    //     const char cycle_char = longest_cycle[i];
-    //     // turing_bomb->diagonal_board[last_scrambler_column][(int) last_cycle_char] = cycle_char;
-    //     // turing_bomb->diagonal_board[scrambler_column][(int) cycle_char] = last_cycle_char;
-    //
-    //     last_cycle_char = cycle_char;
-    //     // last_scrambler_column = scrambler_column;
+        // const uint8_t scrambler_column = longest_cycle.indexes_cycle[i];
+        // const char cycle_char = longest_cycle[i];
+        // turing_bomb->diagonal_board[last_scrambler_column][(int) last_cycle_char] = cycle_char;
+        // turing_bomb->diagonal_board[scrambler_column][(int) cycle_char] = last_cycle_char;
+
+        // last_cycle_char = cycle_char;
+        // last_scrambler_column = scrambler_column;
     // }
 
-//
-//     return 0;
-// }
 
-// bool passes_welchman_test(const Cycles *candidate_cycles, const Cycles *current_cycles)
-// {
-    // if (!is_candidate(candidate_cycles, current_cycles)) return false;
-    // char graph_compare[ALPHABET_SIZE] = {0};
-    // for(uint16_t cycle = 0; cycle < candidate_cycles->num_cycles; ++cycle)
-    // {
-
-    // }
-
-    // return false;
-// }
+    return 0;
+}
