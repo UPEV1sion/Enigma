@@ -9,6 +9,7 @@ Here is an overview of all the commands that are available with the CLI interfac
 | Flag     | Short Flag | Description  |
 |----------|------------|--------------|
 | `--help` | `-h`       | Display help |
+| `--gui`  | `-g`       | Run GUI      |
 
 ## Enigma Options
 
