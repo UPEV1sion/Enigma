@@ -2,7 +2,7 @@
 
 ## Preface
 As mentioned before, the `Enigma` wasn't as secure as the german military thought. 
-"The Enigma Code" was eventually broken by the allies. Here I implemented a Turing-Welchman-Bomb.
+"The Enigma Code" was eventually broken by the allies. I implemented a Turing-Welchman-Bomb.
 Here I outline how the Turing-Welchman-Bomb worked. 
 If you are already familiar with the way the Bombe worked and you want to see how it's implemented in software, you can click [here].
 
