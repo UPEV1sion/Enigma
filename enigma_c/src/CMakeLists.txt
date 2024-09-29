@@ -30,12 +30,14 @@ add_library(enigma_lib
         gui/bomb_gui/bomb_gui.h
         turing_bomb/diagonal_board.h
         turing_bomb/diagonal_board.c
-        turing_bomb/cycle_finder.c
-        turing_bomb/cycle_finder.h
         turing_bomb/turing_bomb.c
         turing_bomb/turing_bomb.h
         json/cJSON.c
         json/cJSON.h
+        turing_bomb/cycle_finder/cycle_finder.c
+        turing_bomb/cycle_finder/cycle_finder.h
+        turing_bomb/cycle_finder/cycle_finder_old.c
+        turing_bomb/cycle_finder/cycle_finder_old.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

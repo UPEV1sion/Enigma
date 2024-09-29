@@ -7,7 +7,7 @@
  */
 
 /**
- * @authors { Arif Hasanic, Emanuel Schaeffer }
+ * @authors Arif Hasanic, Emanuel Schaeffer 
  */
 
 //
@@ -25,10 +25,8 @@
 #include "gui/start_gui/start_gui.h"
 #include "helper/helper.h"
 #include "turing_bomb/brute_force.h"
-#include "turing_bomb/cycle_finder.h"
 #include "turing_bomb/turing_bomb.h"
-#include "turing_bomb/cycle_finder.h"
-
+#include "turing_bomb/cycle_finder/cycle_finder.h"
 
 
 int main(int argc, char *argv[])
@@ -36,11 +34,12 @@ int main(int argc, char *argv[])
     // uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
     // find_cycles(arr_crib, arr_cipher, 16);
-    start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
+    // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
+    find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     return 0;
     if (argc < 2)
     {
-        puts("Usage: ./main [OPTIONS]");
+        puts("Usage: ./enigma [OPTIONS]");
         puts("Options:");
         puts(GUI " / " GUI_SHORT " for GUI");
         puts("CLI use is implicit");

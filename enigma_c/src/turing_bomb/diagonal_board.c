@@ -4,7 +4,6 @@
 
 #include "diagonal_board.h"
 #include "helper/helper.h"
-#include "cycle_finder.h"
 
 //
 // Created by Emanuel on 30.08.2024.
@@ -87,32 +86,34 @@
 //     }
 // }
 
-char* find_longest_cycle(const uint8_t* crib, const uint8_t* ciphertext, const size_t crib_len)
-{
-    const Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
-    if(cycles == NULL || cycles->num_cycles == 0) return NULL;
-
-    char *longest_cycle = cycles->cycles[0];
-    size_t longest_cycle_length = 0;
-    for(uint8_t cycle = 1; cycle < cycles->num_cycles; ++cycle)
-    {
-        char *current_cycle = cycles->cycles[cycle];
-        const size_t current_cycle_length = strlen(current_cycle);
-        if (current_cycle_length > longest_cycle_length)
-        {
-            longest_cycle_length = current_cycle_length;
-            longest_cycle = current_cycle;
-        }
-    }
-
-    return longest_cycle;
-}
+// char* find_longest_cycle(const uint8_t* crib, const uint8_t* ciphertext, const size_t crib_len)
+// {
+//     // const Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+//     const Cycles *cycles;
+//     if(cycles == NULL || cycles->num_cycles == 0) return NULL;
+//
+//     char *longest_cycle = cycles->cycles[0];
+//     size_t longest_cycle_length = 0;
+//     for(uint8_t cycle = 1; cycle < cycles->num_cycles; ++cycle)
+//     {
+//         char *current_cycle = cycles->cycles[cycle];
+//         const size_t current_cycle_length = strlen(current_cycle);
+//         if (current_cycle_length > longest_cycle_length)
+//         {
+//             longest_cycle_length = current_cycle_length;
+//             longest_cycle = current_cycle;
+//         }
+//     }
+//
+//     return longest_cycle;
+// }
 
 int32_t create_bomb_menu(DiagonalBoard *diagonal_board, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
 {
     // init_diagonal_board(diagonal_board);
 
-    const Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+    // const Cycles *cycles = find_cycles(crib, ciphertext, crib_len);
+    // const Cycles *cycles;
     //TODO offsets scrambler enigmas after cycles->positions. How to integrate stubs?
 
     // char last_cycle_char = longest_cycle[0];
