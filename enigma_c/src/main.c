@@ -33,9 +33,9 @@ int main(int argc, char *argv[])
 {
     // uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
-    // find_cycles(arr_crib, arr_cipher, 16);
     // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
-    find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    // find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    find_cycles("ABCD", "EFGH");
     return 0;
     if (argc < 2)
     {

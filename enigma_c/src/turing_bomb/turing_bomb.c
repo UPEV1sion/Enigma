@@ -4,6 +4,7 @@
 #include "turing_bomb.h"
 #include "helper/helper.h"
 #include "diagonal_board.h"
+#include "cycle_finder/cycle_finder.h"
 
 //
 // Created by Emanuel on 07.09.2024.
@@ -43,7 +44,11 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
     return true;
 }
 
-// static Rotor* create_
+static void set_rotor_positions(TuringBomb *turing_bomb, Cycle *cycle)
+{
+
+}
+
 
 int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
@@ -67,6 +72,7 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
     uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
 
     const TuringBomb turing_bomb = {0};
+
     create_bomb_menu(turing_bomb.diagonal_board, crib_as_ints, ciphertext_as_ints, crib_len);
     // const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, crib_len);
 

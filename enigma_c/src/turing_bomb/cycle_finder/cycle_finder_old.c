@@ -25,6 +25,16 @@ typedef struct
     uint8_t second;
 } Tuple;
 
+
+typedef struct
+{
+    char *cycles[ALPHABET_SIZE];
+    char *stubs[ALPHABET_SIZE];
+    int8_t *positions[NUM_SCRAMBLERS_PER_ROW];
+    uint32_t num_cycles;
+    uint32_t num_stubs;
+} Cycles;
+
 // static void print_cycle(const char *cycle, const size_t cycle_length)
 // {
 //     printf("Cycle detected: ");
@@ -76,7 +86,6 @@ static char* get_stub_str(const int8_t *stub)
 }
 
 
-// TODO un-uglify this method
 /**
  * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
  * using a backtracking algorithm.
@@ -187,7 +196,7 @@ static bool find_cycle(const uint8_t start, const uint8_t c,
  * @param crib the crib suspected to be the deciphered ciphertext
  * @param ciphertext the enciphered text
  * @param crib_len the length of the crib
- * @return void
+ * @return Cycles*
  */
 Cycles* find_cycles_old(const uint8_t *restrict crib, const uint8_t *restrict ciphertext, const size_t crib_len)
 {

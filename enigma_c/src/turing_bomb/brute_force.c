@@ -26,9 +26,6 @@
 
 
 #define OUTPUT_STRING_SIZE 64
-#ifndef ALPHABET_SIZE
-#define ALPHABET_SIZE 26
-#endif
 #define NUM_ROTATORS 5
 #define NUM_ROTORS_PER_ENIGMA 3
 

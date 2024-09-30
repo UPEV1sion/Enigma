@@ -217,21 +217,23 @@ char* get_string_from_int_array(const uint8_t *array, const size_t size)
 /**
  * @brief Checks if a string has duplicate chars
  * @note Ignores spaces
+ * @note Only works with uppercase letters.
  * @param str the string to be checked
  * @return bool: true or falsehood
  */
 bool has_duplicates(const char *str)
 {
     if (str == NULL) return false;
-    const size_t len = strlen(str);
-    if (len == 0) return false;
+    size_t len;
+    if ((len = strlen(str)) == 0) return false;
 
-    bool seen[ASCII_SIZE] = {false};
+    bool visited[ALPHABET_SIZE] = {false};
+
     for (size_t i = 0; i < len; ++i)
     {
-        const unsigned char c = str[i];
-        if (seen[c]) return true;
-        if (!isspace(c)) seen[c] = true;
+        const char c = str[i];
+        if(visited[c]) return true;
+        visited[c] = true;
     }
 
     return false;
@@ -258,7 +260,7 @@ bool contains_spaces(const char *str)
 /**
  * @brief Counts alphabetic characters in a string
  * @param str the string where the alphas should be counted
- * @return int32_t: num of alphas, SIZE_MAX for errors
+ * @return size_t: num of alphas, SIZE_MAX for errors
  */
 size_t count_alphas(const char *str)
 {
