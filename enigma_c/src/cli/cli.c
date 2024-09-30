@@ -506,9 +506,8 @@ Enigma* query_input_interactive(void)
     err_code |= remove_non_alnum(primary_input);
     assertmsg(err_code == 0, "normalization failed");
     enigma->reflector = create_reflector_by_type(*primary_input);
-    puts("");
 
-    printf("Plugboard (e.g. AB CD EF, EMPTY for standard): ");
+    printf("\nPlugboard (e.g. AB CD EF, EMPTY for standard): ");
     if (my_getline(primary_input, INPUT_BUFFER_SIZE) > 0)
     {
         err_code |= to_uppercase(primary_input);
@@ -517,9 +516,8 @@ Enigma* query_input_interactive(void)
         enigma->plugboard = create_plugboard(primary_input);
     }
     enigma->plugboard = create_plugboard(NULL);
-    puts("");
 
-    printf("Plaintext: ");
+    printf("\nPlaintext: ");
     while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
         ;
     enigma->plaintext = strdup(primary_input);

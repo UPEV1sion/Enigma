@@ -11,7 +11,7 @@
 // Created by Emanuel on 29.09.2024.
 //
 
-
+//TODO bitmask for crib or cycle
 struct Node
 {
     Node **neighbours;
@@ -51,7 +51,8 @@ static bool find_cycle_rec(Node *restrict node, const Node *restrict parent, Cyc
 
     printf("Visiting node: %c, %u\n", node->data, node->crib_pos);
     if (node->visited) return true;
-    node->visited                                    = true;
+    node->visited = true;
+
     cycle->pos_cycle_w_stubs[cycle->len_w_stubs++]   = node->crib_pos;
     cycle->pos_cycle_wo_stubs[cycle->len_wo_stubs++] = node->crib_pos;
 
@@ -81,8 +82,8 @@ static bool find_cycle(Node *restrict nodes, const uint8_t nodes_len, Cycle *res
             Cycle temp = {0};
             if (find_cycle_rec(nodes + i, NULL, &temp))
             {
-                if(temp.len_wo_stubs <= 1) continue;
-                if(temp.len_w_stubs > cycle->len_w_stubs && temp.len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
+                if (temp.len_wo_stubs <= 1) continue;
+                if (temp.len_w_stubs > cycle->len_w_stubs && temp.len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
                     memcpy(cycle, &temp, sizeof(Cycle));
 
                 puts("W Stubs:");
@@ -159,7 +160,7 @@ Cycle* find_cycles(const char *restrict crib, const char *restrict ciphertext)
     if ((len = strlen(ciphertext)) != strlen(crib)) return NULL;
     // if (len > NUM_SCRAMBLERS_PER_ROW) return NULL;
 
-    Node nodes[ALPHABET_SIZE]        = {0};
+    Node nodes[ALPHABET_SIZE] = {0};
 
     build_graph(crib, ciphertext, len, nodes);
 
@@ -170,11 +171,10 @@ Cycle* find_cycles(const char *restrict crib, const char *restrict ciphertext)
     write_dot_format(crib, ciphertext);
 
     puts(find_cycle(nodes, len, cycle) ? "true" : "false");
-    puts("");
 
     free_neighbours(nodes);
 
-    if(cycle->len_w_stubs == 0)
+    if (cycle->len_w_stubs == 0)
     {
         free(cycle);
         return NULL;

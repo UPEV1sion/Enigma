@@ -30,7 +30,7 @@
 #include "helper/helper.h"
 #include "enigma/rotor/rotor.h"
 
-#define NUM_ROTORS_PER_ENIGMA  3
+#define NUM_SCRAMBLERS_PER_COLUMN 3
 #define NUM_FIELDS_PER_COMMON 5
 #define NUM_COMMONS 6
 
@@ -42,7 +42,7 @@ typedef uint32_t cable_t;
 typedef struct ScramblerEnigma
 {
     cable_t in, out;
-    Rotor *rotors[NUM_ROTORS_PER_ENIGMA];
+    Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
 } ScramblerEnigma;
 
 

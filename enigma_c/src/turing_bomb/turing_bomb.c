@@ -38,13 +38,47 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
     return true;
 }
 
-static void set_starting_pos_scramblers(TuringBomb *turing_bomb, const Cycle *cycle)
+static void set_starting_pos_scramblers(TuringBomb *restrict turing_bomb,
+                                        const Cycle *restrict cycle,
+                                        const enum ROTOR_TYPE rotor_one_type,
+                                        const enum ROTOR_TYPE rotor_two_type,
+                                        const enum ROTOR_TYPE rotor_three_type)
 {
-    if(cycle->len_w_stubs < NUM_SCRAMBLERS_PER_ROW)
+
+    Rotor *rotors[NUM_SCRAMBLERS_PER_ROW] = {
+        create_rotor_by_type(rotor_one_type, 0, 0),
+        create_rotor_by_type(rotor_two_type, 0, 0),
+        create_rotor_by_type(rotor_three_type, 0, 0)
+    };
+
+    ScramblerEnigma scrambler_row = {
+        .in = 0,
+        .out = 0
+    };
+
+    memcpy(scrambler_row.rotors, rotors, sizeof scrambler_row.rotors);
+
+    for (uint8_t column = 0; column < NUM_SCRAMBLERS_PER_ROW; ++column)
     {
-        for (uint8_t i = 0; i < cycle->len_w_stubs; ++i)
-        {
-        }
+        memcpy(turing_bomb->bomb_row + column, &scrambler_row, sizeof scrambler_row);
+    }
+
+    const uint8_t bound = cycle->len_w_stubs < NUM_SCRAMBLERS_PER_ROW
+                              ? cycle->len_w_stubs
+                              : cycle->len_wo_stubs;
+
+    const uint8_t *cycle_pos = cycle->len_w_stubs < NUM_SCRAMBLERS_PER_ROW
+                                   ? cycle->pos_cycle_w_stubs
+                                   : cycle->pos_cycle_wo_stubs;
+
+    for (uint8_t column = 0; column < bound; ++column)
+    {
+        turing_bomb->bomb_row[column].rotors[0]->position = cycle_pos[column];
+    }
+
+    for (uint8_t i = 0; i < NUM_SCRAMBLERS_PER_ROW; ++i)
+    {
+        free(rotors[i]);
     }
 }
 
@@ -67,37 +101,34 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
         return 1;
     }
 
-    const uint8_t *crib_as_ints       = get_int_array_from_string(crib);
-    const uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
+    uint8_t *crib_as_ints       = get_int_array_from_string(crib);
+    uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
 
 
     TuringBomb turing_bomb = {0};
-    const Cycle *cycle = find_cycles(crib, ciphertext);
+    const Cycle *cycle     = find_cycles(crib, ciphertext);
 
     create_bomb_menu(turing_bomb.diagonal_board, crib_as_ints, ciphertext_as_ints, crib_len);
 
-    set_starting_pos_scramblers(&turing_bomb, cycle);
-    ScramblerEnigma starting_pos_scramblers[NUM_SCRAMBLERS_PER_ROW];
-
-    // const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, crib_len);
-
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
-    for (uint8_t rotor_one = 1; rotor_one <= NUM_ROTORS; ++rotor_one)
+    for (uint8_t rotor_one_type = 1; rotor_one_type <= NUM_ROTORS; ++rotor_one_type)
     {
-        for (uint8_t rotor_two = 1; rotor_two <= NUM_ROTORS; ++rotor_two)
+        for (uint8_t rotor_two_type = 1; rotor_two_type <= NUM_ROTORS; ++rotor_two_type)
         {
-            if (rotor_one == rotor_two)
+            if (rotor_one_type == rotor_two_type)
             {
                 continue;
             }
-            for (uint8_t rotor_three = 1; rotor_three <= NUM_ROTORS; ++rotor_three)
+            for (uint8_t rotor_three_type = 1; rotor_three_type <= NUM_ROTORS; ++rotor_three_type)
             {
-                if (rotor_one == rotor_three || rotor_two == rotor_three)
+                if (rotor_one_type == rotor_three_type || rotor_two_type == rotor_three_type)
                 {
                     continue;
                 }
-                // enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA] = {rotor_one, rotor_two, rotor_three};
+
+                set_starting_pos_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
+
             }
         }
     }
