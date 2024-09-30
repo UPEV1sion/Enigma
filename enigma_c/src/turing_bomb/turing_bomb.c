@@ -23,12 +23,6 @@
  * The "Hill-climbing" will possibly be a faster alternative, but this is not the goal of this implementation.
  */
 
-/* One more note from me: if you don't like bit manipulations, I apologize, but
- * the algorithms that I developed like which are using bit manipulations like "is_permutation"
- * and "is_cycle" are faster by several magnitudes than there corresponding "normal" approaches.
- * I've had the goal to provide a fast user experience, and that does sometimes interfere with readable code.
- */
-
 #define NUM_ROTORS             5
 #define PLUGBOARD              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -44,13 +38,18 @@ static bool is_valid_crip_position(const char *crib, const char *encrypted_text,
     return true;
 }
 
-static void set_rotor_positions(TuringBomb *turing_bomb, Cycle *cycle)
+static void set_starting_pos_scramblers(TuringBomb *turing_bomb, const Cycle *cycle)
 {
-
+    if(cycle->len_w_stubs < NUM_SCRAMBLERS_PER_ROW)
+    {
+        for (uint8_t i = 0; i < cycle->len_w_stubs; ++i)
+        {
+        }
+    }
 }
 
 
-int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32_t crib_pos)
+int32_t start_turing_bomb(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_pos)
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_pos)) return 1;
 
@@ -68,12 +67,18 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
         return 1;
     }
 
-    uint8_t *crib_as_ints       = get_int_array_from_string(crib);
-    uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
+    const uint8_t *crib_as_ints       = get_int_array_from_string(crib);
+    const uint8_t *ciphertext_as_ints = get_int_array_from_string(ciphertext);
 
-    const TuringBomb turing_bomb = {0};
+
+    TuringBomb turing_bomb = {0};
+    const Cycle *cycle = find_cycles(crib, ciphertext);
 
     create_bomb_menu(turing_bomb.diagonal_board, crib_as_ints, ciphertext_as_ints, crib_len);
+
+    set_starting_pos_scramblers(&turing_bomb, cycle);
+    ScramblerEnigma starting_pos_scramblers[NUM_SCRAMBLERS_PER_ROW];
+
     // const Cycles *candidate_cycles = find_cycles(crib_as_ints, ciphertext_as_ints + crib_pos, crib_len);
 
     // Different rotor types
@@ -93,17 +98,6 @@ int32_t start_turing_bomb(const char *crib, const char *ciphertext, const uint32
                     continue;
                 }
                 // enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA] = {rotor_one, rotor_two, rotor_three};
-                for (uint8_t rotor_one_pos = 0; rotor_one_pos < ALPHABET_SIZE; ++rotor_one_pos)
-                {
-                    for (uint8_t rotor_two_pos = 0; rotor_two_pos < ALPHABET_SIZE; ++rotor_two_pos)
-                    {
-                        for (uint8_t rotor_three_pos = 0; rotor_three_pos < ALPHABET_SIZE; ++rotor_three_pos)
-                        {
-
-
-                        }
-                    }
-                }
             }
         }
     }

@@ -28,20 +28,27 @@ static void add_neighbour(Node *restrict node, Node *restrict neighbour)
     node->neighbours[node->neighbour_count++] = neighbour;
 }
 
-static void print_dot(const char *restrict crib, const char *restrict ciphertext)
+static void write_dot_format(const char *restrict crib, const char *restrict ciphertext)
 {
-    puts("graph G {");
-    puts("\tlayout=neato;");
-    for (size_t i = 0; i < strlen(crib); ++i)
+    FILE *file;
+    assertmsg((file = fopen(FILE_PATH_CRIB_CIPHER_CYCLE, "w")) != NULL, "cant open" FILE_PATH_CRIB_CIPHER_CYCLE);
+
+    fputs("graph G {\n", file);
+    fputs("\tlayout=neato;\n", file);
+    const size_t len = strlen(crib);
+    for (size_t i = 0; i < len; ++i)
     {
-        printf("\t\"%c\" -- \"%c\";\n", ciphertext[i], crib[i]);
+        fprintf(file, "\t\"%c\" -- \"%c\";\n", ciphertext[i], crib[i]);
     }
-    puts("}");
+    fputs("}\n", file);
+
+    fclose(file);
 }
 
 static bool find_cycle_rec(Node *restrict node, const Node *restrict parent, Cycle *restrict cycle)
 {
     if (node->data == 0) return false;
+
     printf("Visiting node: %c, %u\n", node->data, node->crib_pos);
     if (node->visited) return true;
     node->visited                                    = true;
@@ -160,7 +167,7 @@ Cycle* find_cycles(const char *restrict crib, const char *restrict ciphertext)
     assertmsg(cycle != NULL, "malloc failed");
     memset(cycle, 0, sizeof(Cycle));
 
-    print_dot(crib, ciphertext);
+    write_dot_format(crib, ciphertext);
 
     puts(find_cycle(nodes, len, cycle) ? "true" : "false");
     puts("");

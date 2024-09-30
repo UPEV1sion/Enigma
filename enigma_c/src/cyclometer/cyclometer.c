@@ -112,13 +112,6 @@ static Cycle get_cycle_count(const uint8_t *rotor_permutation)
     return cycle;
 }
 
-static FILE* open_file(void)
-{
-    FILE *file;
-    assertmsg((file = fopen(FILE_PATH_CYCLO, "w")) != NULL, "file == NULL");
-    return file;
-}
-
 static void print_cycle(const Cycle *cycle, FILE *file)
 {
     fwrite("( ", sizeof(char), 2, file);
@@ -219,7 +212,9 @@ void create_cycles(void)
 
     // CycleOfRotorSetting *cycles[TOTAL_CYCLES];
 
-    FILE *file                = open_file();
+    FILE *file;
+    assertmsg((file = fopen(FILE_PATH_CYCLO, "w")) != NULL, "can't open " FILE_PATH_CYCLO);
+
     CycleOfRotorSetting cycle = {0};
 
     for (uint8_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)

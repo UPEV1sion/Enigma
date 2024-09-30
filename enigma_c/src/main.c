@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
     // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
     // find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-    find_cycles("ABCD", "EFGH");
+    // find_cycles("ABCD", "EFGH");
+    find_cycles("BEACHHEAD", "EDBGEAHDB");
     return 0;
     if (argc < 2)
     {

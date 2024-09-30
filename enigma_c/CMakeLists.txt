@@ -36,6 +36,9 @@ add_definitions(-DFILE_PATH_BOMB="${FILE_PATH_BOMB}")
 set(FILE_PATH_CONFIGURATIONS "${CMAKE_SOURCE_DIR}/src/data/configs.txt")
 add_definitions(-DFILE_PATH_CONFIGURATIONS="${FILE_PATH_CONFIGURATIONS}")
 
+set(FILE_PATH_CRIB_CIPHER_CYCLE "${CMAKE_SOURCE_DIR}/src/data/crib_cipher_cycle.dot")
+add_definitions(-DFILE_PATH_CRIB_CIPHER_CYCLE="${FILE_PATH_CRIB_CIPHER_CYCLE}")
+
 if(GCC_COMPILER)
     find_package(OpenMP REQUIRED)
     if(OpenMP_C_FOUND)
