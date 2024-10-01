@@ -108,7 +108,10 @@
 //     return longest_cycle;
 // }
 
-int32_t create_bomb_menu(DiagonalBoard *diagonal_board, const uint8_t *crib, const uint8_t *ciphertext, const size_t crib_len)
+int32_t create_bomb_menu(DiagonalBoard *diagonal_board,
+                         const char *restrict crib,
+                         const char *restrict ciphertext,
+                         const size_t crib_len)
 {
     // init_diagonal_board(diagonal_board);
 
@@ -120,13 +123,13 @@ int32_t create_bomb_menu(DiagonalBoard *diagonal_board, const uint8_t *crib, con
 
     // for(uint8_t i = 1; i < longest_cycle_length; ++i)
     // {
-        // const uint8_t scrambler_column = longest_cycle.indexes_cycle[i];
-        // const char cycle_char = longest_cycle[i];
-        // turing_bomb->diagonal_board[last_scrambler_column][(int) last_cycle_char] = cycle_char;
-        // turing_bomb->diagonal_board[scrambler_column][(int) cycle_char] = last_cycle_char;
+    // const uint8_t scrambler_column = longest_cycle.indexes_cycle[i];
+    // const char cycle_char = longest_cycle[i];
+    // turing_bomb->diagonal_board[last_scrambler_column][(int) last_cycle_char] = cycle_char;
+    // turing_bomb->diagonal_board[scrambler_column][(int) cycle_char] = last_cycle_char;
 
-        // last_cycle_char = cycle_char;
-        // last_scrambler_column = scrambler_column;
+    // last_cycle_char = cycle_char;
+    // last_scrambler_column = scrambler_column;
     // }
 
 

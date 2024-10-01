@@ -27,17 +27,19 @@
 #include "helper/helper.h"
 #include "turing_bomb/brute_force.h"
 #include "turing_bomb/turing_bomb.h"
+#include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
-
 
 int main(int argc, char *argv[])
 {
-    // uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
-    // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
-    // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
-    find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
+    uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
+    // CyclesOld *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+    // find_cycles("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
     // find_cycles("ABCD", "EFGH");
     // find_cycles("BEACHHEAD", "EDBGEAHDB");
+
     return 0;
     if (argc < 2)
     {

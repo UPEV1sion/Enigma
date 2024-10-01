@@ -29,7 +29,7 @@
  * @param number the number to be extracted
  * @return int32_t: error code
  */
-int32_t get_number_from_string(const char *str, int32_t *number)
+int32_t get_number_from_string(const char *restrict str, int32_t *restrict number)
 {
     if (str == NULL) return ERR_NULL_POINTER;
     if (strlen(str) == 0) return ERR_EMPTY_STRING;
@@ -68,7 +68,7 @@ int32_t get_number_from_string(const char *str, int32_t *number)
  * @param input the string to be capitalized
  * @return int32_t: error code
  */
-int32_t to_uppercase(char *input)
+int32_t to_uppercase(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     const size_t length = strlen(input);
@@ -88,7 +88,7 @@ int32_t to_uppercase(char *input)
  * @param input the string where the alnums chars should be removed
  * @return int32_t: error code
  */
-int32_t remove_non_alnum(char *input)
+int32_t remove_non_alnum(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     if (strlen(input) == 0) return ERR_EMPTY_STRING;
@@ -114,7 +114,7 @@ int32_t remove_non_alnum(char *input)
  * @param input the string where the none alphabetic chars should be removed
  * @return int32_t: error code
  */
-int32_t remove_non_alpha(char *input)
+int32_t remove_non_alpha(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     if (strlen(input) == 0) return ERR_EMPTY_STRING;
@@ -176,7 +176,7 @@ bool is_permutation(const char *first, const char *second)
  * @param str the original string
  * @return uint8_t*: to the processed array, NULL for error
  */
-uint8_t* get_int_array_from_string(const char *str)
+uint8_t* get_int_array_from_string(const char *restrict str)
 {
     if (str == NULL) return NULL;
     const size_t len = strlen(str);
@@ -198,7 +198,7 @@ uint8_t* get_int_array_from_string(const char *str)
  * @param size the array size
  * @return char*: to the processed string, NULL for error
  */
-char* get_string_from_int_array(const uint8_t *array, const size_t size)
+char* get_string_from_int_array(const uint8_t *restrict array, const size_t size)
 {
     if (array == NULL) return NULL;
     if (size == 0) return NULL;
@@ -221,7 +221,7 @@ char* get_string_from_int_array(const uint8_t *array, const size_t size)
  * @param str the string to be checked
  * @return bool: true or falsehood
  */
-bool has_duplicates(const char *str)
+bool has_duplicates(const char *restrict str)
 {
     if (str == NULL) return false;
     size_t len;
@@ -244,7 +244,7 @@ bool has_duplicates(const char *str)
  * @param str the string to be checked
  * @return bool: true or falsehood
  */
-bool contains_spaces(const char *str)
+bool contains_spaces(const char *restrict str)
 {
     if (str == NULL) return false;
     const size_t len = strlen(str);
@@ -262,7 +262,7 @@ bool contains_spaces(const char *str)
  * @param str the string where the alphas should be counted
  * @return size_t: num of alphas, SIZE_MAX for errors
  */
-size_t count_alphas(const char *str)
+size_t count_alphas(const char *restrict str)
 {
     if (str == NULL) return SIZE_MAX;
     const size_t len = strlen(str);
@@ -281,7 +281,7 @@ size_t count_alphas(const char *str)
  * @param c the char which is to be counted
  * @return size_t: the number of chars, SIZE_MAX for error
  */
-size_t count_c(const char *str, const char c)
+size_t count_c(const char *restrict str, const char c)
 {
     if (str == NULL) return SIZE_MAX;
     const size_t len = strlen(str);
@@ -312,7 +312,7 @@ bool is_substring(const char *str1, const char *str2)
  * @param len size of the array
  * @return double: the IC, NaN for error
  */
-double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
+double calc_index_of_coincidence(const uint8_t *restrict arr, const size_t len)
 {
     if (arr == NULL) return NaN;
     if (len == 0) return 0;
@@ -348,7 +348,7 @@ double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
  * @param lim upper limit of how much characters are to be read
  * @return size_t: number of characters read
  */
-size_t my_getline(char *str, const size_t lim)
+size_t my_getline(char *restrict str, const size_t lim)
 {
     if (str == NULL) return 0;
 

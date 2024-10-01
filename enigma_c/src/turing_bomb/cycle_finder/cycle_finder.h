@@ -1,22 +1,28 @@
 #pragma once
 
-//
-// Created by Emanuel on 29.09.2024.
-//
 
 #include <stdint.h>
+#include "turing_bomb/turing_bomb.h"
 
-#include "helper/helper.h"
-
-typedef struct Node Node;
+//
+// Created by Emanuel on 30.08.2024.
+//
 
 typedef struct
 {
-    Node *cycle_start;
-    uint8_t pos_cycle_wo_stubs[ALPHABET_SIZE];
-    uint8_t pos_cycle_w_stubs[ALPHABET_SIZE];
-    uint8_t len_wo_stubs;
+    uint8_t chars_w_stubs[ALPHABET_SIZE];
+    uint8_t chars_wo_stubs[ALPHABET_SIZE];
+    int8_t positions_w_stubs[ALPHABET_SIZE];
+    int8_t positions_wo_stubs[ALPHABET_SIZE];
     uint8_t len_w_stubs;
-} Cycle;
+    uint8_t len_wo_stubs;
+} CycleCribPlain;
 
-Cycle* find_cycles(const char *restrict crib, const char *restrict ciphertext);
+typedef struct
+{
+    CycleCribPlain *cycles_positions[ALPHABET_SIZE];
+    uint32_t num_cycles;
+} CyclesCribPlain;
+
+
+CyclesCribPlain* find_cycles(const char *crib, const char *ciphertext);

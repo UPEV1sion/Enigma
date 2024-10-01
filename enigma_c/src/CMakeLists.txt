@@ -1,5 +1,5 @@
 
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -Wextra -Werror -O3 -std=c17")
+#set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall -Wextra -Werror -O3 -std=c17")
 
 add_library(enigma_lib
     cyclometer/cyclometer.c
@@ -34,10 +34,10 @@ add_library(enigma_lib
         turing_bomb/turing_bomb.h
         json/cJSON.c
         json/cJSON.h
+        turing_bomb/cycle_finder/cycle_finder_graph.c
+        turing_bomb/cycle_finder/cycle_finder_graph.h
         turing_bomb/cycle_finder/cycle_finder.c
         turing_bomb/cycle_finder/cycle_finder.h
-        turing_bomb/cycle_finder/cycle_finder_old.c
-        turing_bomb/cycle_finder/cycle_finder_old.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

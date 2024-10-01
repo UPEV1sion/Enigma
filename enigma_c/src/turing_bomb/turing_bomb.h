@@ -22,4 +22,4 @@ typedef struct TuringBomb
     Reflector reflector;
 } TuringBomb;
 
-int32_t start_turing_bomb(const char *crib, const char *ciphertext, uint32_t crib_pos);
+int32_t start_turing_bomb(const char *crib, const char *ciphertext, uint32_t crib_offset);

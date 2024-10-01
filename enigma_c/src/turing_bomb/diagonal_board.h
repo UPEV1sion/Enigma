@@ -63,4 +63,7 @@ typedef struct DiagonalBoard
     CommonConnections commons[NUM_COMMONS];
 } DiagonalBoard;
 
-int32_t create_bomb_menu(DiagonalBoard *diagonal_board, const uint8_t *crib, const uint8_t *ciphertext, size_t crib_len);
+int32_t create_bomb_menu(DiagonalBoard *diagonal_board,
+                         const char *restrict crib,
+                         const char *restrict ciphertext,
+                         size_t crib_len);

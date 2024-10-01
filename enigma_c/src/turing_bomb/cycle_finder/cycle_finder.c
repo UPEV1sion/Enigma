@@ -1,33 +1,142 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdbool.h>
 
-#include "cycle_finder.h"
 #include "helper/helper.h"
-#include "turing_bomb/turing_bomb.h"
+#include "cycle_finder.h"
 
 //
-// Created by Emanuel on 29.09.2024.
+// Created by Emanuel on 30.08.2024.
 //
 
-//TODO bitmask for crib or cycle
-struct Node
-{
-    Node **neighbours;
-    size_t neighbour_count;
-    char data;
-    uint8_t crib_pos;
-    bool visited;
-};
+/* After my research, I found that the process of finding cycles between crib and ciphertext was actually done by hand
+ * as well as plugging up the diagonal board.
+ *
+ * In cycle_finder_graph I tested an approach with a graph and DFS,
+ * but it turns out that setting up the graph correctly isn't as easy as it seems, and it comes with great overhead.
+ * cycle_finder_graph was actually the second method I tested, after this one.
+ * But in the end, I settled for this one.
+ *
+ * Here I solved the "cycle finding problem" using a recursive backtracking algorithm.
+ * This algorithm has been extensively optimized and is very fast.
+ * It also runs only once in the decryption process.
+ * It May run multiple times until the Enigma is cracked due to bad crib placement.
+ */
 
-static void add_neighbour(Node *restrict node, Node *restrict neighbour)
+typedef struct
 {
-    node->neighbours = realloc(node->neighbours, (node->neighbour_count + 1) * sizeof(Node *));
-    assertmsg(node->neighbours != NULL, "realloc failed");
-    node->neighbours[node->neighbour_count++] = neighbour;
+    uint8_t first;
+    uint8_t second;
+} CharTuple;
+
+/**
+ * @brief Test if there is a cycle between plaintext and crib when starting from a particular char in plain
+ * using a backtracking algorithm.
+ * @note If im referring to letter, I actually mean a digit from 0-25 representing it.
+ * @param start the start position of the potential cycle
+ * @param c the other letter from the tuple where a letter is matched
+ * @param tuples array with all the letter tuples
+ * @param tuples_len the array length
+ * @param visited_mask the tuples already visited as a bitmask
+ * @param cycle to note down the cycle path and positions
+ * @return bool: true or falsehood for cycle or stub
+ */
+static bool find_cycle(const uint8_t start, const uint8_t c,
+                       CharTuple *restrict tuples, const uint8_t tuples_len,
+                       uint32_t visited_mask, CycleCribPlain *restrict cycle)
+{
+    // Bitmask instead of a bool array for speed and minimizing recursion overhead
+
+    /*  Once again for the interested reader:
+     *  Instead of using a boolean array to track which Tuples are visited,
+     *  I used a bitmask where each bit corresponds to a Tuple visited.
+     *  Note: crib can't be longer than 26 chars.
+     *  Before the function call, we mark the corresponding bit of the "entry point" as active using an OR operation.
+     *  In the function, we annotate the path and traverse through the tuples,
+     *  retrieving the next letter which is not already visited.
+     *  For the visited check we bitshift the bit into the wanted position and using an AND operation to see if its toggled.
+     *  After we retrieved the next letter, we set the corresponding bit.
+     *  If backtracking goes back, we disable the bit with a more complex bit manipulation:
+     *  The bit gets shifted into the right place, and then the whole mask gets flipped with a NOT operation.
+     *  Now all bits are 1 except the bit we want to disable.
+     *  We then use an AND which leaves the whole visited_mask as it is but disables the unwanted bit.
+     */
+
+    cycle->chars_w_stubs[cycle->len_w_stubs]   = c;
+    cycle->chars_wo_stubs[cycle->len_wo_stubs] = c;
+
+    if (c == start && cycle->len_w_stubs > 1)
+    {
+        return true;
+    }
+
+    for (uint8_t i = 0; i < tuples_len; ++i)
+    {
+        if (!(visited_mask & (1 << i)))
+        {
+            // I know...
+            const uint8_t next_letter = (tuples[i].first == c)
+                                            ? tuples[i].second
+                                            : (tuples[i].second == c)
+                                                  ? tuples[i].first
+                                                  : 0;
+            if (next_letter != 0)
+            {
+                visited_mask |= (1 << i);
+
+                cycle->positions_w_stubs[++cycle->len_w_stubs]   = i;
+                cycle->positions_wo_stubs[++cycle->len_wo_stubs] = i;
+
+                if (find_cycle(start, next_letter, tuples, tuples_len, visited_mask, cycle))
+                {
+                    return true;
+                }
+
+                visited_mask &= ~(1 << i);
+            }
+        }
+    }
+
+    cycle->len_wo_stubs--;
+
+    return false;
 }
 
+// TODO marked for removal
+// /**
+//  * @brief Eliminates duplicate cycles where there loop is the same
+//  * but started at a different point or is traversed backwards
+//  * @param cycles the char * array containing the cycles
+//  * @param num_cycles the number of cycles found
+//  * @return size_t: num of cycles left
+//  */
+// static size_t eliminate_duplicate_cycles(char *cycles[], const size_t num_cycles)
+// {
+//     size_t valid_cycles = 0;
+//     for (size_t i = 0; i < num_cycles; ++i)
+//     {
+//         if (cycles[i] != NULL)
+//         {
+//             for (size_t j = i + 1; j < num_cycles; ++j)
+//             {
+//                 if (is_permutation(cycles[i], cycles[j]))
+//                 {
+//                     free(cycles[j]);
+//                     cycles[j] = NULL;
+//                 }
+//             }
+//             cycles[valid_cycles++] = cycles[i];
+//         }
+//     }
+//     return valid_cycles;
+// }
+
+/**
+ * @brief Writes the cycles to FILE_PATH_CRIB_CIPHER_CYCLE
+ * @param crib The crib
+ * @param ciphertext The ciphertext
+ */
 static void write_dot_format(const char *restrict crib, const char *restrict ciphertext)
 {
     FILE *file;
@@ -45,141 +154,69 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
     fclose(file);
 }
 
-static bool find_cycle_rec(Node *restrict node, const Node *restrict parent, Cycle *restrict cycle)
-{
-    if (node->data == 0) return false;
-
-    printf("Visiting node: %c, %u\n", node->data, node->crib_pos);
-    if (node->visited) return true;
-    node->visited = true;
-
-    cycle->pos_cycle_w_stubs[cycle->len_w_stubs++]   = node->crib_pos;
-    cycle->pos_cycle_wo_stubs[cycle->len_wo_stubs++] = node->crib_pos;
-
-    for (size_t i = 0; i < node->neighbour_count; ++i)
-    {
-        if (node->neighbours[i] != parent)
-        {
-            if (find_cycle_rec(node->neighbours[i], node, cycle))
-                return true;
-        }
-    }
-
-    cycle->len_wo_stubs--;
-    node->visited = false;
-
-    return false;
-}
-
-static bool find_cycle(Node *restrict nodes, const uint8_t nodes_len, Cycle *restrict cycle)
-{
-    bool ret = false;
-
-    for (uint8_t i = 0; i < nodes_len; ++i)
-    {
-        if (!nodes[i].visited)
-        {
-            Cycle temp = {0};
-            if (find_cycle_rec(nodes + i, NULL, &temp))
-            {
-                if (temp.len_wo_stubs <= 1) continue;
-                if (temp.len_w_stubs > cycle->len_w_stubs && temp.len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
-                    memcpy(cycle, &temp, sizeof(Cycle));
-
-                puts("W Stubs:");
-                printf("%d\n", temp.len_w_stubs);
-                for (uint8_t y = 0; y < temp.len_w_stubs; ++y)
-                {
-                    printf("%u ", temp.pos_cycle_w_stubs[y]);
-                }
-
-                puts("\nWO Stubs:");
-                printf("%d\n", temp.len_wo_stubs);
-                for (uint8_t y = 0; y < temp.len_wo_stubs; ++y)
-                {
-                    printf("%u ", temp.pos_cycle_wo_stubs[y]);
-                }
-                puts("");
-
-                ret = true;
-            }
-        }
-    }
-
-    return ret;
-}
-
-void free_neighbours(const Node *restrict node)
-{
-    for (uint8_t i = 0; i < ALPHABET_SIZE; ++i)
-    {
-        if (node[i].neighbours != NULL)
-            free(node[i].neighbours);
-    }
-}
-
-void build_graph(const char *restrict crib, const char *restrict ciphertext, const size_t len, Node *nodes)
-{
-    bool node_created[ALPHABET_SIZE] = {false};
-
-    for (size_t i = 0; i < len; ++i)
-    {
-        const uint8_t i_crib       = crib[i] - 'A';
-        const uint8_t i_ciphertext = ciphertext[i] - 'A';
-
-        if (!node_created[i_crib])
-        {
-            nodes[i_crib].data     = crib[i];
-            nodes[i_crib].crib_pos = i;
-            node_created[i_crib]   = true;
-        }
-
-        if (!node_created[i_ciphertext])
-        {
-            nodes[i_ciphertext].data     = ciphertext[i];
-            nodes[i_ciphertext].crib_pos = i;
-            node_created[i_ciphertext]   = true;
-        }
-
-        add_neighbour(nodes + i_crib, nodes + i_ciphertext);
-        add_neighbour(nodes + i_ciphertext, nodes + i_crib);
-    }
-}
 
 /**
- * @brief Find cycles between the crib and plain, using a graph and a modified DFS
- * @warning Uses restrict pointers: It must be assured that crib and ciphertext reside in different storage areas.
- * @param crib The crib
- * @param ciphertext The Ciphertext
- * @return Cycle: cycle if cycles where found, NULL for error
+ * @brief Finds cycles between crib and ciphertext
+ * @note plain and crib length must be equal
+ * @param crib the crib suspected to be the deciphered ciphertext
+ * @param ciphertext the enciphered text
+ * @return Cycles*
  */
-Cycle* find_cycles(const char *restrict crib, const char *restrict ciphertext)
+CyclesCribPlain* find_cycles(const char *restrict crib, const char *restrict ciphertext)
 {
-    size_t len;
-
-    if ((len = strlen(ciphertext)) != strlen(crib)) return NULL;
-    // if (len > NUM_SCRAMBLERS_PER_ROW) return NULL;
-
-    Node nodes[ALPHABET_SIZE] = {0};
-
-    build_graph(crib, ciphertext, len, nodes);
-
-    Cycle *cycle = malloc(sizeof(Cycle));
-    assertmsg(cycle != NULL, "malloc failed");
-    memset(cycle, 0, sizeof(Cycle));
-
     write_dot_format(crib, ciphertext);
 
-    puts(find_cycle(nodes, len, cycle) ? "true" : "false");
+    CyclesCribPlain *cycles = malloc(sizeof(CyclesCribPlain));
+    assertmsg(cycles != NULL, "malloc failed");
+    memset(cycles, 0, sizeof(CyclesCribPlain));
 
-    free_neighbours(nodes);
+    const size_t crib_len = strlen(crib);
 
-    if (cycle->len_w_stubs == 0)
+    CharTuple tuples[ALPHABET_SIZE];
+    for (size_t i = 0; i < crib_len; i++)
     {
-        free(cycle);
-        return NULL;
+        tuples[i].first  = crib[i] - 'A';
+        tuples[i].second = ciphertext[i] - 'A';
     }
 
+    size_t cycle_counter = 0;
 
-    return cycle;
+    for (size_t i = 0; i < crib_len; i++)
+    {
+        //TODO marking the already visited ones, so that they dont get traversed again -> reference maybe
+        const uint32_t visited_mask = (1 << i);
+
+        CycleCribPlain temp               = {0};
+        temp.positions_w_stubs[0]   = i;
+        temp.positions_wo_stubs[0]  = i;
+        temp.chars_w_stubs[0]       = tuples[i].first;
+        temp.chars_wo_stubs[0]      = tuples[i].first;
+        temp.len_w_stubs = 1;
+        temp.len_wo_stubs = 1;
+
+        if (find_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, &temp))
+        {
+            if (temp.len_wo_stubs <= 1) continue;
+            cycles->cycles_positions[cycle_counter] = malloc(sizeof(CycleCribPlain));
+            assertmsg(cycles->cycles_positions[cycle_counter] != NULL, "malloc failed");
+
+            memcpy(cycles->cycles_positions[cycle_counter], &temp, sizeof(CycleCribPlain));
+            puts("\nFound cycle:");
+            puts("WO STUBS:");
+            for (uint8_t cycle_pos = 0; cycle_pos <= temp.len_wo_stubs; ++cycle_pos)
+            {
+                printf("%d (%c) -> ", temp.positions_wo_stubs[cycle_pos], temp.chars_wo_stubs[cycle_pos] + 'A');
+            }
+            puts("\nW STUBS:");
+            for (uint8_t cycle_pos = 0; cycle_pos <= temp.len_w_stubs; ++cycle_pos)
+            {
+                printf("%d (%c) -> ", temp.positions_w_stubs[cycle_pos], temp.chars_w_stubs[cycle_pos] + 'A');
+            }
+
+            cycle_counter++;
+        }
+    }
+    cycles->num_cycles = cycle_counter;
+
+    return cycles;
 }
