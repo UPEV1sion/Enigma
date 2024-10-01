@@ -44,7 +44,7 @@ typedef struct
  */
 static bool find_cycle(const uint8_t start, const uint8_t c,
                        CharTuple *restrict tuples, const uint8_t tuples_len,
-                       uint32_t visited_mask, CycleCribPlain *restrict cycle)
+                       uint32_t visited_mask, CycleCribCipher *restrict cycle)
 {
     // Bitmask instead of a bool array for speed and minimizing recursion overhead
 
@@ -162,13 +162,13 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
  * @param ciphertext the enciphered text
  * @return Cycles*
  */
-CyclesCribPlain* find_cycles(const char *restrict crib, const char *restrict ciphertext)
+CyclesCribCipher* find_cycles(const char *restrict crib, const char *restrict ciphertext)
 {
     write_dot_format(crib, ciphertext);
 
-    CyclesCribPlain *cycles = malloc(sizeof(CyclesCribPlain));
+    CyclesCribCipher *cycles = malloc(sizeof(CyclesCribCipher));
     assertmsg(cycles != NULL, "malloc failed");
-    memset(cycles, 0, sizeof(CyclesCribPlain));
+    memset(cycles, 0, sizeof(CyclesCribCipher));
 
     const size_t crib_len = strlen(crib);
 
@@ -186,7 +186,7 @@ CyclesCribPlain* find_cycles(const char *restrict crib, const char *restrict cip
         //TODO marking the already visited ones, so that they dont get traversed again -> reference maybe
         const uint32_t visited_mask = (1 << i);
 
-        CycleCribPlain temp               = {0};
+        CycleCribCipher temp               = {0};
         temp.positions_w_stubs[0]   = i;
         temp.positions_wo_stubs[0]  = i;
         temp.chars_w_stubs[0]       = tuples[i].first;
@@ -197,10 +197,10 @@ CyclesCribPlain* find_cycles(const char *restrict crib, const char *restrict cip
         if (find_cycle(tuples[i].first, tuples[i].second, tuples, crib_len, visited_mask, &temp))
         {
             if (temp.len_wo_stubs <= 1) continue;
-            cycles->cycles_positions[cycle_counter] = malloc(sizeof(CycleCribPlain));
+            cycles->cycles_positions[cycle_counter] = malloc(sizeof(CycleCribCipher));
             assertmsg(cycles->cycles_positions[cycle_counter] != NULL, "malloc failed");
 
-            memcpy(cycles->cycles_positions[cycle_counter], &temp, sizeof(CycleCribPlain));
+            memcpy(cycles->cycles_positions[cycle_counter], &temp, sizeof(CycleCribCipher));
             puts("\nFound cycle:");
             puts("WO STUBS:");
             for (uint8_t cycle_pos = 0; cycle_pos <= temp.len_wo_stubs; ++cycle_pos)

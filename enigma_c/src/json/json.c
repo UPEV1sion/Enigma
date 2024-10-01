@@ -18,7 +18,7 @@
 // Created by Emanuel on 26.07.2024.
 //
 
-// TODO json in CLI
+// TODO output json in CLI mode
 
 static cJSON *root;
 

@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include "enigma/reflector/reflector.h"
-#include "helper/helper.h"
 #include "diagonal_board.h"
 
 //

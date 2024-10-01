@@ -25,10 +25,15 @@
  * the electrical connection was also closed, the turing bombe stopped.
  */
 
+// Cycle header reference I suppose was because turing_bomb.h was included here. So this is a workaround.
+typedef struct TuringBomb TuringBomb;
+
 #include <stdbool.h>
 
 #include "helper/helper.h"
 #include "enigma/rotor/rotor.h"
+#include "diagonal_board.h"
+#include "cycle_finder/cycle_finder.h"
 
 #define NUM_SCRAMBLERS_PER_COLUMN 3
 #define NUM_FIELDS_PER_COMMON 5
@@ -56,14 +61,10 @@ typedef struct
     cable_t common[NUM_FIELDS_PER_COMMON];
 } CommonConnections;
 
-
 typedef struct DiagonalBoard
 {
     cable_t alphabet[ALPHABET_SIZE];
     CommonConnections commons[NUM_COMMONS];
 } DiagonalBoard;
 
-int32_t create_bomb_menu(DiagonalBoard *diagonal_board,
-                         const char *restrict crib,
-                         const char *restrict ciphertext,
-                         size_t crib_len);
+int32_t create_bomb_menu(TuringBomb *turing_bomb, const CycleCribCipher *restrict cycle);
