@@ -109,7 +109,7 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
 
     if (longest_cycle->len_wo_stubs > NUM_SCRAMBLERS_PER_ROW)
     {
-        fprintf(stderr, "Cycles to long, try a different crib\n");
+        fprintf(stderr, "Cycle is to long, try a different crib\n");
         return 1;
     }
 

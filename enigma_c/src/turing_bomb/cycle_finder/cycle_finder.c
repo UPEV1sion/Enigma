@@ -85,8 +85,8 @@ static bool find_cycle(const uint8_t start, const uint8_t c,
             {
                 visited_mask |= (1 << i);
 
-                cycle->positions_w_stubs[++cycle->len_w_stubs]   = i;
-                cycle->positions_wo_stubs[++cycle->len_wo_stubs] = i;
+                cycle->positions_w_stubs[cycle->len_w_stubs++]   = i;
+                cycle->positions_wo_stubs[cycle->len_wo_stubs++] = i;
 
                 if (find_cycle(start, next_letter, tuples, tuples_len, visited_mask, cycle))
                 {
@@ -203,12 +203,14 @@ CyclesCribCipher* find_cycles(const char *restrict crib, const char *restrict ci
             memcpy(cycles->cycles_positions[cycle_counter], &temp, sizeof(CycleCribCipher));
             puts("\nFound cycle:");
             puts("WO STUBS:");
-            for (uint8_t cycle_pos = 0; cycle_pos <= temp.len_wo_stubs; ++cycle_pos)
+            printf("Length %d\n", temp.len_wo_stubs);
+            for (uint8_t cycle_pos = 0; cycle_pos < temp.len_wo_stubs; ++cycle_pos)
             {
                 printf("%d (%c) -> ", temp.positions_wo_stubs[cycle_pos], temp.chars_wo_stubs[cycle_pos] + 'A');
             }
             puts("\nW STUBS:");
-            for (uint8_t cycle_pos = 0; cycle_pos <= temp.len_w_stubs; ++cycle_pos)
+            printf("Length %d\n", temp.len_w_stubs);
+            for (uint8_t cycle_pos = 0; cycle_pos < temp.len_w_stubs; ++cycle_pos)
             {
                 printf("%d (%c) -> ", temp.positions_w_stubs[cycle_pos], temp.chars_w_stubs[cycle_pos] + 'A');
             }

@@ -11,7 +11,7 @@ typedef struct
 {
     uint8_t chars_w_stubs[ALPHABET_SIZE];
     uint8_t chars_wo_stubs[ALPHABET_SIZE];
-    int8_t positions_w_stubs[ALPHABET_SIZE];
+    int8_t positions_w_stubs[ALPHABET_SIZE]; // with / without
     int8_t positions_wo_stubs[ALPHABET_SIZE];
     uint8_t len_w_stubs;
     uint8_t len_wo_stubs;

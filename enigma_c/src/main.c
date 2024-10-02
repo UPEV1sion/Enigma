@@ -35,10 +35,11 @@ int main(int argc, char *argv[])
     uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
     uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
     // CyclesOld *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-    start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
-    // find_cycles("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
+    // start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+    find_cycles_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
     // find_cycles("ABCD", "EFGH");
     // find_cycles("BEACHHEAD", "EDBGEAHDB");
+    // find_cycles("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 
     return 0;
     if (argc < 2)

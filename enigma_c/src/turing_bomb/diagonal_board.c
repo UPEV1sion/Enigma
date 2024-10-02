@@ -22,7 +22,7 @@ int32_t create_bomb_menu(TuringBomb *restrict turing_bomb, const CycleCribCipher
     turing_bomb->diagonal_board->alphabet[cycle->chars_wo_stubs[0]] = ALPHABET_BITMASK;
     for (uint8_t column = 1; column < cycle->len_wo_stubs; ++column)
     {
-        turing_bomb->bomb_row[column].in
+        // turing_bomb->bomb_row[column].in
     }
 
     return 0;

@@ -1,4 +1,4 @@
-# Enigma Backend
+# Enigma Simulator
 > [!NOTE]
 > This is a project work at my university. This work took place as part of an "Enigma Rebuild Project". 
 > I've done my best to make this cross-platform compatible. 
