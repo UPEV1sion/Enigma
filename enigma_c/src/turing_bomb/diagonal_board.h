@@ -10,19 +10,22 @@
  * There were 26 contacts at the back of the bombe, that where energized at all time.
  * Each cable/contact represented a letter in the alphabet.
  *
- *
  * If our cycle started with the letter 'A' at position 3,
- * TODO rewrite
- * we would take a cable and plug one side into 'A' and the other into rotor 3 in.
+ * and the next letter in the letter was e.g. an 'E' at position 5,
+ * our top scrambler at the top row had the position 1 and the next 3.
+ * We set up the scrambler position in such a way that they match the "offset" between the letters in the loop.
  *
- * If the next letter in to loop was e.g. an 'E' at position 8,
- * we take one cable and plug one side into rotor 3 out and the other one into rotor 8 in.
- * We proceed until the loop is finished.
+ * Now we connect the rotors together.
+ * We connect a cable from the starting letter of the loop to the input of rotor 1, out 1 → in 2, and so on.
  *
- * The last step is to determine a "Test Register".
- * This was a letter in the loop that couldn't be starting letter or right next to it.
- * If a candidate was found, i.e., the cycle was closed;
- * the electrical connection was also closed, the turing bombe stopped.
+ * If we integrate "stubs" in the cycle, we will need the common connectors.
+ * If a position contributes to the cycle and a stub arises from it, we need the common connectors or commons.
+ * Each rotor has one input and one output, so we can't plug 2 connections in.
+ * The commons typically had five contacts, so up to four branches per position where feasible.
+ * One cable was needed for connecting the branches to the rotor itself.
+ * We would simply plug all cables where the branches happen in the same common field.
+ *
+ * Now there's nothing left to do as to turn on the Turing-Welchman Bomb.
  */
 
 // Cycle header reference I suppose was because turing_bomb.h was included here. So this is a workaround.
@@ -37,16 +40,23 @@ typedef struct TuringBomb TuringBomb;
 
 #define NUM_SCRAMBLERS_PER_COLUMN 3
 #define NUM_FIELDS_PER_COMMON 5
-#define NUM_COMMONS 6
+#define NUM_COMMONS 5
 
 
 // 1 bit for each letter → 26 bits.
 typedef uint32_t cable_t;
+typedef struct Cable Cable;
+
+struct Cable
+{
+    Cable *origin, *destination;
+    cable_t cable;
+};
 
 // I put this there because the in and out connectors where introduced with the Diagonal Board.
 typedef struct ScramblerEnigma
 {
-    cable_t in, out;
+    Cable in, out;
     Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
 } ScramblerEnigma;
 
@@ -58,12 +68,12 @@ typedef struct ScramblerEnigma
  */
 typedef struct
 {
-    cable_t common[NUM_FIELDS_PER_COMMON];
+    Cable common[NUM_FIELDS_PER_COMMON];
 } CommonConnections;
 
 typedef struct DiagonalBoard
 {
-    cable_t alphabet[ALPHABET_SIZE];
+    Cable alphabet[ALPHABET_SIZE];
     CommonConnections commons[NUM_COMMONS];
 } DiagonalBoard;
 

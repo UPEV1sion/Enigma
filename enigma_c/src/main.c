@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     // start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
     // find_best_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
     // CyclesCribCipher *cycles = find_cycles("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
-    // find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
 
     // return 0;

@@ -57,7 +57,6 @@ static void set_starting_pos_scramblers(TuringBomb *restrict turing_bomb,
     const uint8_t bound      = cycle->len_wo_stubs;
     const uint8_t *cycle_pos = cycle->positions_wo_stubs;
 
-
     for (uint8_t column = 0; column < bound; ++column)
     {
         // Rotors work with 1 off
@@ -91,7 +90,6 @@ int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 {
     for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
     {
-        Rotor **rotor_column = turing_bomb->bomb_row[column].rotors;
 
 
 
@@ -127,11 +125,11 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     // TODO look set_starting_pos_scramblers
     turing_bomb.scrambler_columns_used = cycle->len_wo_stubs;
 
+    // TODO hook up diagonal board
     create_bomb_menu(&turing_bomb, cycle);
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
-
     uint32_t ret_val = 1;
 
     for (uint8_t rotor_one_type = 1; rotor_one_type <= NUM_ROTORS; ++rotor_one_type)
@@ -160,25 +158,3 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     return ret_val;
 }
 
-
-/*
- EnigmaConfiguration conf                     = {
-    //     .rotors = rotors, .rotor_positions = rotor_positions, .ring_settings = ring_settings,
-    //     .type = ENIGMA_M3, .reflector = UKW_B, .message = crib
-    // };
-    // memcpy(conf.plugboard, PLUGBOARD, sizeof(PLUGBOARD));
-    // uint8_t *output = traverse_m3_enigma_at_position(&conf, crib_pos, crib_len);
-
-    const Cycles *current_cycles = find_cycles(crib_as_ints, output, crib_len);
-
-
-    if (passes_welchman_test(candidate_cycles, current_cycles))
-    {
-        printf("Possible match found: ");
-        printf("%d : %d : %d at %d : %d : %d", conf.rotors[0], conf.rotors[1], conf.rotors[2],
-               conf.rotor_positions[0], conf.rotor_positions[1], conf.rotors[2]);
-        return 0;
-    }
-    free(output);
-
-*/
