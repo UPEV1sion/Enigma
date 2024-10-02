@@ -5,6 +5,7 @@
 #include "helper/helper.h"
 #include "diagonal_board.h"
 #include "cycle_finder/cycle_finder.h"
+#include "cycle_finder/cycle_finder_graph.h"
 
 //
 // Created by Emanuel on 07.09.2024.
@@ -81,6 +82,24 @@ CycleCribCipher* find_longest_cycle(const CyclesCribCipher *cycles)
     return cycle;
 }
 
+void traverse_rotor_column(Rotor **rotor_column)
+{
+
+}
+
+int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
+{
+    for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
+    {
+        Rotor **rotor_column = turing_bomb->bomb_row[column].rotors;
+
+
+
+    }
+
+    return 1;
+}
+
 
 int32_t start_turing_bomb(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
@@ -97,26 +116,24 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
 
     DiagonalBoard diagonal_board = {0};
     TuringBomb turing_bomb       = {.diagonal_board = &diagonal_board};
-    CyclesCribCipher *cycles     = find_cycles(crib, ciphertext);
+    CycleCribCipher *cycle     = find_best_cycle_graph(crib, ciphertext);
 
-    if (cycles->num_cycles == 0)
+    if (cycle == NULL)
     {
         fprintf(stderr, "No cycles found\n");
         return 1;
     }
 
-    const CycleCribCipher *longest_cycle = find_longest_cycle(cycles);
+    // TODO look set_starting_pos_scramblers
+    turing_bomb.scrambler_columns_used = cycle->len_wo_stubs;
 
-    if (longest_cycle->len_wo_stubs > NUM_SCRAMBLERS_PER_ROW)
-    {
-        fprintf(stderr, "Cycle is to long, try a different crib\n");
-        return 1;
-    }
-
-    create_bomb_menu(&turing_bomb, longest_cycle);
+    create_bomb_menu(&turing_bomb, cycle);
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
+
+    uint32_t ret_val = 1;
+
     for (uint8_t rotor_one_type = 1; rotor_one_type <= NUM_ROTORS; ++rotor_one_type)
     {
         for (uint8_t rotor_two_type = 1; rotor_two_type <= NUM_ROTORS; ++rotor_two_type)
@@ -132,16 +149,15 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
                     continue;
                 }
                 // Should be setup correctly now
-                set_starting_pos_scramblers(&turing_bomb, longest_cycle, rotor_one_type, rotor_two_type,
-                                            rotor_three_type);
-                puts("");
+                set_starting_pos_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
+                ret_val |= traverse_rotor_conf(&turing_bomb);
             }
         }
     }
 
-    free(cycles);
+    free(cycle);
 
-    return 1;
+    return ret_val;
 }
 
 

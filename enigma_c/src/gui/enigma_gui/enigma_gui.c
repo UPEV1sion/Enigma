@@ -17,6 +17,7 @@
 
 #define BUFFER_SIZE 1024
 
+// TODO wrap in struct
 static GtkWidget *window, *model, *reflector, *plugboard, *start, *input, *output;
 static GtkWidget *rotors[4], *positions[4], *rings[4];
 static GtkTextBuffer *in_buffer;
@@ -110,13 +111,33 @@ char* get_input_text_from_gui(void)
     return text;
 }
 
+static char* format_output(const char *output)
+{
+    const size_t len = strlen(output);
+    const size_t num_spaces_needed = len / 5; // Typically blocks of five
+
+    char *new_output = malloc(len + num_spaces_needed);
+    size_t new_output_index = 0;
+
+    for(size_t pos = 0; pos < len; pos += 5)
+    {
+        strncpy(new_output + new_output_index, output + pos, 5);
+        strncpy(new_output + new_output_index + 5, " ", 1);
+        new_output_index += 6;
+    }
+
+    return new_output;
+}
+
 static void update_output(const char *plaintext)
 {
-    //TODO format in 5 char blocks.
+
+    char *formatted_output = format_output(plaintext);
     GtkTextBuffer *buffer;
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(output));
 
-    gtk_text_buffer_set_text(buffer, plaintext, -1);
+    gtk_text_buffer_set_text(buffer, formatted_output, -1);
+    free(formatted_output);
 }
 
 static void action_listener_enigma_model(GtkComboBox *combo_box)

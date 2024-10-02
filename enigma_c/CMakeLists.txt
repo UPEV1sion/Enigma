@@ -21,7 +21,7 @@ add_definitions(-DFILE_PATH_JSON="${FILE_PATH_JSON}")
 set(FILE_PATH_IC "${CMAKE_SOURCE_DIR}/src/data/IC.txt")
 add_definitions(-DFILE_PATH_IC="${FILE_PATH_IC}")
 
-set(FILE_PATH_CYCLO "${CMAKE_SOURCE_DIR}/src/data/cyles.txt")
+set(FILE_PATH_CYCLO "${CMAKE_SOURCE_DIR}/src/data/cycles.txt")
 add_definitions(-DFILE_PATH_CYCLO="${FILE_PATH_CYCLO}")
 
 set(FILE_PATH_ENIGMA "${CMAKE_SOURCE_DIR}/src/gui/glade/enigma.glade")

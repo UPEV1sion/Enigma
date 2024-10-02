@@ -18,8 +18,6 @@
 // Created by Emanuel on 26.07.2024.
 //
 
-// TODO output json in CLI mode
-
 static cJSON *root;
 
 static char* get_json_string(void)
@@ -110,6 +108,7 @@ static void write_json_to_file(void)
     cJSON_free(json_string);
 }
 
+// TODO make it accept a Enigma pointer
 void enigma_to_json(const char *out)
 {
     root = cJSON_CreateObject();

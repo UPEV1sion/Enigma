@@ -103,35 +103,6 @@ static bool find_cycle(const uint8_t start, const uint8_t c,
     return false;
 }
 
-// TODO marked for removal
-// /**
-//  * @brief Eliminates duplicate cycles where there loop is the same
-//  * but started at a different point or is traversed backwards
-//  * @param cycles the char * array containing the cycles
-//  * @param num_cycles the number of cycles found
-//  * @return size_t: num of cycles left
-//  */
-// static size_t eliminate_duplicate_cycles(char *cycles[], const size_t num_cycles)
-// {
-//     size_t valid_cycles = 0;
-//     for (size_t i = 0; i < num_cycles; ++i)
-//     {
-//         if (cycles[i] != NULL)
-//         {
-//             for (size_t j = i + 1; j < num_cycles; ++j)
-//             {
-//                 if (is_permutation(cycles[i], cycles[j]))
-//                 {
-//                     free(cycles[j]);
-//                     cycles[j] = NULL;
-//                 }
-//             }
-//             cycles[valid_cycles++] = cycles[i];
-//         }
-//     }
-//     return valid_cycles;
-// }
-
 /**
  * @brief Writes the cycles to FILE_PATH_CRIB_CIPHER_CYCLE
  * @param crib The crib
@@ -158,6 +129,7 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
 /**
  * @brief Finds cycles between crib and ciphertext
  * @note plain and crib length must be equal
+ * @warning deprecated
  * @param crib the crib suspected to be the deciphered ciphertext
  * @param ciphertext the enciphered text
  * @return Cycles*
@@ -201,19 +173,20 @@ CyclesCribCipher* find_cycles(const char *restrict crib, const char *restrict ci
             assertmsg(cycles->cycles_positions[cycle_counter] != NULL, "malloc failed");
 
             memcpy(cycles->cycles_positions[cycle_counter], &temp, sizeof(CycleCribCipher));
-            puts("\nFound cycle:");
+            puts("\n\nFound cycle:");
             puts("WO STUBS:");
             printf("Length %d\n", temp.len_wo_stubs);
             for (uint8_t cycle_pos = 0; cycle_pos < temp.len_wo_stubs; ++cycle_pos)
             {
                 printf("%d (%c) -> ", temp.positions_wo_stubs[cycle_pos], temp.chars_wo_stubs[cycle_pos] + 'A');
             }
-            puts("\nW STUBS:");
+            puts("\n\nW STUBS:");
             printf("Length %d\n", temp.len_w_stubs);
             for (uint8_t cycle_pos = 0; cycle_pos < temp.len_w_stubs; ++cycle_pos)
             {
                 printf("%d (%c) -> ", temp.positions_w_stubs[cycle_pos], temp.chars_w_stubs[cycle_pos] + 'A');
             }
+            puts("\n");
 
             cycle_counter++;
         }

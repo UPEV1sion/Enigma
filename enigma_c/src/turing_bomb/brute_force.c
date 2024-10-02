@@ -370,7 +370,6 @@ static void test_configs_sorted(const char *known_plaintext)
     {
         printf("%d %d %d\n", conf->rotors[0], conf->rotors[1], conf->rotors[2]);
         //TODO: faster solution than a copy of conf?
-        //TODO: may look into cuda computing
         #ifdef _OPENMP
         OMP_PARALLEL_PRAGMA
         #endif

@@ -46,6 +46,8 @@
 #define CIPHERTEXT_SHORT       "-ct"
 #define CRIB                   "--crib"
 #define CRIB_SHORT             "-cr"
+#define CRIB_OFFSET            "--crib-offset"
+#define CRIB_OFFSET_SHORT      "-co"
 
 typedef struct
 {
@@ -60,7 +62,8 @@ typedef struct
     char *plugboard;
     char *plaintext;
     char *ciphertext;
-    char *known_text;
+    char *crib;
+    int32_t crib_offset;
     uint8_t enigma: 1;
     uint8_t bomb: 1;
     uint8_t interactive: 1;
@@ -70,6 +73,17 @@ typedef struct
 static int32_t string_equals(const char *str1, const char *str2)
 {
     return strcmp(str1, str2) == 0;
+}
+
+static void append_to_string(char **dest, const char *src) {
+    const size_t dest_len = *dest != NULL ? strlen(*dest) : 0;
+    const size_t src_len = strlen(src);
+
+    char *new_str = realloc(*dest, dest_len + src_len + 1);
+    assertmsg(new_str != NULL, "realloc failed");
+
+    *dest = new_str;
+    strcpy(*dest + dest_len, src);
 }
 
 static void print_enigma_help(void)
@@ -231,24 +245,21 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
             options->plugboard = strdup(argv[++i]);
             assertmsg(options->plugboard != NULL, "strdup failed");
 
-            size_t total_len = strlen(options->plugboard);
-
             while (i + 1 < argc && argv[i + 1][0] != '-')
             {
-                const size_t next_len = strlen(argv[++i]);
-                options->plugboard    = realloc(options->plugboard, total_len + next_len + 1);
-                assertmsg(options->plugboard != NULL, "realloc failed");
-
-                strcpy(options->plugboard + total_len, argv[i]);
-                total_len += next_len;
+                append_to_string(&options->plugboard, argv[++i]);
             }
         }
         else if (string_equals(PLAINTEXT, argv[i]) ||
                  string_equals(PLAINTEXT_SHORT, argv[i]))
         {
-            //TODO splitted text
-            options->plaintext = argv[i + 1];
-            i++;
+            options->plaintext = strdup(argv[++i]);
+            assertmsg(options->plaintext != NULL, "strdup failed");
+
+            while (i + 1 < argc && argv[i + 1][0] != '-')
+            {
+                append_to_string(&options->plaintext, argv[++i]);
+            }
         }
         else
         {
@@ -273,7 +284,12 @@ static void save_bomb_input(CliOptions *options, const int32_t argc, char *argv[
         else if (string_equals(CRIB, argv[i]) ||
                  string_equals(CRIB_SHORT, argv[i]))
         {
-            options->known_text = argv[++i];
+            options->crib = argv[++i];
+        }
+        else if (string_equals(CRIB_OFFSET, argv[i]) ||
+                 string_equals(CRIB_OFFSET_SHORT, argv[i]))
+        {
+            assertmsg(get_number_from_string(argv[++i], &options->crib_offset) == 0, "Bad crib offset");
         }
         else
         {
@@ -326,7 +342,7 @@ static void save_input(CliOptions *options, const int32_t argc, char *argv[])
     }
 }
 
-static int32_t validate_cli_options(const CliOptions *options)
+static int32_t validate_cli_enigma_options(const CliOptions *options)
 {
     if (options->enigma_type != ENIGMA_M3 && options->enigma_type != ENIGMA_M4) return 1;
     if (options->plaintext == NULL) return 1;
@@ -374,8 +390,9 @@ static void normalize_cli_options(const CliOptions *options)
     {
         err_code |= to_uppercase(options->ciphertext);
         err_code |= remove_non_alnum(options->ciphertext);
-        err_code |= to_uppercase(options->known_text);
-        err_code |= remove_non_alnum(options->known_text);
+        err_code |= to_uppercase(options->crib);
+        err_code |= remove_non_alnum(options->crib);
+        err_code |= options->crib_offset < 0;
         assertmsg(err_code == 0, "normalization failed");
         return;
     }
@@ -411,7 +428,7 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 {
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "enigma == NULL");
-    assertmsg(validate_cli_options(options) == 0, "Input validation failed");
+    assertmsg(validate_cli_enigma_options(options) == 0, "Input validation failed");
     normalize_cli_options(options);
 
     enigma->type   = options->enigma_type;
@@ -529,18 +546,14 @@ Enigma* query_input_interactive(void)
     return enigma;
 }
 
-static void pretty_print_enigma_output(const Enigma *enigma)
+static void pretty_print_enigma_output(const uint8_t *text, const size_t plaintext_len)
 {
-    uint8_t *text              = traverse_enigma(enigma);
-    const size_t plaintext_len = strlen(enigma->plaintext);
     for (size_t i = 0; i < plaintext_len; i++)
     {
         if(i % 5 == 0 && i != 0) printf(" ");
         printf("%c", text[i] + 'A');
     }
     printf("\n");
-
-    free(text);
 }
 
 // TODO: refactor into more functions
@@ -565,9 +578,9 @@ void query_input(const int32_t argc, char *argv[])
 
     if (options.bomb)
     {
-        assertmsg(options.known_text != NULL && options.ciphertext != NULL, "Input a valid known and cipher text");
-        //TODO 0 for now
-        start_turing_bomb(options.known_text, options.ciphertext, 0);
+        assertmsg(options.crib != NULL && options.ciphertext != NULL, "Input a valid known and cipher text");
+        assertmsg(options.crib_offset < 0, "Bad crib offset");
+        start_turing_bomb(options.crib, options.ciphertext, options.crib_offset);
         exit(0);
     }
 
@@ -582,7 +595,16 @@ void query_input(const int32_t argc, char *argv[])
         enigma = create_enigma_from_cli_configuration(&options);
     }
 
-    pretty_print_enigma_output(enigma);
+    const size_t plaintext_len = strlen(enigma->plaintext);
+    uint8_t *text              = traverse_enigma(enigma);
+
+    // char *output_str = get_string_from_int_array(text, plaintext_len);
+
+    // enigma_to_json(output_str);
+
+    pretty_print_enigma_output(text, plaintext_len);
 
     free_enigma(enigma);
+    free(text);
+    // free(output_str);
 }

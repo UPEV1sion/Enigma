@@ -19,4 +19,4 @@
 //     uint8_t len_w_stubs;
 // } CycleGraph;
 
-CycleCribCipher* find_cycles_graph(const char *restrict crib, const char *restrict ciphertext);
+CycleCribCipher* find_best_cycle_graph(const char *restrict crib, const char *restrict ciphertext);

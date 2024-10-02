@@ -217,7 +217,6 @@ char* get_string_from_int_array(const uint8_t *restrict array, const size_t size
 /**
  * @brief Checks if a string has duplicate chars
  * @note Ignores spaces
- * @note Only works with uppercase letters.
  * @param str the string to be checked
  * @return bool: true or falsehood
  */
@@ -227,13 +226,13 @@ bool has_duplicates(const char *restrict str)
     size_t len;
     if ((len = strlen(str)) == 0) return false;
 
-    bool visited[ALPHABET_SIZE] = {false};
+    bool visited[ASCII_SIZE] = {false};
 
     for (size_t i = 0; i < len; ++i)
     {
         const char c = str[i];
-        if(visited[c]) return true;
-        visited[c] = true;
+        if(visited[(uint8_t) c]) return true;
+        visited[(uint8_t) c] = true;
     }
 
     return false;
