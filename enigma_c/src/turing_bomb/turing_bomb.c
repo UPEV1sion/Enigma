@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <string.h>
-
+#ifdef _MSC_VER
+#include <intrin.h> //MSVC intrinsics again
+#endif
 #include "turing_bomb.h"
 #include "helper/helper.h"
 #include "diagonal_board.h"
@@ -100,7 +102,7 @@ void traverse_rotor_column(Rotor **rotor_column)
 
 int32_t traverse_rotor_conf(const TuringBomb *turing_bomb)
 {
-    //TODO text as active contacts
+    // TODO
     for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
     {
         const ScramblerEnigma scrambler_enigma = turing_bomb->bomb_row[column];
@@ -119,7 +121,7 @@ int32_t traverse_rotor_conf(const TuringBomb *turing_bomb)
                 rotor_three->position = (rotor_three->position + 1) % 26;
             }
         }
-
+        // Find a way to traverse all inputs at once.
 
     }
 

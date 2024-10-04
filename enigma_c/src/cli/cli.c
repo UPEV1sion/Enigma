@@ -446,7 +446,7 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 
     for (uint8_t i = 0; i < enigma->type; ++i)
     {
-        enigma->rotors[0] = create_rotor_by_type(rotor_types[i],
+        enigma->rotors[i] = create_rotor_by_type(rotor_types[i],
                                              options->rotor_positions[i] - 'A',
                                              options->rotor_offsets[i] - 'A');
     }

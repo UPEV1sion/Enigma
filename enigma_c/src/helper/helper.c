@@ -260,9 +260,9 @@ bool contains_spaces(const char *restrict str)
  */
 size_t count_alphas(const char *restrict str)
 {
-    if (str == NULL) return SIZE_MAX;
+    if (str == NULL) return 0;
     size_t len;
-    if ((len = strlen(str)) == 0) return SIZE_MAX;
+    if ((len = strlen(str)) == 0) return 0;
 
     size_t counter   = 0;
     for (size_t i = 0; i < len; ++i)

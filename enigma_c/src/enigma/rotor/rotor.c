@@ -182,6 +182,7 @@ Rotor* create_rotor_by_type(const enum ROTOR_TYPE type, const uint8_t position, 
  */
 uint8_t traverse_rotor(const Rotor *rotor, const uint8_t character)
 {
+    //TODO SEGFAULT??
     const int8_t index_from_right = mod26(character + rotor->position);
     const int8_t index_from_left  = mod26(rotor->wiring[index_from_right] - rotor->position);
 

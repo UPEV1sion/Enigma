@@ -112,17 +112,19 @@ char* get_input_text_from_gui(void)
 static char* format_output(const char *output)
 {
     const size_t len = strlen(output);
-    const size_t num_spaces_needed = len / 5; // Typically blocks of five
+    const size_t num_spaces_needed = (len - 1) / 5; // Typically blocks of five
 
-    char *new_output = malloc(len + num_spaces_needed);
+    char *new_output = malloc(len + num_spaces_needed + 1);
     size_t new_output_index = 0;
 
-    for(size_t pos = 0; pos < len; pos += 5)
+    for(size_t pos = 0; pos < len; ++pos)
     {
-        strncpy(new_output + new_output_index, output + pos, 5);
-        strncpy(new_output + new_output_index + 5, " ", 1);
-        new_output_index += 6;
+        new_output[new_output_index++] = output[pos];
+        if ((pos + 1) % 5 == 0 && (pos + 1) < len)
+            new_output[new_output_index++] = ' ';
+
     }
+    new_output[new_output_index] = 0;
 
     return new_output;
 }
@@ -131,6 +133,7 @@ static void update_output(const char *plaintext)
 {
 
     char *formatted_output = format_output(plaintext);
+
     GtkTextBuffer *buffer;
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(output));
 
@@ -176,22 +179,6 @@ static void show_rotor_dialog(void)
     gtk_widget_destroy(dialog);
 }
 
-static void show_input_dialog(void)
-{
-    GtkWidget *dialog;
-
-    dialog = gtk_message_dialog_new(
-        GTK_WINDOW(window),
-        GTK_DIALOG_MODAL,
-        GTK_MESSAGE_WARNING,
-        GTK_BUTTONS_OK,
-        "Only input letters and spaces!"
-    );
-    gtk_widget_show_all(dialog);
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-}
-
 static void action_listener_rot_comb(void)
 {
     // g_print("%d\n", gtk_combo_box_get_active(combo_box));
@@ -201,20 +188,6 @@ static void action_listener_rot_pos_ring(void)
 {
     // gint value = gtk_spin_button_get_value_as_int(button);
     // g_print("%d", value);
-}
-
-static void action_listener_input_in(GtkTextBuffer *buffer,
-                                     const gchar *text, const gint len)
-{
-    for (uint16_t i = 0; i < len; i++)
-    {
-        if (!g_unichar_isalpha(text[i]) && !g_unichar_isspace(text[i]))
-        {
-            putchar(text[i]);
-            g_signal_stop_emission_by_name(buffer, "insert-text");
-            return;
-        }
-    }
 }
 
 static void show_plugboard_dialog(void)

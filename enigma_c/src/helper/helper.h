@@ -32,11 +32,11 @@
 * @param cond the condition for which the hint should take place
 */
 #if defined(__clang__) || defined(__GNUC__)
-#define expected_true(cond) __builtin_expect(!!(cond), 1)
-#define expected_false(cond) __builtin_expect(!!(cond), 0)
+    #define expected_true(cond) __builtin_expect(!!(cond), 1)
+    #define expected_false(cond) __builtin_expect(!!(cond), 0)
 #else
-#define expected_true(cond) (cond)
-#define expected_false(cond) (cond)
+    #define expected_true(cond) (cond)
+    #define expected_false(cond) (cond)
 #endif
 
 /**
@@ -44,14 +44,12 @@
  * @param msg The message that should be displayed. (MSVC doesn't support this)
  */
 #if defined(__clang__) || defined(__GNUC__)
-#define DEPRECATED(msg) __attribute__((deprecated(msg)))
+    #define DEPRECATED(msg) __attribute__((deprecated(msg)))
 #elif defined(_MSC_VER)
-#define DEPRECATED(msg) __declspec(deprecated)
+    #define DEPRECATED(msg) __declspec(deprecated)
 #else
-#define DEPRECATED(msg) //msg
+    #define DEPRECATED(msg) //msg
 #endif
-
-
 
 /**
  * @brief A bit hack for NaN, without including the math library.
@@ -60,6 +58,19 @@
  * @note ...Turns out this can be done way easier with 0.0/0.0 but this is a cool bit hack, so I leave it here.
  */
 #define NaN (*(double*)&((uint64_t){0x7FFFFFFFFFFFFFFF}))
+
+/**
+ * @brief A popcnt macro.
+ * @details Popcnt is a single CPU instruct that counts all active bits. Making it an Θ(1) operation.
+ * @note No support for other compilers than GCC, clang and MSVC
+ */
+#if defined(__clang__) || defined(__GNUC__)
+    #define POPCNT(x) __builtin_popcount(x)
+#elif defined(_MSC_VER)
+    #define POPCNT(x) __popcnt(x)
+#else
+    #error "Compiler not supported"
+#endif
 
 int32_t get_number_from_string(const char *str, int32_t *number);
 int32_t to_uppercase(char *input);

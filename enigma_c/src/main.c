@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
 
     // free(cycles);
-
     // return 0;
     if (argc < 2)
     {
