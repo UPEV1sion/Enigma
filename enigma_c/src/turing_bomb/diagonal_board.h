@@ -42,10 +42,17 @@ typedef struct TuringBomb TuringBomb;
 #define NUM_FIELDS_PER_COMMON 5
 #define NUM_COMMONS 5
 
-
+//TODO rewrite?
 // 1 bit for each letter → 26 bits.
 typedef uint32_t cable_t;
 typedef struct Cable Cable;
+
+enum CableRouteType
+{
+    DIAGONAL_BOARD,
+    COMMON,
+    ROTOR
+};
 
 struct Cable
 {

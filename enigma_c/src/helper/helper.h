@@ -51,10 +51,14 @@
 #define DEPRECATED(msg) //msg
 #endif
 
-// A bit hack for NaN because including without including the math library.
-// IEEE 745-1985 NaN coding: s = 0||1, exponent = 11111111111, mantissa != 0
-// (uint64_t){0x7FFFFFFFFFFFFFFF} is a compound literal and the {} is necessary
-// ...Turns out this can be done way easier with 0.0/0.0 but this is a cool bit hack, so I leave it here
+
+
+/**
+ * @brief A bit hack for NaN, without including the math library.
+ * @details IEEE 745-1985 NaN encoding: s = 0||1, exponent = 11111111111, mantissa != 0.
+ * @details (uint64_t){0x7FFFFFFFFFFFFFFF} is a compound literal and the {} is necessary.
+ * @note ...Turns out this can be done way easier with 0.0/0.0 but this is a cool bit hack, so I leave it here.
+ */
 #define NaN (*(double*)&((uint64_t){0x7FFFFFFFFFFFFFFF}))
 
 int32_t get_number_from_string(const char *str, int32_t *number);

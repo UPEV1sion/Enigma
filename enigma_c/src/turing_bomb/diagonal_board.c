@@ -18,7 +18,8 @@
 
 int32_t create_bomb_menu(TuringBomb *restrict turing_bomb, const CycleCribCipher *restrict cycle)
 {
-    // turing_bomb->diagonal_board->alphabet[cycle->chars_wo_stubs[0]] = ALPHABET_BITMASK;
+    turing_bomb->diagonal_board->alphabet[cycle->chars_wo_stubs[0]].cable = ALPHABET_BITMASK;
+
     // Note to me: rotors 2 and 3 of a column where fully wired.
 
     // I'm not quite sure, of how I want to represent a wire.

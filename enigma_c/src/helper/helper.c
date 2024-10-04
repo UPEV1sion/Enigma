@@ -147,7 +147,7 @@ bool is_permutation(const char *first, const char *second)
     /*  I'll leave this here for the interested reader:
      *  Instead of using a boolean or int array to toggle or count the letters,
      *  I used a bitmask where each bit corresponds to an uppercase letter.
-     *  After the subtraction of 'A' we leftshift the one by n places, which is equivalent to multiplying it by 2^n
+     *  After the subtraction of 'A' we leftshift the one by n places, which is equivalent to multiplying it by 2^n.
      *  We XOR this bit with the mask, which is effectively toggling it.
      *  If first and second contain the same chars, the number must be 0 again,
      *  so the final check is a straightforward == 0.

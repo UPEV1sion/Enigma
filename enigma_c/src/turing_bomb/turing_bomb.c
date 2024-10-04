@@ -59,10 +59,12 @@ static void set_starting_pos_scramblers(TuringBomb *restrict turing_bomb,
 
     for (uint8_t column = 0; column < bound; ++column)
     {
-        // Rotors work with 1 off
-        turing_bomb->bomb_row[column].rotors[0] = create_rotor_by_type(rotor_one_type, cycle_pos[column] + 1, 1);
+        // Rotors work with 1 off.
+        // The bottom rotor at the turing bomb, although rotating the slowest,
+        // corresponded to the rightmost right enigma rotor
+        turing_bomb->bomb_row[column].rotors[0] = create_rotor_by_type(rotor_one_type, 1, 1);
         turing_bomb->bomb_row[column].rotors[1] = create_rotor_by_type(rotor_two_type, 1, 1);
-        turing_bomb->bomb_row[column].rotors[2] = create_rotor_by_type(rotor_three_type, 1, 1);
+        turing_bomb->bomb_row[column].rotors[2] = create_rotor_by_type(rotor_three_type, cycle_pos[column] + 1, 1);
     }
 }
 
