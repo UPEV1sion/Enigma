@@ -174,31 +174,31 @@ static bool find_cycle(Graph *graph, Node *nodes, const uint8_t nodes_len, Cycle
                 if (temp.len_w_stubs > cycle->len_w_stubs && temp.len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
                     memcpy(cycle, &temp, sizeof(CycleCribCipher));
 
-                // puts("\n\nCycle found");
-                // puts("W Stubs:");
-                // printf("Length: %d\n", temp.len_w_stubs);
-                // for (uint8_t y = 0; y < temp.len_w_stubs; ++y)
-                // {
-                //     printf("%u ", temp.positions_w_stubs[y]);
-                // }
-                // puts("");
-                // for (uint8_t y = 0; y < temp.len_w_stubs; ++y)
-                // {
-                //     printf("%c ", temp.chars_w_stubs[y]);
-                // }
-                //
-                // puts("\n\nWO Stubs:");
-                // printf("Length: %d\n", temp.len_wo_stubs);
-                // for (uint8_t y = 0; y < temp.len_wo_stubs; ++y)
-                // {
-                //     printf("%u ", temp.positions_wo_stubs[y]);
-                // }
-                // puts("");
-                // for (uint8_t y = 0; y < temp.len_wo_stubs; ++y)
-                // {
-                //     printf("%c ", temp.chars_wo_stubs[y]);
-                // }
-                // puts("\n");
+                puts("\n\nCycle found");
+                puts("W Stubs:");
+                printf("Length: %d\n", temp.len_w_stubs);
+                for (uint8_t y = 0; y < temp.len_w_stubs; ++y)
+                {
+                    printf("%u ", temp.positions_w_stubs[y]);
+                }
+                puts("");
+                for (uint8_t y = 0; y < temp.len_w_stubs; ++y)
+                {
+                    printf("%c ", temp.chars_w_stubs[y]);
+                }
+
+                puts("\n\nWO Stubs:");
+                printf("Length: %d\n", temp.len_wo_stubs);
+                for (uint8_t y = 0; y < temp.len_wo_stubs; ++y)
+                {
+                    printf("%u ", temp.positions_wo_stubs[y]);
+                }
+                puts("");
+                for (uint8_t y = 0; y < temp.len_wo_stubs; ++y)
+                {
+                    printf("%c ", temp.chars_wo_stubs[y]);
+                }
+                puts("\n");
 
                 ret = true;
             }
@@ -207,7 +207,6 @@ static bool find_cycle(Graph *graph, Node *nodes, const uint8_t nodes_len, Cycle
 
     return ret;
 }
-
 
 DEPRECATED("Im not linking(allocating) them, so i must no free them.")
 void free_neighbours(const Node *restrict node)
@@ -259,12 +258,11 @@ CycleCribCipher* find_best_cycle_graph(const char *restrict crib, const char *re
     assertmsg(cycle != NULL, "malloc failed");
     memset(cycle, 0, sizeof(CycleCribCipher));
 
-    // write_dot_format(crib, ciphertext);
-    // print_graph(&graph);
+    write_dot_format(crib, ciphertext);
+    print_graph(&graph);
 
-    // puts(find_cycle(&graph, nodes, len, cycle) ? "true" : "false");
+    puts(find_cycle(&graph, nodes, len, cycle) ? "true" : "false");
     find_cycle(&graph, nodes, len, cycle);
-    // free_neighbours(nodes);
 
     if (cycle->len_w_stubs == 0)
     {

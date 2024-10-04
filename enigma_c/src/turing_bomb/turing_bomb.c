@@ -27,13 +27,24 @@
 #define NUM_ROTORS             5
 #define PLUGBOARD              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-static bool is_valid_crip_position(const char *crib, const char *encrypted_text, const uint32_t crib_pos)
+#define ERR_INVALID_CRIB       1
+#define ERR_NO_CYCLES_FOUND    2
+
+static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
     const size_t crip_len = strlen(crib);
-    if (crip_len + crib_pos > strlen(encrypted_text)) return false;
+    if (crip_len + crib_pos > strlen(ciphertext))
+    {
+        fprintf(stderr, "Plain outside crib\n");
+        return false;
+    }
     for (size_t i = 0; i < crip_len; ++i)
     {
-        if (*(encrypted_text + crib_pos + i) == *(crib + i)) return false;
+        if (ciphertext[crib_pos + i] == crib[i])
+        {
+            fprintf(stderr, "Chars can't be depicted onto itself\n");
+            return false;
+        }
     }
 
     return true;
@@ -85,14 +96,29 @@ CycleCribCipher* find_longest_cycle(const CyclesCribCipher *cycles)
 
 void traverse_rotor_column(Rotor **rotor_column)
 {
-
 }
 
-int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
+int32_t traverse_rotor_conf(const TuringBomb *turing_bomb)
 {
+    //TODO text as active contacts
     for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
     {
+        const ScramblerEnigma scrambler_enigma = turing_bomb->bomb_row[column];
+        Rotor *rotor_one                       = scrambler_enigma.rotors[0];
+        Rotor *rotor_two                       = scrambler_enigma.rotors[1];
+        Rotor *rotor_three                     = scrambler_enigma.rotors[2];
 
+        rotor_one->position = (rotor_one->position + 1) % 26;
+
+        if (should_rotate(rotor_one))
+        {
+            rotor_two->position = (rotor_two->position + 1) % 26;
+
+            if (should_rotate(rotor_two))
+            {
+                rotor_three->position = (rotor_three->position + 1) % 26;
+            }
+        }
 
 
     }
@@ -103,25 +129,16 @@ int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 
 int32_t start_turing_bomb(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
-    if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return 1;
-
-    const size_t crib_len = strlen(crib);
-
-
-    if (crib_offset + crib_len > strlen(ciphertext))
-    {
-        fprintf(stderr, "Plain outside crib\n");
-        return 1;
-    }
+    if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return ERR_INVALID_CRIB;
 
     DiagonalBoard diagonal_board = {0};
     TuringBomb turing_bomb       = {.diagonal_board = &diagonal_board};
-    CycleCribCipher *cycle     = find_best_cycle_graph(crib, ciphertext);
+    CycleCribCipher *cycle       = find_best_cycle_graph(crib, ciphertext);
 
     if (cycle == NULL)
     {
         fprintf(stderr, "No cycles found\n");
-        return 1;
+        return ERR_NO_CYCLES_FOUND;
     }
 
     // TODO look set_starting_pos_scramblers
@@ -148,7 +165,6 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
                 {
                     continue;
                 }
-                // Should be setup correctly now
                 set_starting_pos_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
                 ret_val |= traverse_rotor_conf(&turing_bomb);
             }
@@ -159,4 +175,3 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
 
     return ret_val;
 }
-

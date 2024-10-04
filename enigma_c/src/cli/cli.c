@@ -9,6 +9,8 @@
 #include "enigma/enigma.h"
 #include "turing_bomb/turing_bomb.h"
 
+// TODO make the CLI for the Bomb interactive
+
 #define INPUT_BUFFER_SIZE  1024
 
 /*----------ENIGMA----------*/
@@ -427,27 +429,26 @@ static enum ENIGMA_TYPE parse_enigma_type(const char *enigma_type)
 static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 {
     Enigma *enigma = malloc(sizeof(Enigma));
-    assertmsg(enigma != NULL, "enigma == NULL");
+    assertmsg(enigma != NULL, "malloc failed");
     assertmsg(validate_cli_enigma_options(options) == 0, "Input validation failed");
     normalize_cli_options(options);
 
     enigma->type   = options->enigma_type;
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
     assertmsg(enigma->rotors, "enigma->rotors == NULL");
-    enigma->rotors[0] = create_rotor_by_type(options->rotor_one_type,
-                                             options->rotor_positions[0] - 'A',
-                                             options->rotor_offsets[0] - 'A');
-    enigma->rotors[1] = create_rotor_by_type(options->rotor_two_type,
-                                             options->rotor_positions[1] - 'A',
-                                             options->rotor_offsets[1] - 'A');
-    enigma->rotors[2] = create_rotor_by_type(options->rotor_three_type,
-                                             options->rotor_positions[2] - 'A',
-                                             options->rotor_offsets[2] - 'A');
-    if (enigma->type == ENIGMA_M4)
+
+    const enum ROTOR_TYPE rotor_types[4] = {
+        options->rotor_one_type,
+        options->rotor_two_type,
+        options->rotor_three_type,
+        options->rotor_four_type
+    };
+
+    for (uint8_t i = 0; i < enigma->type; ++i)
     {
-        enigma->rotors[3] = create_rotor_by_type(options->rotor_four_type,
-                                                 options->rotor_positions[3] - 'A',
-                                                 options->rotor_offsets[3] - 'A');
+        enigma->rotors[0] = create_rotor_by_type(rotor_types[i],
+                                             options->rotor_positions[i] - 'A',
+                                             options->rotor_offsets[i] - 'A');
     }
 
     enigma->reflector = create_reflector_by_type(options->reflector_type);

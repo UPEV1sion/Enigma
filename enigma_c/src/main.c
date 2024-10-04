@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
     // start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
     // find_best_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
-    find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    // find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
 
     // free(cycles);
 
-    return 0;
+    // return 0;
     if (argc < 2)
     {
         puts("Usage: ./enigma [OPTIONS]");

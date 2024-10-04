@@ -104,8 +104,6 @@ char* get_input_text_from_gui(void)
     assertmsg(text != NULL, "malloc failed");
     text[len] = 0;
     strcpy(text, input_text);
-    to_uppercase(text);
-    remove_non_alpha(text);
     g_free(input_text);
 
     return text;
@@ -178,6 +176,22 @@ static void show_rotor_dialog(void)
     gtk_widget_destroy(dialog);
 }
 
+static void show_input_dialog(void)
+{
+    GtkWidget *dialog;
+
+    dialog = gtk_message_dialog_new(
+        GTK_WINDOW(window),
+        GTK_DIALOG_MODAL,
+        GTK_MESSAGE_WARNING,
+        GTK_BUTTONS_OK,
+        "Only input letters and spaces!"
+    );
+    gtk_widget_show_all(dialog);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
 static void action_listener_rot_comb(void)
 {
     // g_print("%d\n", gtk_combo_box_get_active(combo_box));
@@ -194,8 +208,9 @@ static void action_listener_input_in(GtkTextBuffer *buffer,
 {
     for (uint16_t i = 0; i < len; i++)
     {
-        if (!isalpha(text[i]) && !isspace(text[i]))
+        if (!g_unichar_isalpha(text[i]) && !g_unichar_isspace(text[i]))
         {
+            putchar(text[i]);
             g_signal_stop_emission_by_name(buffer, "insert-text");
             return;
         }
@@ -272,15 +287,13 @@ static Enigma* create_enigma_from_input(void)
 
 static void generate_output_with_enigma(void)
 {
-    enigma_to_json("");
-
     Enigma *enigma = create_enigma_from_input();
     uint8_t *text  = traverse_enigma(enigma);
 
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
 
-    enigma_to_json(plaintext);
+    enigma_to_json(enigma);
     update_output(plaintext);
     char *json_text = read_json();
     puts(json_text);
@@ -293,13 +306,23 @@ static void generate_output_with_enigma(void)
 
 static void action_listener_start_btn(void)
 {
-    const char *input_text = get_input_text_from_gui();
+    char *input_text = get_input_text_from_gui();
+    const size_t len = strlen(input_text);
+    to_uppercase(input_text);
+    remove_non_alpha(input_text);
+    if(len != strlen(input_text))
+    {
+        fprintf(stderr, "Warning: Only use alphabetic chars and spaces!\n");
+        fprintf(stderr, "The invalid chars have been truncated\n");
+    }
+
     if (input_text == NULL) return;
     const gchar *plugboard_text        = gtk_entry_get_text(GTK_ENTRY(plugboard));
     const size_t alpha_count_plugboard = count_alphas(plugboard_text);
     assertmsg(alpha_count_plugboard != SIZE_MAX, "count alphas failed");
     if (alpha_count_plugboard % 2 != 0)
     {
+        free(input_text);
         show_plugboard_dialog();
         return;
     }
@@ -312,11 +335,13 @@ static void action_listener_start_btn(void)
         const uint8_t active_rotor = 1 << rot;
         if (rotor_mask & active_rotor)
         {
+            free(input_text);
             show_rotor_dialog();
             return;
         }
         rotor_mask |= active_rotor;
     }
+    free(input_text);
     generate_output_with_enigma();
 }
 
@@ -400,8 +425,8 @@ static void activate(void)
                          G_CALLBACK(action_listener_rot_pos_ring), NULL);
     }
     in_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(input));
-    g_signal_connect(in_buffer, "insert-text",
-                     G_CALLBACK(action_listener_input_in), NULL);
+    // g_signal_connect(in_buffer, "insert-text",
+                     // G_CALLBACK(action_listener_input_in), NULL);
 
     g_signal_connect(plugboard, "insert-text", G_CALLBACK(action_listener_plugboard), NULL);
 

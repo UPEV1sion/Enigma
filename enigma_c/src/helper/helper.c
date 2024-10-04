@@ -71,11 +71,11 @@ int32_t get_number_from_string(const char *restrict str, int32_t *restrict numbe
 int32_t to_uppercase(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
-    const size_t length = strlen(input);
-    if (length == 0) return ERR_EMPTY_STRING;
+    size_t len;
+    if ((len = strlen(input)) == 0) return ERR_EMPTY_STRING;
 
 
-    for (size_t i = 0; i < length; ++i)
+    for (size_t i = 0; i < len; ++i)
     {
         input[i] = (char) toupper(input[i]);
     }
@@ -92,15 +92,13 @@ int32_t remove_non_alnum(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     if (strlen(input) == 0) return ERR_EMPTY_STRING;
-    int32_t i = 0;
-    int32_t j = 0;
+    int32_t i = 0, j = 0;
 
     while (input[i] != 0)
     {
         if (isalnum(input[i]))
         {
-            input[j] = input[i];
-            j++;
+            input[j++] = input[i];
         }
         i++;
     }
@@ -118,15 +116,14 @@ int32_t remove_non_alpha(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     if (strlen(input) == 0) return ERR_EMPTY_STRING;
-    int32_t i = 0;
-    int32_t j = 0;
+
+    int32_t i = 0, j = 0;
 
     while (input[i] != 0)
     {
         if (isalpha(input[i]))
         {
-            input[j] = input[i];
-            j++;
+            input[j++] = input[i];
         }
         i++;
     }
@@ -182,7 +179,7 @@ uint8_t* get_int_array_from_string(const char *restrict str)
     const size_t len = strlen(str);
     if (len == 0) return NULL;
     uint8_t *array = malloc(len * sizeof(uint8_t));
-    assertmsg(array != NULL, "array == NULL");
+    assertmsg(array != NULL, "malloc failed");
 
     for (size_t i = 0; i < len; i++)
     {
@@ -203,7 +200,7 @@ char* get_string_from_int_array(const uint8_t *restrict array, const size_t size
     if (array == NULL) return NULL;
     if (size == 0) return NULL;
     char *str = malloc(size + 1);
-    assertmsg(str != NULL, "str == NULL");
+    assertmsg(str != NULL, "malloc failed");
 
     for (size_t i = 0; i < size; i++)
     {
@@ -246,8 +243,8 @@ bool has_duplicates(const char *restrict str)
 bool contains_spaces(const char *restrict str)
 {
     if (str == NULL) return false;
-    const size_t len = strlen(str);
-    if (len == 0) return false;
+    size_t len;
+    if ((len = strlen(str)) == 0) return false;
 
     for (size_t i = 0; i < len; ++i)
     {
@@ -264,7 +261,9 @@ bool contains_spaces(const char *restrict str)
 size_t count_alphas(const char *restrict str)
 {
     if (str == NULL) return SIZE_MAX;
-    const size_t len = strlen(str);
+    size_t len;
+    if ((len = strlen(str)) == 0) return SIZE_MAX;
+
     size_t counter   = 0;
     for (size_t i = 0; i < len; ++i)
     {
@@ -283,15 +282,15 @@ size_t count_alphas(const char *restrict str)
 size_t count_c(const char *restrict str, const char c)
 {
     if (str == NULL) return SIZE_MAX;
-    const size_t len = strlen(str);
-    if (len == 0) return SIZE_MAX;
+    size_t len;
+    if ((len = strlen(str)) == 0) return SIZE_MAX;
 
-    size_t occ = 0;
+    size_t counter = 0;
     for (size_t i = 0; i < len; ++i)
     {
-        if (str[i] == c) occ++;
+        if (str[i] == c) counter++;
     }
-    return occ;
+    return counter;
 }
 
 /**

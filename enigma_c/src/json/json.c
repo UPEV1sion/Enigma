@@ -32,15 +32,15 @@ static void delete_root(void)
     root = NULL;
 }
 
-static void add_enigma_model_to_json(void)
+static void add_enigma_model_to_json(const Enigma *restrict const enigma)
 {
     cJSON_AddItemToObject(root, "model",
-                          cJSON_CreateNumber(get_enigma_type_from_gui()));
+                          cJSON_CreateNumber(enigma->type));
 }
 
-static void add_reflector_to_json(void)
+static void add_reflector_to_json(const Enigma *restrict const enigma)
 {
-    // I don't really like this but works for now
+    // I really don't like this, but works for now
     const char reflector[2] = {get_reflector_type_from_gui(), 0};
     cJSON_AddStringToObject(root, "reflector", reflector);
 }
@@ -109,20 +109,20 @@ static void write_json_to_file(void)
 }
 
 // TODO make it accept a Enigma pointer
-void enigma_to_json(const char *out)
+void enigma_to_json(const Enigma *restrict const enigma)
 {
     root = cJSON_CreateObject();
 
-    add_enigma_model_to_json();
-    add_reflector_to_json();
-    add_rotors_to_json();
-    add_positions_to_json();
-    add_rings_to_json();
-    add_plugboard_to_json();
-    add_input_to_json();
-    if (strlen(out) > 0) add_output_to_json(out);
-    write_json_to_file();
-    delete_root();
+    // add_enigma_model_to_json();
+    // add_reflector_to_json();
+    // add_rotors_to_json();
+    // add_positions_to_json();
+    // add_rings_to_json();
+    // add_plugboard_to_json();
+    // add_input_to_json();
+    // if (strlen(out) > 0) add_output_to_json(out);
+    // write_json_to_file();
+    // delete_root();
 }
 
 char* read_json(void)
