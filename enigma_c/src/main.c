@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
     // find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
-
     // return 0;
     if (argc < 2)
     {

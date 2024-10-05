@@ -39,24 +39,18 @@ typedef struct TuringBomb TuringBomb;
 #include "cycle_finder/cycle_finder.h"
 
 #define NUM_SCRAMBLERS_PER_COLUMN 3
-
-typedef uint64_t cable_t;
-
+//TODO
 typedef struct ScramblerEnigma
 {
-    cable_t in, out;
     Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
 } ScramblerEnigma;
 
 typedef struct
 {
-    int8_t wires[ALPHABET_SIZE];
-
 } Terminal;
 
 typedef struct DiagonalBoard
 {
-    int8_t terminals[ALPHABET_SIZE][ALPHABET_SIZE];
 } DiagonalBoard;
 
 int32_t create_bomb_menu(TuringBomb *turing_bomb, const CycleCribCipher *restrict cycle);

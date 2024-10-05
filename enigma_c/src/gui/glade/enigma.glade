@@ -167,8 +167,11 @@
                 <property name="can-focus">False</property>
                 <property name="active">0</property>
                 <items>
+                  <item translatable="yes">A</item>
                   <item translatable="yes">B</item>
                   <item translatable="yes">C</item>
+                  <item translatable="yes">B thin</item>
+                  <item translatable="yes">C thin</item>
                 </items>
               </object>
               <packing>
@@ -568,14 +571,8 @@
                     <property name="can-focus">False</property>
                     <property name="active">0</property>
                     <items>
-                      <item translatable="yes">I</item>
-                      <item translatable="yes">II</item>
-                      <item translatable="yes">III</item>
-                      <item translatable="yes">IV</item>
-                      <item translatable="yes">V</item>
-                      <item translatable="yes">VI</item>
-                      <item translatable="yes">VII</item>
-                      <item translatable="yes">VIII</item>
+                      <item translatable="yes">Beta</item>
+                      <item id="&lt;Geben Sie die Kennung ein&gt;" translatable="yes">Gamma</item>
                     </items>
                   </object>
                   <packing>

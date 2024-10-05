@@ -20,7 +20,7 @@ void create_diagonal_board(TuringBomb *restrict turing_bomb)
 
     for (int i = 0; i < ALPHABET_SIZE; ++i)
     {
-        diagonal_board->terminals[i][i] = -1;
+        // diagonal_board->terminals[i][i] = -1;
     }
 }
 

@@ -96,13 +96,16 @@ char* get_input_text_from_gui(void)
     GtkTextBuffer *buffer = in_buffer;
     gtk_text_buffer_get_start_iter(buffer, &start_iter);
     gtk_text_buffer_get_end_iter(buffer, &end_iter);
+
     gchar *input_text =
             gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, FALSE);
-    const size_t len = strlen(input_text);
-    if (len == 0) return NULL;
-    char *text = malloc(len + 1);
+    if (input_text == NULL || *input_text == '\0') return NULL;
+
+    const gint text_length = g_utf8_strlen(input_text, -1);
+
+    char *text = malloc(text_length + 1);
     assertmsg(text != NULL, "malloc failed");
-    text[len] = 0;
+    text[text_length] = 0;
     strcpy(text, input_text);
     g_free(input_text);
 
@@ -129,10 +132,10 @@ static char* format_output(const char *output)
     return new_output;
 }
 
-static void update_output(const char *plaintext)
+static void update_output(const char *output_text)
 {
 
-    char *formatted_output = format_output(plaintext);
+    char *formatted_output = format_output(output_text);
 
     GtkTextBuffer *buffer;
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(output));
@@ -144,9 +147,48 @@ static void update_output(const char *plaintext)
 static void action_listener_enigma_model(GtkComboBox *combo_box)
 {
     const gint i = gtk_combo_box_get_active(combo_box);
+
     gtk_widget_set_sensitive(rotors[3], i);
     gtk_widget_set_sensitive(positions[3], i);
     gtk_widget_set_sensitive(rings[3], i);
+
+    GtkListStore *liststore = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(reflector)));
+    gtk_list_store_clear(liststore);
+
+    GtkTreeIter iter;
+
+    if (i == 0)
+    {
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW A", -1);
+
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW B", -1);
+
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW C", -1);
+
+    }
+    else
+    {
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW A", -1);
+
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW B", -1);
+
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW C", -1);
+
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW B Thin", -1);
+
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter, 0, "UKW C Thin", -1);
+
+    }
+
+    gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 1);
 }
 
 static void action_listener_refl(GtkComboBox *combo_box)
@@ -232,7 +274,7 @@ static void action_listener_plugboard(GtkEntry *entry,
     }
 }
 
-static Enigma* create_enigma_from_input(void)
+static Enigma* create_enigma_from_input(char *restrict input)
 {
     enum ROTOR_TYPE *rotor_arr          = get_rotors_from_gui();
     const enum ENIGMA_TYPE enigma_type  = get_enigma_type_from_gui();
@@ -240,7 +282,7 @@ static Enigma* create_enigma_from_input(void)
     uint8_t *rotor_position_arr         = get_rotor_positions_from_gui();
     uint8_t *rotor_ring_position_arr    = get_rotor_ring_positions_from_gui();
     char *plugboard                     = get_plugboard_from_gui();
-    char *input_text                    = get_input_text_from_gui();
+    char *input_text                    = input;
 
     EnigmaConfiguration configuration = {
         .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
@@ -258,20 +300,19 @@ static Enigma* create_enigma_from_input(void)
     return enigma;
 }
 
-static void generate_output_with_enigma(void)
+static void generate_output_with_enigma(char *restrict input_text)
 {
-    Enigma *enigma = create_enigma_from_input();
+    Enigma *enigma = create_enigma_from_input(input_text);
     uint8_t *text  = traverse_enigma(enigma);
-
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
 
     enigma_to_json(enigma);
     update_output(plaintext);
-    char *json_text = read_json();
-    puts(json_text);
+    // char *json_text = read_json();
+    // puts(json_text);
 
-    free(json_text);
+    // free(json_text);
     free_enigma(enigma);
     free(text);
     free(plaintext);
@@ -281,9 +322,10 @@ static void action_listener_start_btn(void)
 {
     char *input_text = get_input_text_from_gui();
     const size_t len = strlen(input_text);
+    const size_t space_count = count_c(input_text, ' ');
     to_uppercase(input_text);
     remove_non_alpha(input_text);
-    if(len != strlen(input_text))
+    if(len != strlen(input_text) + space_count)
     {
         fprintf(stderr, "Warning: Only use alphabetic chars and spaces!\n");
         fprintf(stderr, "The invalid chars have been truncated\n");
@@ -301,8 +343,9 @@ static void action_listener_start_btn(void)
     }
 
     //More efficient than a bool array - probably doesn't matter here, but I leave it in
+    // BETA and GAMMA reflector must be unique
     uint8_t rotor_mask = 0;
-    for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
+    for (uint16_t i = 0; i < 3; ++i)
     {
         const gint rot             = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
         const uint8_t active_rotor = 1 << rot;
@@ -314,8 +357,7 @@ static void action_listener_start_btn(void)
         }
         rotor_mask |= active_rotor;
     }
-    free(input_text);
-    generate_output_with_enigma();
+    generate_output_with_enigma(input_text);
 }
 
 //TODO refactor
@@ -410,6 +452,7 @@ static void activate(void)
 
     gtk_widget_show_all(window);
     gtk_combo_box_set_active(GTK_COMBO_BOX(model), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 1);
 
     g_object_unref(builder);
 }
