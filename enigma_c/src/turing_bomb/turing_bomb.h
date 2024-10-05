@@ -12,7 +12,6 @@
 #define NUM_SCRAMBLERS_PER_ROW 12
 #define MAX_CRIB_LEN 26
 
-// Allocate this on the Stack if possible
 typedef struct TuringBomb
 {
     // TODO pointer array?

@@ -208,11 +208,6 @@ static void action_listener_enigma_model(GtkComboBox *combo_box)
     gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 1);
 }
 
-static void action_listener_refl(GtkComboBox *combo_box)
-{
-
-}
-
 static void show_rotor_dialog(void)
 {
     GtkWidget *dialog;
@@ -427,8 +422,6 @@ static void activate(void)
     g_signal_connect(model, "changed", G_CALLBACK(action_listener_enigma_model),
                      NULL);
 
-    g_signal_connect(reflector, "changed", G_CALLBACK(action_listener_refl),
-                     NULL);
 
     for (uint16_t i = 0; i < 4; ++i)
     {

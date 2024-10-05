@@ -82,7 +82,7 @@ Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, co
                               const uint8_t position, const uint8_t offset)
 {
     Rotor *rotor = malloc(sizeof(Rotor));
-    assertmsg(rotor != NULL, "rotor == NULL");
+    assertmsg(rotor != NULL, "malloc failed");
 
     const size_t wiring_length = strlen(wiring);
     for (size_t i = 0; i < wiring_length; i++)
@@ -116,7 +116,7 @@ Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wiring, co
                               const char notch2, const uint8_t position, const uint8_t offset)
 {
     Rotor *rotor = malloc(sizeof(Rotor));
-    assertmsg(rotor != NULL, "rotor == NULL");
+    assertmsg(rotor != NULL, "malloc failed");
 
     const size_t wiring_length = strlen(wiring);
     for (size_t i = 0; i < wiring_length; i++)
@@ -149,20 +149,15 @@ Rotor* create_rotor_by_type(const enum ROTOR_TYPE type, const uint8_t position, 
     switch (type)
     {
         case ROTOR_1:
-            return create_one_notch_rotor(ROTOR_I_WIRING, ROTOR_I_INV_WIRING, ROTOR_I_NOTCH,
-                                          position, offset);
+            return create_one_notch_rotor(ROTOR_I_WIRING, ROTOR_I_INV_WIRING, ROTOR_I_NOTCH, position, offset);
         case ROTOR_2:
-            return create_one_notch_rotor(ROTOR_II_WIRING, ROTOR_II_INV_WIRING, ROTOR_II_NOTCH,
-                                          position, offset);
+            return create_one_notch_rotor(ROTOR_II_WIRING, ROTOR_II_INV_WIRING, ROTOR_II_NOTCH, position, offset);
         case ROTOR_3:
-            return create_one_notch_rotor(ROTOR_III_WIRING, ROTOR_III_INV_WIRING, ROTOR_III_NOTCH,
-                                          position, offset);
+            return create_one_notch_rotor(ROTOR_III_WIRING, ROTOR_III_INV_WIRING, ROTOR_III_NOTCH, position, offset);
         case ROTOR_4:
-            return create_one_notch_rotor(ROTOR_IV_WIRING, ROTOR_IV_INV_WIRING, ROTOR_IV_NOTCH,
-                                          position, offset);
+            return create_one_notch_rotor(ROTOR_IV_WIRING, ROTOR_IV_INV_WIRING, ROTOR_IV_NOTCH, position, offset);
         case ROTOR_5:
-            return create_one_notch_rotor(ROTOR_V_WIRING, ROTOR_V_INV_WIRING, ROTOR_V_NOTCH,
-                                          position, offset);
+            return create_one_notch_rotor(ROTOR_V_WIRING, ROTOR_V_INV_WIRING, ROTOR_V_NOTCH, position, offset);
         case ROTOR_6:
             return create_two_notch_rotor(ROTOR_VI_WIRING, ROTOR_VI_INV_WIRING,
                                           ROTOR_VI_NOTCH_ONE, ROTOR_VI_NOTCH_TWO, position, offset);
@@ -171,8 +166,7 @@ Rotor* create_rotor_by_type(const enum ROTOR_TYPE type, const uint8_t position, 
                                           ROTOR_VII_NOTCH_ONE, ROTOR_VII_NOTCH_TWO, position, offset);
         case ROTOR_8:
             return create_two_notch_rotor(ROTOR_VIII_WIRING, ROTOR_VIII_INV_WIRING,
-                                          ROTOR_VIII_NOTCH_ONE,
-                                          ROTOR_VIII_NOTCH_TWO, position, offset);
+                                          ROTOR_VIII_NOTCH_ONE, ROTOR_VIII_NOTCH_TWO, position, offset);
         case ROTOR_BETA:
             return create_one_notch_rotor(ROTOR_BETA_WIRING, ROTOR_BETA_INV_WIRING, '\0', position, offset);
         case ROTOR_GAMMA:

@@ -25,11 +25,7 @@
  * One cable was needed for connecting the branches to the rotor itself.
  * We would simply plug all cables where the branches happen in the same common field.
  *
- * Now there's nothing left to do as to turn on the Turing-Welchman Bomb.
  */
-
-// Cycle header reference I suppose was because turing_bomb.h was included here. So this is a workaround.
-typedef struct TuringBomb TuringBomb;
 
 #include "enigma/rotor/rotor.h"
 #include "diagonal_board.h"
@@ -41,6 +37,7 @@ typedef struct TuringBomb TuringBomb;
 
 typedef uint32_t cable_t;
 typedef struct Contact Contact;
+typedef struct TuringBomb TuringBomb;
 
 // This has in and outputs, so leave it here.
 typedef struct ScramblerEnigma

@@ -133,7 +133,7 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
 DEPRECATED("This function is deprecated. Use find_best_cycle_graph() instead.")
 CyclesCribCipher* find_cycles(const char *restrict crib, const char *restrict ciphertext)
 {
-    // write_dot_format(crib, ciphertext);
+    write_dot_format(crib, ciphertext);
 
     CyclesCribCipher *cycles = malloc(sizeof(CyclesCribCipher));
     assertmsg(cycles != NULL, "malloc failed");

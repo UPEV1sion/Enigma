@@ -1,5 +1,3 @@
-// ReSharper disable CppDFAMemoryLeak
-// This to disable a false positive CLion memory leak warning. Tested multiple times with Valgrind.
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
