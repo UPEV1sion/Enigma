@@ -32,9 +32,13 @@ enum ROTOR_TYPE* get_rotors_from_gui(void)
     const uint8_t num_rotors   = get_enigma_type_from_gui();
     enum ROTOR_TYPE *rotor_arr = malloc(sizeof(enum ROTOR_TYPE) * num_rotors);
     assertmsg(rotor_arr != NULL, "rotors == NULL");
-    for (uint8_t i = 0; i < num_rotors; ++i)
+    for (uint8_t i = 0; i < 3; ++i)
     {
         rotor_arr[i] = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i])) + 1;
+    }
+    if(num_rotors == 4)
+    {
+        rotor_arr[3] = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[3])) == 0 ? ROTOR_BETA : ROTOR_GAMMA;
     }
 
     return rotor_arr;
@@ -42,7 +46,22 @@ enum ROTOR_TYPE* get_rotors_from_gui(void)
 
 enum REFLECTOR_TYPE get_reflector_type_from_gui(void)
 {
-    return gtk_combo_box_get_active(GTK_COMBO_BOX(model)) == 0 ? UKW_B : UKW_C;
+    switch (gtk_combo_box_get_active(GTK_COMBO_BOX(reflector)))
+    {
+        case 0:
+            return UKW_A;
+        case 1:
+            return UKW_B;
+        case 2:
+            return UKW_C;
+        case 3:
+            return UKW_B_THIN;
+        case 4:
+            return UKW_C_THIN;
+        default:
+            fprintf(stderr, "Unknown reflector type");
+            exit(1);
+    }
 }
 
 uint8_t* get_rotor_positions_from_gui(void)
@@ -167,7 +186,6 @@ static void action_listener_enigma_model(GtkComboBox *combo_box)
 
         gtk_list_store_append(liststore, &iter);
         gtk_list_store_set(liststore, &iter, 0, "UKW C", -1);
-
     }
     else
     {
@@ -185,7 +203,6 @@ static void action_listener_enigma_model(GtkComboBox *combo_box)
 
         gtk_list_store_append(liststore, &iter);
         gtk_list_store_set(liststore, &iter, 0, "UKW C Thin", -1);
-
     }
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 1);
@@ -193,16 +210,7 @@ static void action_listener_enigma_model(GtkComboBox *combo_box)
 
 static void action_listener_refl(GtkComboBox *combo_box)
 {
-    GtkTreeModel *modelT;
-    GtkTreeIter iter;
-    gchar *selected_text;
 
-    modelT = gtk_combo_box_get_model(combo_box);
-    if (gtk_combo_box_get_active_iter(combo_box, &iter))
-    {
-        gtk_tree_model_get(modelT, &iter, 0, &selected_text, -1);
-        g_free(selected_text);
-    }
 }
 
 static void show_rotor_dialog(void)
