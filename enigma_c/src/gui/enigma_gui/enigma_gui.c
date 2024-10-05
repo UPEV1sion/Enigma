@@ -343,7 +343,7 @@ static void action_listener_start_btn(void)
     }
 
     //More efficient than a bool array - probably doesn't matter here, but I leave it in
-    // BETA and GAMMA reflector must be unique
+    // BETA and GAMMA reflector must be unique!
     uint8_t rotor_mask = 0;
     for (uint16_t i = 0; i < 3; ++i)
     {
