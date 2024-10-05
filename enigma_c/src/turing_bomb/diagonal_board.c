@@ -14,10 +14,10 @@
 
 #define ERR_NO_CYCLES_FOUND 1
 
+//TODO maybe lookup table for char encoding?
+
 void create_diagonal_board(TuringBomb *restrict turing_bomb)
 {
-    DiagonalBoard *diagonal_board = turing_bomb->diagonal_board;
-
     for (int i = 0; i < ALPHABET_SIZE; ++i)
     {
         // diagonal_board->terminals[i][i] = -1;

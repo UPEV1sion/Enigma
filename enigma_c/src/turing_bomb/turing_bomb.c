@@ -133,8 +133,8 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return ERR_INVALID_CRIB;
 
-    DiagonalBoard diagonal_board = {0};
-    TuringBomb turing_bomb       = {.diagonal_board = &diagonal_board};
+    Terminal terminal = {0};
+    TuringBomb turing_bomb       = {.terminal = &terminal};
     CycleCribCipher *cycle       = find_best_cycle_graph(crib, ciphertext);
 
     if (cycle == NULL)

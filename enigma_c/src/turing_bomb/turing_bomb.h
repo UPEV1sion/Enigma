@@ -17,8 +17,8 @@ typedef struct TuringBomb
 {
     // TODO pointer array?
     ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
-    DiagonalBoard *diagonal_board;
-    Reflector reflector;
+    Terminal *terminal;
+    Reflector *reflector;
     uint8_t scrambler_columns_used;
 } TuringBomb;
 

@@ -31,26 +31,35 @@
 // Cycle header reference I suppose was because turing_bomb.h was included here. So this is a workaround.
 typedef struct TuringBomb TuringBomb;
 
-#include <stdbool.h>
-
-#include "helper/helper.h"
 #include "enigma/rotor/rotor.h"
 #include "diagonal_board.h"
 #include "cycle_finder/cycle_finder.h"
 
-#define NUM_SCRAMBLERS_PER_COLUMN 3
-//TODO
+#define NUM_SCRAMBLERS_PER_COLUMN   3
+#define MAX_CONTACTS_PER_COMMON     5
+#define MAX_NUM_COMMONS             5
+
+typedef uint32_t cable_t;
+typedef struct Contact Contact;
+
+// This has in and outputs, so leave it here.
 typedef struct ScramblerEnigma
 {
+    Contact *in, *out;
     Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
 } ScramblerEnigma;
 
+struct Contact
+{
+    cable_t contact;
+    Contact *commons;
+    uint8_t num_common_connections;
+};
+
 typedef struct
 {
+    Contact **contacts;
+    uint8_t num_commons;
 } Terminal;
-
-typedef struct DiagonalBoard
-{
-} DiagonalBoard;
 
 int32_t create_bomb_menu(TuringBomb *turing_bomb, const CycleCribCipher *restrict cycle);

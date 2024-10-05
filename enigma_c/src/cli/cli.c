@@ -9,7 +9,7 @@
 #include "enigma/enigma.h"
 #include "turing_bomb/turing_bomb.h"
 
-// TODO make the CLI for the Bomb interactive
+// TODO make the CLI for the Bomb interactive & offsets standard AAA
 
 #define INPUT_BUFFER_SIZE  1024
 
@@ -77,9 +77,10 @@ static int32_t string_equals(const char *str1, const char *str2)
     return strcmp(str1, str2) == 0;
 }
 
-static void append_to_string(char **dest, const char *src) {
+static void append_to_string(char **dest, const char *src)
+{
     const size_t dest_len = *dest != NULL ? strlen(*dest) : 0;
-    const size_t src_len = strlen(src);
+    const size_t src_len  = strlen(src);
 
     char *new_str = realloc(*dest, dest_len + src_len + 1);
     assertmsg(new_str != NULL, "realloc failed");
@@ -152,7 +153,7 @@ void query_help(void)
     puts("-e for additional enigma help");
     puts("-b for additional bomb help");
     char buffer[INPUT_BUFFER_SIZE];
-    while(my_getline(buffer, INPUT_BUFFER_SIZE) == 0)
+    while (my_getline(buffer, INPUT_BUFFER_SIZE) == 0)
         ;
 
     //Don't use strtok elsewhere util parsing is finished!
@@ -229,11 +230,11 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
             err_code |= to_uppercase(rotor_four_type);
             assertmsg(err_code == 0, "Input normalization failed");
 
-            if(string_equals(rotor_four_type, "BETA"))
+            if (string_equals(rotor_four_type, "BETA"))
             {
                 options->rotor_four_type = ROTOR_BETA;
             }
-            else if(string_equals(rotor_four_type, "GAMMA"))
+            else if (string_equals(rotor_four_type, "GAMMA"))
             {
                 options->rotor_four_type = ROTOR_GAMMA;
             }
@@ -260,11 +261,11 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
 
             assertmsg(to_uppercase(reflector_type) == 0, "Input normalization failed");
 
-            if(string_equals(reflector_type, "B_THIN"))
+            if (string_equals(reflector_type, "B_THIN"))
             {
                 options->reflector_type = UKW_B_THIN;
             }
-            else if(string_equals(reflector_type, "C_THIN"))
+            else if (string_equals(reflector_type, "C_THIN"))
             {
                 options->reflector_type = UKW_C_THIN;
             }
@@ -386,8 +387,8 @@ static int32_t validate_cli_enigma_options(const CliOptions *options)
     // This will fail in the create_reflector_by_type switch case and give a clearer error
     // if (options->reflector_type < UKW_A || options->reflector_type > UKW_C) return 1;
 
-    if(strlen(options->rotor_offsets) != options->enigma_type) return 1;
-    if(strlen(options->rotor_positions) != options->enigma_type) return 1;
+    if (strlen(options->rotor_offsets) != options->enigma_type) return 1;
+    if (strlen(options->rotor_positions) != options->enigma_type) return 1;
     if (options->rotor_one_type < ROTOR_1 || options->rotor_one_type > ROTOR_8) return 1;
     if (options->rotor_two_type < ROTOR_1 || options->rotor_two_type > ROTOR_8) return 1;
     if (options->rotor_three_type < ROTOR_1 || options->rotor_three_type > ROTOR_8) return 1;
@@ -396,9 +397,9 @@ static int32_t validate_cli_enigma_options(const CliOptions *options)
         return 1;
     if (options->enigma_type == ENIGMA_M4)
     {
-        if(options->rotor_four_type != ROTOR_BETA && options->rotor_four_type != ROTOR_GAMMA)
+        if (options->rotor_four_type != ROTOR_BETA && options->rotor_four_type != ROTOR_GAMMA)
             return 1;
-        if(options->reflector_type != UKW_B_THIN && options->reflector_type != UKW_C_THIN)
+        if (options->reflector_type != UKW_B_THIN && options->reflector_type != UKW_C_THIN)
             return 1;
     }
 
@@ -467,12 +468,12 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 {
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "malloc failed");
-    assertmsg(validate_cli_enigma_options(options) == 0, "Input validation failed. Please check your Enigma settings");
+    assertmsg(validate_cli_enigma_options(options) == 0, "Input validation failed. Please check your Enigma settings.");
     normalize_cli_options(options);
 
     enigma->type   = options->enigma_type;
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
-    assertmsg(enigma->rotors, "enigma->rotors == NULL");
+    assertmsg(enigma->rotors, "malloc failed");
 
     const enum ROTOR_TYPE rotor_types[4] = {
         options->rotor_one_type,
@@ -484,23 +485,16 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
     for (uint8_t i = 0; i < enigma->type; ++i)
     {
         enigma->rotors[i] = create_rotor_by_type(rotor_types[i],
-                                             options->rotor_positions[i] - 'A',
-                                             options->rotor_offsets[i] - 'A');
+                                                 options->rotor_positions[i] - 'A',
+                                                 options->rotor_offsets[i] - 'A');
     }
 
     enigma->reflector = create_reflector_by_type(options->reflector_type);
-
-    if (options->plugboard == NULL)
-    {
-        enigma->plugboard = create_plugboard("");
-    }
-    else
-    {
-        enigma->plugboard = create_plugboard(options->plugboard);
-    }
+    enigma->plugboard = create_plugboard(options->plugboard);
 
     enigma->plaintext = strdup(options->plaintext);
-    assertmsg(enigma->plaintext != NULL, "enigma->plaintext == NULL");
+    assertmsg(enigma->plaintext != NULL, "strdup failed");
+    free(options->plaintext);
     free(options->plugboard);
     return enigma;
 }
@@ -588,7 +582,7 @@ static void pretty_print_enigma_output(const uint8_t *text, const size_t plainte
 {
     for (size_t i = 0; i < plaintext_len; i++)
     {
-        if(i % 5 == 0 && i != 0) printf(" ");
+        if (i % 5 == 0 && i != 0) printf(" ");
         printf("%c", text[i] + 'A');
     }
     printf("\n");
@@ -644,5 +638,4 @@ void query_input(const int32_t argc, char *argv[])
 
     free_enigma(enigma);
     free(text);
-    // free(output_str);
 }
