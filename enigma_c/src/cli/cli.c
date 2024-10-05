@@ -100,7 +100,7 @@ static void print_enigma_help(void)
     printf("%6s, %-20s | %-40s\n", ROTOR_ONE_SHORT, ROTOR_ONE, "first rotor type (1 - 8)");
     printf("%6s, %-20s | %-40s\n", ROTOR_TWO_SHORT, ROTOR_TWO, "second rotor type (1 - 8)");
     printf("%6s, %-20s | %-40s\n", ROTOR_THREE_SHORT, ROTOR_THREE, "third rotor type (1 - 8)");
-    printf("%6s, %-20s | %-40s\n", ROTOR_FOUR_SHORT, ROTOR_FOUR, "fourth rotor type (1 - 8) - Enigma M4 only");
+    printf("%6s, %-20s | %-40s\n", ROTOR_FOUR_SHORT, ROTOR_FOUR, "fourth rotor type (beta, gamma) - Enigma M4 only");
     printf("%6s, %-20s | %-40s\n", ROTOR_OFFSETS_SHORT, ROTOR_OFFSETS, "rotor offset / ring setting (ABC, AABC, etc)");
     printf("%6s, %-20s | %-40s\n", ROTOR_POSITIONS_SHORT, ROTOR_POSITIONS, "rotor position (ABC, AABC, etc)");
     printf("%6s, %-20s | %-40s\n", REFLECTOR_SHORT, REFLECTOR, "reflector type (A, B, C)");
@@ -122,12 +122,13 @@ static void print_bomb_help(void)
     for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
     printf("\n%6s, %-15s | %-40s\n", BOMB_SHORT, BOMB_SHORT, "bomb mode");
     printf("%6s, %-15s | %-40s\n", CIPHERTEXT_SHORT, CIPHERTEXT, "ciphertext");
-    printf("%6s, %-15s | %-40s\n\n", CRIB_SHORT, CRIB, "crib");
+    printf("%6s, %-15s | %-40s\n", CRIB_SHORT, CRIB, "crib");
+    printf("%6s, %-15s | %-40s\n\n", CRIB_OFFSET_SHORT, CRIB_OFFSET, "crib");
     puts("Examples:");
     puts(
         "\tenigma " BOMB_SHORT " " CIPHERTEXT_SHORT
         " OKQDRXACYEHWQDVHBAOXFPNMCQAILNBOGVODGJSZJSRPOWYSKKDBVJSHHMQBSKMBBLRLQUJFAFRDBFWFMCHUSXPBFJNKAINU "
-        CRIB_SHORT " WETTERBERICHT");
+        CRIB_SHORT " WETTERBERICHT" CRIB_OFFSET_SHORT " 0");
 }
 
 static void print_help(void)
@@ -190,8 +191,6 @@ static void parse_rotor_input(CliOptions *options, char *argv[], int32_t *i, con
             break;
         case ROTOR_3: options->rotor_three_type = rotor_type;
             break;
-        case ROTOR_4: options->rotor_four_type = rotor_type;
-            break;
         default: break;
     }
 }
@@ -224,7 +223,25 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
         else if (string_equals(ROTOR_FOUR, argv[i]) ||
                  string_equals(ROTOR_FOUR_SHORT, argv[i]))
         {
-            parse_rotor_input(options, argv, &i, ROTOR_4);
+            char *rotor_four_type = argv[++i];
+
+            int32_t err_code = remove_non_alpha(rotor_four_type);
+            err_code |= to_uppercase(rotor_four_type);
+            assertmsg(err_code == 0, "Input normalization failed");
+
+            if(string_equals(rotor_four_type, "BETA"))
+            {
+                options->rotor_four_type = ROTOR_BETA;
+            }
+            else if(string_equals(rotor_four_type, "GAMMA"))
+            {
+                options->rotor_four_type = ROTOR_GAMMA;
+            }
+            else
+            {
+                fprintf(stderr, "Please enter a valid fourth rotor (gamma or beta)");
+                exit(1);
+            }
         }
         else if (string_equals(ROTOR_OFFSETS, argv[i]) ||
                  string_equals(ROTOR_OFFSETS_SHORT, argv[i]))
@@ -239,7 +256,22 @@ static void save_enigma_input(CliOptions *options, const int32_t argc, char *arg
         else if (string_equals(REFLECTOR, argv[i]) ||
                  string_equals(REFLECTOR_SHORT, argv[i]))
         {
-            options->reflector_type = *argv[++i];
+            char *reflector_type = argv[++i];
+
+            assertmsg(to_uppercase(reflector_type) == 0, "Input normalization failed");
+
+            if(string_equals(reflector_type, "B_THIN"))
+            {
+                options->reflector_type = UKW_B_THIN;
+            }
+            else if(string_equals(reflector_type, "C_THIN"))
+            {
+                options->reflector_type = UKW_C_THIN;
+            }
+            else
+            {
+                options->reflector_type = *reflector_type;
+            }
         }
         else if (string_equals(PLUGBOARD, argv[i]) ||
                  string_equals(PLUGBOARD_SHORT, argv[i]))
@@ -354,16 +386,21 @@ static int32_t validate_cli_enigma_options(const CliOptions *options)
     // This will fail in the create_reflector_by_type switch case and give a clearer error
     // if (options->reflector_type < UKW_A || options->reflector_type > UKW_C) return 1;
 
+    if(strlen(options->rotor_offsets) != options->enigma_type) return 1;
+    if(strlen(options->rotor_positions) != options->enigma_type) return 1;
     if (options->rotor_one_type < ROTOR_1 || options->rotor_one_type > ROTOR_8) return 1;
     if (options->rotor_two_type < ROTOR_1 || options->rotor_two_type > ROTOR_8) return 1;
     if (options->rotor_three_type < ROTOR_1 || options->rotor_three_type > ROTOR_8) return 1;
 
-    if (options->enigma_type == ENIGMA_M3
-        && options->rotor_four_type != 0)
+    if (options->enigma_type == ENIGMA_M3 && options->rotor_four_type != 0)
         return 1;
-    if (options->enigma_type == ENIGMA_M4
-        && (options->rotor_four_type < ROTOR_1 || options->rotor_four_type > ROTOR_8))
-        return 1;
+    if (options->enigma_type == ENIGMA_M4)
+    {
+        if(options->rotor_four_type != ROTOR_BETA && options->rotor_four_type != ROTOR_GAMMA)
+            return 1;
+        if(options->reflector_type != UKW_B_THIN && options->reflector_type != UKW_C_THIN)
+            return 1;
+    }
 
     int32_t rotor_num[4];
     rotor_num[0] = options->rotor_one_type;
@@ -372,7 +409,7 @@ static int32_t validate_cli_enigma_options(const CliOptions *options)
     if (options->enigma_type == ENIGMA_M4) rotor_num[3] = options->rotor_four_type;
 
 
-    bool rotor_seen[8] = {false};
+    bool rotor_seen[12] = {false};
     for (uint16_t i = 0; i < options->enigma_type; ++i)
     {
         if (rotor_seen[rotor_num[i] - 1]) return 1;
@@ -402,8 +439,8 @@ static void normalize_cli_options(const CliOptions *options)
     err_code |= remove_non_alnum(options->rotor_offsets);
     err_code |= to_uppercase(options->rotor_positions);
     err_code |= remove_non_alnum(options->rotor_positions);
-    err_code |= to_uppercase(options->plugboard);
-    err_code |= remove_non_alnum(options->plugboard);
+    to_uppercase(options->plugboard); // Empty plugboard is valid
+    remove_non_alnum(options->plugboard);
     err_code |= to_uppercase(options->plaintext);
     err_code |= remove_non_alnum(options->plaintext);
     assertmsg(err_code == 0, "normalization failed");
@@ -430,7 +467,7 @@ static Enigma* create_enigma_from_cli_configuration(const CliOptions *options)
 {
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "malloc failed");
-    assertmsg(validate_cli_enigma_options(options) == 0, "Input validation failed");
+    assertmsg(validate_cli_enigma_options(options) == 0, "Input validation failed. Please check your Enigma settings");
     normalize_cli_options(options);
 
     enigma->type   = options->enigma_type;

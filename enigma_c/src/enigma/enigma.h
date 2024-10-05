@@ -36,6 +36,6 @@ typedef struct
 
 Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_configuration);
 uint8_t* traverse_enigma(const Enigma *enigma);
-uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_integer, size_t array_size);
-uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, size_t array_size);
+uint8_t* traverse_m3_enigma(const Enigma *enigma, const uint8_t *text_in_integer, size_t array_size);
+uint8_t* traverse_m4_enigma(const Enigma *enigma, const uint8_t *text_in_integer, size_t array_size);
 void free_enigma(Enigma *enigma);

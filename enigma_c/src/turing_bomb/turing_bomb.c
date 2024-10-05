@@ -151,7 +151,7 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
-    uint32_t ret_val = 1;
+    int32_t ret_val = 1;
 
     for (uint8_t rotor_one_type = 1; rotor_one_type <= NUM_ROTORS; ++rotor_one_type)
     {

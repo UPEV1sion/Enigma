@@ -3,11 +3,14 @@
 #include <stdio.h>
 
 #include "reflector.h"
-#include "helper/helper.h"
 
-#define UKW_A_WIRING  "EJMZALYXVBWFCRQUONTSPIKHGD"
-#define UKW_B_WIRING  "YRUHQSLDPXNGOKMIEBFZCWVJAT"
-#define UKW_C_WIRING  "FVPJIAOYEDRZXWGCTKUQSBNMHL"
+#define UKW_A_WIRING        "EJMZALYXVBWFCRQUONTSPIKHGD"
+#define UKW_B_WIRING        "YRUHQSLDPXNGOKMIEBFZCWVJAT"
+#define UKW_C_WIRING        "FVPJIAOYEDRZXWGCTKUQSBNMHL"
+
+#define UKW_B_THIN_WIRING  "ENKQAUYWJICOPBLMDXZVFTHRGS"
+#define UKW_C_THIN_WIRING  "RDOBJNTKVEHMLFCWZAXGYIPSUQ"
+
 
 /**
  * @brief Creates a reflector with the specified wiring
@@ -17,16 +20,12 @@
 Reflector* create_reflector(const char *wiring)
 {
     Reflector *ukw = malloc(sizeof(Reflector));
-    assertmsg(ukw != NULL, "ukw == NULL");
-    ukw->wiring = malloc(ALPHABET_SIZE + 1);
-    assertmsg(ukw->wiring, "ukw->wiring == NULL");
+    assertmsg(ukw != NULL, "malloc failed");
 
     for (uint16_t i = 0; i < ALPHABET_SIZE; i++)
     {
         ukw->wiring[i] = wiring[i] - 'A';
     }
-
-    ukw->wiring[ALPHABET_SIZE] = 0;
 
     return ukw;
 }
@@ -46,6 +45,10 @@ Reflector* create_reflector_by_type(const enum REFLECTOR_TYPE type)
             return create_reflector(UKW_B_WIRING);
         case UKW_C:
             return create_reflector(UKW_C_WIRING);
+        case UKW_B_THIN:
+            return create_reflector(UKW_B_THIN_WIRING);
+        case UKW_C_THIN:
+            return create_reflector(UKW_C_THIN_WIRING);
         default:
             fprintf(stderr, "Error, Reflector definition not found: %d\n", type);
             exit(1);

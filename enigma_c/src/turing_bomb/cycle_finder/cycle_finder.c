@@ -15,15 +15,9 @@
 /* After my research, I found that the process of finding cycles between crib and ciphertext was actually done by hand
  * as well as plugging up the diagonal board.
  *
- * In cycle_finder_graph I tested an approach with a graph and DFS,
- * but it turns out that setting up the graph correctly isn't as easy as it seems, and it comes with great overhead.
- * cycle_finder_graph was actually the second method I tested, after this one.
- * But in the end, I settled for this one.
- *
  * Here I solved the "cycle finding problem" using a recursive backtracking algorithm.
- * This algorithm has been extensively optimized and is very fast.
- * It also runs only once in the decryption process.
- * It May run multiple times until the Enigma is cracked due to bad crib placement.
+ * This algorithm has explosive runtime and shall not be used.
+ * Use cycle_finder_graph for almost linear runtime.
  */
 
 typedef struct

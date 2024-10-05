@@ -176,8 +176,9 @@ bool is_permutation(const char *first, const char *second)
 uint8_t* get_int_array_from_string(const char *restrict str)
 {
     if (str == NULL) return NULL;
-    const size_t len = strlen(str);
-    if (len == 0) return NULL;
+    size_t len;
+    if ((len = strlen(str)) == 0) return NULL;
+
     uint8_t *array = malloc(len * sizeof(uint8_t));
     assertmsg(array != NULL, "malloc failed");
 

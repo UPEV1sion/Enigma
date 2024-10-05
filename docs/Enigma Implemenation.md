@@ -22,16 +22,18 @@ Those conversions are relative simple operations,
 as in C a string is just a char array and a char is just a short that can be used for calculation.
 
 ```C
-uint8_t* get_int_array_from_string(const char *str)
+uint8_t* get_int_array_from_string(const char *restrict str)
 {
     if (str == NULL) return NULL;
-    const size_t len = strlen(str);
-    uint8_t *array   = malloc(len * sizeof(uint8_t));
-    assertmsg(array != NULL, "array == NULL");
+    size_t len;
+    if ((len = strlen(str)) == 0) return NULL;
+    
+    uint8_t *array = malloc(len * sizeof(uint8_t));
+    assertmsg(array != NULL, "malloc failed");
 
     for (size_t i = 0; i < len; i++)
     {
-        array[i] = str[i] - 'A';
+        array[i] = (uint8_t) (str[i] - 'A');
     }
 
     return array;

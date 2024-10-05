@@ -34,15 +34,20 @@
 #define ROTOR_VIII_NOTCH_ONE    'Z'
 #define ROTOR_VIII_NOTCH_TWO    'M'
 
+#define ROTOR_BETA_WIRING       "LEYJVCNIXWPBQMDRTAKZGFUHOS"
+#define ROTOR_BETA_INV_WIRING   "RLFOBVUXHDSANGYKMPZQWEJICT"
+#define ROTOR_GAMMA_WIRING      "FSOKANUERHMBTIYCWLQPZXVGJD"
+#define ROTOR_GAMMA_INV_WIRING  "ELPZHAXJNYDRKFCTSIBMGWQVOU"
+
+
 /**
  * @brief Makes sure a value is >= 0 and < 26
  * @param value The value to be processed
  * @return int8_t
  */
-//DO NOT MAKE THIS UINT8_T! This was the reason for one of the longest and most painful debugging sessions!
-static inline int8_t mod26(const int8_t value)
+static inline uint8_t mod26(const int8_t value)
 {
-    return (int8_t) ((value + 26) % 26);
+    return  (value + 26) % 26;
 }
 
 /**
@@ -90,7 +95,7 @@ Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, co
     rotor->notch_count = 1;
 
     rotor->notch       = malloc(sizeof(uint8_t));
-    assertmsg(rotor->notch != NULL, "rotor->notch == NULL");
+    assertmsg(rotor->notch != NULL, "malloc failed");
 
     rotor->notch[0] = mod26(notch - 'A' - offset);
 
@@ -124,7 +129,7 @@ Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wiring, co
     rotor->notch_count = 2;
 
     rotor->notch       = malloc(2 * sizeof(uint8_t));
-    assertmsg(rotor->notch != NULL, "rotor->notch == NULL");
+    assertmsg(rotor->notch != NULL, "malloc failed");
 
     rotor->notch[0] = mod26(notch1 - 'A' - offset);
     rotor->notch[1] = mod26(notch2 - 'A' - offset);
@@ -168,6 +173,10 @@ Rotor* create_rotor_by_type(const enum ROTOR_TYPE type, const uint8_t position, 
             return create_two_notch_rotor(ROTOR_VIII_WIRING, ROTOR_VIII_INV_WIRING,
                                           ROTOR_VIII_NOTCH_ONE,
                                           ROTOR_VIII_NOTCH_TWO, position, offset);
+        case ROTOR_BETA:
+            return create_one_notch_rotor(ROTOR_BETA_WIRING, ROTOR_BETA_INV_WIRING, '\0', position, offset);
+        case ROTOR_GAMMA:
+            return create_one_notch_rotor(ROTOR_GAMMA_WIRING, ROTOR_GAMMA_INV_WIRING, '\0', position, offset);
         default:
             fprintf(stderr, "Error, Rotor definition not found: %d\n", type);
             exit(1);
@@ -182,7 +191,6 @@ Rotor* create_rotor_by_type(const enum ROTOR_TYPE type, const uint8_t position, 
  */
 uint8_t traverse_rotor(const Rotor *rotor, const uint8_t character)
 {
-    //TODO SEGFAULT??
     const int8_t index_from_right = mod26(character + rotor->position);
     const int8_t index_from_left  = mod26(rotor->wiring[index_from_right] - rotor->position);
 

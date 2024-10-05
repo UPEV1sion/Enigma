@@ -129,10 +129,10 @@ static bool dfs_find_cycle(Graph *restrict graph, Node *node,
     if (node->data.crib_char == 0) return false;
     if (node == parent) return false;
 
-    // Force to not loop on "a tuple of tuple". E.g., M-G and M-G at different places in the crib.
-    // TODO find a better way of creating longer cycles
-    if (is_matching_chars_tuple(node, parent)) return false;
-
+    // TODO continue cycle search after a tuple of tuples is found.
+    // A tuple of tuples is a very powerful way to eliminate invalid plugboard settings
+    // Turns out this is a well known compsci problem... maybe just denote it and continue?
+    // if(is_matching_chars_tuple(node, parent)) return false;
     cycle->chars_w_stubs[cycle->len_w_stubs]         = last_char;
     cycle->chars_wo_stubs[cycle->len_wo_stubs]       = last_char;
     cycle->positions_w_stubs[cycle->len_w_stubs++]   = node->data.position;

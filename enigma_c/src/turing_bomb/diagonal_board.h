@@ -39,49 +39,24 @@ typedef struct TuringBomb TuringBomb;
 #include "cycle_finder/cycle_finder.h"
 
 #define NUM_SCRAMBLERS_PER_COLUMN 3
-#define NUM_FIELDS_PER_COMMON 5
-#define NUM_COMMONS 5
 
-//TODO rewrite?
-// 1 bit for each letter → 26 bits.
-typedef uint32_t cable_t;
-typedef struct Cable Cable;
+typedef uint64_t cable_t;
 
-enum CableRouteType
-{
-    DIAGONAL_BOARD,
-    COMMON,
-    ROTOR
-};
-
-struct Cable
-{
-    Cable *origin, *destination;
-    cable_t cable;
-};
-
-// I put this there because the in and out connectors where introduced with the Diagonal Board.
 typedef struct ScramblerEnigma
 {
-    Cable in, out;
+    cable_t in, out;
     Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
 } ScramblerEnigma;
 
-
-/* This is the so-called common connections.
- * If a cycle had a branch, e.g., a stub at a certain point in the cycle,
- * one connection at that letter wouldn't be enough.
- * This problem was solved with the common connectors, which typically allowed up to 5 connections per letter.
- */
 typedef struct
 {
-    Cable common[NUM_FIELDS_PER_COMMON];
-} CommonConnections;
+    int8_t wires[ALPHABET_SIZE];
+
+} Terminal;
 
 typedef struct DiagonalBoard
 {
-    Cable alphabet[ALPHABET_SIZE];
-    CommonConnections commons[NUM_COMMONS];
+    int8_t terminals[ALPHABET_SIZE][ALPHABET_SIZE];
 } DiagonalBoard;
 
 int32_t create_bomb_menu(TuringBomb *turing_bomb, const CycleCribCipher *restrict cycle);
