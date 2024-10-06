@@ -14,6 +14,8 @@
 // Created by Emanuel on 05.10.2024.
 //
 
+// TODO Error codes
+
 #define INPUT_BUFFER_SIZE 1024
 
 /*----------ENIGMA----------*/

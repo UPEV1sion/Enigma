@@ -14,7 +14,6 @@
 
 #define ERR_NO_CYCLES_FOUND 1
 
-//TODO maybe lookup table for char encoding?
 
 void create_diagonal_board(TuringBomb *restrict turing_bomb)
 {

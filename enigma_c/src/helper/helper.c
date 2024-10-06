@@ -229,6 +229,7 @@ bool has_duplicates(const char *restrict str)
     for (size_t i = 0; i < len; ++i)
     {
         const char c = str[i];
+        if(c == ' ') continue;
         if(visited[(uint8_t) c]) return true;
         visited[(uint8_t) c] = true;
     }

@@ -269,7 +269,7 @@ static void action_listener_plugboard(GtkEntry *entry,
 
     strncpy(new_text, current_text, BUFFER_SIZE - 1);
 
-    strncat(new_text, text, BUFFER_SIZE - 1);
+    strncat(new_text, text, BUFFER_SIZE - g_utf8_strlen(new_text, -1) - 1);
 
     if (has_duplicates(new_text))
     {
@@ -310,7 +310,7 @@ static void generate_output_with_enigma(char *restrict input_text)
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
 
-    enigma_to_json(enigma);
+    // enigma_to_json(enigma);
     update_output(plaintext);
     // char *json_text = read_json();
     // puts(json_text);

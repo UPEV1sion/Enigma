@@ -16,7 +16,7 @@
 
 #define INPUT_BUFFER_SIZE  1024
 
-
+/*----------ENIGMA INTERACTIVE CLI----------*/
 #define INTERACTIVE_ENIGMA          "--interactive"
 #define INTERACTIVE_ENIGMA_SHORT    "-i"
 
@@ -216,22 +216,22 @@ void query_input(const int32_t argc, char *argv[])
     if (options.help)
     {
         query_help();
-        exit(0);
+        return;
     }
     if (options.enigma)
     {
         query_enigma_input(argc, argv);
-        exit(0);
+        return;
     }
     if(options.interactive_enigma)
     {
         run_interactive_enigma_input();
-        exit(0);
+        return;
     }
     if(options.cyclometer)
     {
         create_cycles();
-        exit(0);
+        return;
     }
     if (options.bomb)
     {
@@ -239,6 +239,5 @@ void query_input(const int32_t argc, char *argv[])
         assertmsg(options.crib_offset < 0 ||
             (strlen(options.crib) + options.crib_offset > strlen(options.ciphertext)), "Bad crib offset");
         start_turing_bomb(options.crib, options.ciphertext, options.crib_offset);
-        exit(0);
     }
 }

@@ -39,6 +39,7 @@ typedef uint32_t cable_t;
 typedef struct Contact Contact;
 typedef struct TuringBomb TuringBomb;
 
+// TODO last input char in rotor column
 // This has in and outputs, so leave it here.
 typedef struct ScramblerEnigma
 {
