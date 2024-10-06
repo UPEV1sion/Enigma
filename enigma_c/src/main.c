@@ -8,7 +8,7 @@
 
 /**
  * @name Enigma Simulator
- * @authors Arif Hasanic, Emanuel Schaeffer 
+ * @authors Arif Hasanic, Emanuel Schäffer 
  */
 
 //
