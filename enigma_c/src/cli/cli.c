@@ -17,19 +17,22 @@
 #define INPUT_BUFFER_SIZE  1024
 
 
+#define INTERACTIVE_ENIGMA          "--interactive"
+#define INTERACTIVE_ENIGMA_SHORT    "-i"
+
 /*----------CYCLOMETER----------*/
-#define CYCLOMETER             "--cyclometer"
-#define CYCLOMETER_SHORT       "-c"
+#define CYCLOMETER                  "--cyclometer"
+#define CYCLOMETER_SHORT            "-c"
 
 /*----------BOMB----------*/
-#define BOMB                   "--bomb"
-#define BOMB_SHORT             "-b"
-#define CIPHERTEXT             "--ciphertext"
-#define CIPHERTEXT_SHORT       "-ct"
-#define CRIB                   "--crib"
-#define CRIB_SHORT             "-cr"
-#define CRIB_OFFSET            "--crib-offset"
-#define CRIB_OFFSET_SHORT      "-co"
+#define BOMB                        "--bomb"
+#define BOMB_SHORT                  "-b"
+#define CIPHERTEXT                  "--ciphertext"
+#define CIPHERTEXT_SHORT            "-ct"
+#define CRIB                        "--crib"
+#define CRIB_SHORT                  "-cr"
+#define CRIB_OFFSET                 "--crib-offset"
+#define CRIB_OFFSET_SHORT           "-co"
 
 typedef struct
 {
@@ -38,7 +41,8 @@ typedef struct
     int32_t crib_offset;
     uint8_t enigma: 1;
     uint8_t bomb: 1;
-    uint8_t interactive: 1;
+    uint8_t interactive_enigma: 1;
+    uint8_t cyclometer: 1;
     uint8_t help: 1;
 } CliOptions;
 
@@ -74,7 +78,7 @@ static void print_help(void)
     for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
     printf("\n%6s, %-15s | %-40s\n", HELP_SHORT, HELP, "display this help and exit");
     printf("%6s, %-15s | %-40s\n", ENIGMA_SHORT, ENIGMA, "enigma mode");
-    printf("%6s, %-15s | %-40s\n", INTERACTIVE_SHORT, INTERACTIVE, "configure the enigma interactively");
+    printf("%6s, %-15s | %-40s\n", INTERACTIVE_ENIGMA_SHORT, INTERACTIVE_ENIGMA, "configure the enigma interactively");
     printf("%6s, %-15s | %-80s\n", CYCLOMETER_SHORT, CYCLOMETER, "generate all possible cycles of an enigma "
            "M3 with Rotors 1 - 3");
     printf("%6s, %-15s | %-40s\n", BOMB_SHORT, BOMB, "bomb mode");
@@ -147,15 +151,13 @@ static void save_input(CliOptions *options, const int32_t argc, char *argv[])
     if (string_equals(HELP, argv[1]) ||
         string_equals(HELP_SHORT, argv[1]))
     {
-        puts("Help");
         options->help = 1;
-
         return;
     }
-    if (string_equals(INTERACTIVE, argv[1]) ||
-        string_equals(INTERACTIVE_SHORT, argv[1]))
+    if (string_equals(INTERACTIVE_ENIGMA, argv[1]) ||
+        string_equals(INTERACTIVE_ENIGMA_SHORT, argv[1]))
     {
-        options->interactive = 1;
+        options->interactive_enigma = 1;
         return;
     }
     if (string_equals(ENIGMA, argv[1]) ||
@@ -167,8 +169,8 @@ static void save_input(CliOptions *options, const int32_t argc, char *argv[])
     if (string_equals(CYCLOMETER, argv[1]) ||
         string_equals(CYCLOMETER_SHORT, argv[1]))
     {
-        create_cycles();
-        exit(0);
+        options->cyclometer = 1;
+        return;
     }
     if (string_equals(BOMB, argv[1]) ||
         string_equals(BOMB_SHORT, argv[1]))
@@ -216,13 +218,21 @@ void query_input(const int32_t argc, char *argv[])
         query_help();
         exit(0);
     }
-
-    if (options.enigma || options.interactive)
+    if (options.enigma)
     {
         query_enigma_input(argc, argv);
         exit(0);
     }
-
+    if(options.interactive_enigma)
+    {
+        run_interactive_enigma_input();
+        exit(0);
+    }
+    if(options.cyclometer)
+    {
+        create_cycles();
+        exit(0);
+    }
     if (options.bomb)
     {
         assertmsg(options.crib != NULL && options.ciphertext != NULL, "Input a valid known and cipher text");
