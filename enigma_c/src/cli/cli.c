@@ -87,7 +87,7 @@ static void print_bomb_help(void)
     puts("Examples:");
     puts("\tenigma " BOMB_SHORT " " CIPHERTEXT_SHORT
             " OKQDRXACYEHWQDVHBAOXFPNMCQAILNBOGVODGJSZJSRPOWYSKKDBVJSHHMQBSKMBBLRLQUJFAFRDBFWFMCHUSXPBFJNKAINU "
-            CRIB_SHORT " WETTERBERICHT" CRIB_OFFSET_SHORT " 0");
+            CRIB_SHORT " WETTERBERICHT " CRIB_OFFSET_SHORT " 0");
 }
 
 static void print_help(void)
@@ -291,7 +291,6 @@ static void normalize_bomb_options(CliOptions *restrict options)
     err_code |= remove_non_alnum(options->crib);
     assertmsg(err_code == 0, "Bomb normalization failed");
 }
-
 
 static void select_run_mode(CliOptions *options, const int argc, char *argv[])
 {

@@ -86,11 +86,10 @@ static Cycle get_cycle_count(const uint8_t *rotor_permutation)
 
     bool visited[26] = {false};
 
-    for (uint8_t i = 0; i < ALPHABET_SIZE; i++)
+    for (uint8_t base = 0; base < ALPHABET_SIZE; base++)
     {
-        if (!visited[i])
+        if (!visited[base])
         {
-            const uint8_t base          = i;
             visited[base]                = true;
             uint8_t current              = rotor_permutation[base];
             int32_t current_cycle_length = 1;
