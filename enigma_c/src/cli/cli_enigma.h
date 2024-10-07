@@ -6,6 +6,7 @@
 
 #define ENIGMA                 "--enigma"
 #define ENIGMA_SHORT           "-e"
+#define ENIGMA_CHAR            'e'
 
 void query_enigma_input(int argc, char *argv[]);
 void print_enigma_help(void);
