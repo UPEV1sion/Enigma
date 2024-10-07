@@ -52,11 +52,13 @@ struct Contact
     cable_t contact;
     Contact *commons;
     uint8_t num_common_connections;
+    bool active;
 };
 
 typedef struct
 {
-    Contact **contacts;
+    Contact *contacts[ALPHABET_SIZE];
+    Contact *test_register;
     uint8_t num_commons;
 } Terminal;
 

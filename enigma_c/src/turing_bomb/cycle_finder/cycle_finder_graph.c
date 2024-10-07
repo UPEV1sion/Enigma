@@ -131,11 +131,15 @@ static bool dfs_find_cycle(Graph *restrict graph, Node *node,
     // TODO continue cycle search after a tuple of tuples is found.
     // A tuple of tuples is a very powerful way to eliminate invalid plugboard settings
     // Turns out this is a well known compsci problem... maybe just denote it and continue?
-    // if(is_matching_chars_tuple(node, parent)) return false;
     cycle->chars_w_stubs[cycle->len_w_stubs]         = last_char;
     cycle->chars_wo_stubs[cycle->len_wo_stubs]       = last_char;
     cycle->positions_w_stubs[cycle->len_w_stubs++]   = node->data.position;
     cycle->positions_wo_stubs[cycle->len_wo_stubs++] = node->data.position;
+    if(is_matching_chars_tuple(node, parent))
+    {
+
+        return false;
+    }
 
     // printf("Visiting node: %c : %c, %u\n", node->data.crib_char, node->data.cipher_char, node->data.position);
     if (node->visited) return true;

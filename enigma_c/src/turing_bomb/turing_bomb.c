@@ -22,7 +22,6 @@
  * The turing bomb back in the day, of course, used no software.
  * But this implementation aims to mimic the inner workings of the Turing-Welchman Bomb as close as possible.
  * I've always programmed with performance in mind and made this as fast as possible.
- * The "Hill-climbing" algorithm will possibly be a faster alternative, but this is not the goal of this implementation.
  */
 
 #define NUM_ROTORS             5
@@ -80,26 +79,15 @@ static void set_starting_pos_scramblers(TuringBomb *restrict turing_bomb,
     }
 }
 
-CycleCribCipher* find_longest_cycle(const CyclesCribCipher *cycles)
+static void traverse_rotor_column(Rotor *rotor_column[NUM_SCRAMBLERS_PER_COLUMN], uint8_t input_letter)
 {
-    CycleCribCipher *cycle = cycles->cycles_positions[0];
-    for (uint8_t i = 1; i < (uint8_t) cycles->num_cycles; ++i)
+    for (uint8_t row = 0; row < (uint8_t) NUM_SCRAMBLERS_PER_COLUMN; ++row)
     {
-        if (cycles->cycles_positions[i]->len_wo_stubs > cycle->len_wo_stubs
-            && cycles->cycles_positions[i]->len_wo_stubs <= NUM_SCRAMBLERS_PER_ROW)
-        {
-            cycle = cycles->cycles_positions[i];
-        }
+        //TODO top or bottom rotor input?
     }
-
-    return cycle;
 }
 
-void traverse_rotor_column(Rotor **rotor_column)
-{
-}
-
-int32_t traverse_rotor_conf(const TuringBomb *turing_bomb)
+static int32_t traverse_rotor_conf(const TuringBomb *turing_bomb)
 {
     // TODO
     for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
@@ -120,8 +108,6 @@ int32_t traverse_rotor_conf(const TuringBomb *turing_bomb)
                 rotor_three->position = (rotor_three->position + 1) % 26;
             }
         }
-        // Find a way to traverse all inputs at once.
-
     }
 
     return 1;
