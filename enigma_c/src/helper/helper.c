@@ -1,7 +1,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include <limits.h>
 
 #include "helper.h"
 
@@ -348,7 +347,7 @@ double calc_index_of_coincidence(const uint8_t *restrict arr, const size_t len)
  * @param lim upper limit of how much characters are to be read
  * @return size_t: number of characters read
  */
-size_t my_getline(char *restrict str, const size_t lim)
+size_t my_getline(char *restrict str, const int32_t lim)
 {
     if (str == NULL) return 0;
 

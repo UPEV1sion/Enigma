@@ -4,7 +4,6 @@
 #include <intrin.h> //MSVC intrinsics again
 #endif
 #include "turing_bomb.h"
-#include "helper/helper.h"
 #include "diagonal_board.h"
 #include "cycle_finder/cycle_finder.h"
 #include "cycle_finder/cycle_finder_graph.h"
@@ -84,7 +83,7 @@ static void set_starting_pos_scramblers(TuringBomb *restrict turing_bomb,
 CycleCribCipher* find_longest_cycle(const CyclesCribCipher *cycles)
 {
     CycleCribCipher *cycle = cycles->cycles_positions[0];
-    for (uint8_t i = 1; i < cycles->num_cycles; ++i)
+    for (uint8_t i = 1; i < (uint8_t) cycles->num_cycles; ++i)
     {
         if (cycles->cycles_positions[i]->len_wo_stubs > cycle->len_wo_stubs
             && cycles->cycles_positions[i]->len_wo_stubs <= NUM_SCRAMBLERS_PER_ROW)

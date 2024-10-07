@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include "cycle_finder_graph.h"
-#include "helper/helper.h"
 #include "turing_bomb/turing_bomb.h"
 
 //
@@ -66,13 +65,13 @@ typedef struct
  * @param node The node where the connection to neighbour should be established
  * @param neighbour The node with node should be linked to.
  */
-DEPRECATED("This function is deprecated & unused. Marked for removal")
-static void add_neighbour(Node *restrict node, Node *restrict neighbour)
-{
-    node->neighbours = realloc(node->neighbours, (node->neighbour_count + 1) * sizeof(Node *));
-    assertmsg(node->neighbours != NULL, "realloc failed");
-    node->neighbours[node->neighbour_count++] = neighbour;
-}
+//DEPRECATED("This function is deprecated & unused. Marked for removal")
+//static void add_neighbour(Node *restrict node, Node *restrict neighbour)
+//{
+//    node->neighbours = realloc(node->neighbours, (node->neighbour_count + 1) * sizeof(Node *));
+//    assertmsg(node->neighbours != NULL, "realloc failed");
+//    node->neighbours[node->neighbour_count++] = neighbour;
+//}
 
 static void write_dot_format(const char *restrict crib, const char *restrict ciphertext)
 {
@@ -143,7 +142,7 @@ static bool dfs_find_cycle(Graph *restrict graph, Node *node,
 
     node->visited = true;
 
-    const char lookup_char      = (node->data.crib_char == last_char) ? node->data.cipher_char : node->data.crib_char;
+    const char lookup_char      = (char) ((node->data.crib_char == last_char) ? node->data.cipher_char : node->data.crib_char);
     const uint8_t i_lookup_char = lookup_char - 'A';
 
     for (uint8_t i = 0; i < graph->indexing[i_lookup_char]; ++i)
@@ -221,7 +220,7 @@ void free_neighbours(const Node *restrict node)
 void build_graph(Graph *restrict graph, const char *restrict crib, const char *restrict ciphertext, const size_t len,
                  Node *nodes)
 {
-    for (uint8_t i = 0; i < len; ++i)
+    for (uint8_t i = 0; i < (uint8_t) len; ++i)
     {
         nodes[i].data.crib_char   = crib[i];
         nodes[i].data.cipher_char = ciphertext[i];

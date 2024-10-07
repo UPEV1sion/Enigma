@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "rotor.h"
-#include "helper/helper.h"
 
 #define ROTOR_I_WIRING          "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
 #define ROTOR_I_INV_WIRING      "UWYGADFPVZBECKMTHXSLRINQOJ"

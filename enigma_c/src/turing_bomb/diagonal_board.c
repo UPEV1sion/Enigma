@@ -1,6 +1,4 @@
 #include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
 
 #include "helper/helper.h"
 #include "turing_bomb.h"
@@ -10,7 +8,6 @@
 // Created by Emanuel on 30.08.2024.
 //
 
-#define ALPHABET "ABCDEFGHIJKLMNOPQRSTUVXYZ"
 
 #define ERR_NO_CYCLES_FOUND 1
 

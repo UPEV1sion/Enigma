@@ -41,21 +41,8 @@ int main(int argc, char *argv[])
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
     // return 0;
-    if (argc < 2)
-    {
-        puts("Usage: ./enigma [OPTIONS]");
-        puts("Options:");
-        puts(GUI " / " GUI_SHORT " for GUI");
-        puts("CLI use is implicit");
-        puts(HELP " / " HELP_SHORT " for help");
-        return EXIT_FAILURE;
-    }
 
-    if (strcmp(GUI, argv[1]) == 0 || strcmp(GUI_SHORT, argv[1]) == 0)
-        run_start_gui(argv);
-    else if (strcmp(HELP, argv[1]) == 0 || strcmp(HELP_SHORT, argv[1]) == 0)
-        query_help();
-    else
-        query_input(argc, argv);
+    query_input(argc, argv);
+
     return EXIT_SUCCESS;
 }

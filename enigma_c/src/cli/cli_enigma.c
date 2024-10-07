@@ -8,13 +8,13 @@
 #include "enigma/reflector/reflector.h"
 #include "enigma/rotor/rotor.h"
 #include "enigma/enigma.h"
-#include "enigma/plugboard/plugboard.h"
 
 //
 // Created by Emanuel on 05.10.2024.
 //
 
 // TODO Error codes
+// TODO make the CLI for the Bomb interactive & offsets standard AAA
 
 #define INPUT_BUFFER_SIZE 1024
 
@@ -37,7 +37,6 @@
 #define PLUGBOARD_SHORT        "-pb"
 #define PLAINTEXT              "--plaintext"
 #define PLAINTEXT_SHORT        "-pt"
-
 
 typedef struct
 {
@@ -69,7 +68,7 @@ void print_enigma_help(void)
     printf("%6s, %-20s | %-40s\n", ROTOR_OFFSETS_SHORT, ROTOR_OFFSETS, "rotor offset / ring setting (ABC, AABC, etc)");
     printf("%6s, %-20s | %-40s\n", ROTOR_POSITIONS_SHORT, ROTOR_POSITIONS, "rotor position (ABC, AABC, etc)");
     printf("%6s, %-20s | %-80s\n", REFLECTOR_SHORT, REFLECTOR, "reflector type (A, B, C) - Enigma M3 only,"
-           " (B_THIN/b, C_THIN/c) Enigma M4 only");
+           " (B_THIN / b, C_THIN / c) Enigma M4 only");
     printf("%6s, %-20s | %-40s\n", PLUGBOARD_SHORT, PLUGBOARD, "plugboard (e.g. AB CD EF)");
     printf("%6s, %-20s | %-40s\n\n", PLAINTEXT_SHORT, PLAINTEXT, "plaintext (A secret Text)");
     puts("Note: Enigma type, Rotor offsets, rotor positions, "
@@ -91,7 +90,7 @@ static void append_to_string(char **dest, const char *src)
     const size_t src_len  = strlen(src);
 
     char *new_str = realloc(*dest, dest_len + src_len + 1);
-    assertmsg(new_str != NULL, "realloc failed");
+    assertmsg(new_str != NULL, "reallocate failed");
 
     *dest = new_str;
     strcpy(*dest + dest_len, src);
@@ -320,7 +319,7 @@ static int32_t validate_cli_enigma_options(const EnigmaCliOptions *options)
 
 
     bool rotor_seen[12] = {false};
-    for (uint16_t i = 0; i < options->enigma_type; ++i)
+    for (uint8_t i = 0; i < (uint8_t) options->enigma_type; ++i)
     {
         const uint8_t rotor_index = rotor_num[i] - 1;
         if (rotor_seen[rotor_index]) return 1;
@@ -382,7 +381,7 @@ static Enigma* create_enigma_from_cli_configuration(const EnigmaCliOptions *opti
         options->rotor_four_type
     };
 
-    for (uint8_t i = 0; i < enigma->type; ++i)
+    for (uint8_t i = 0; i < (uint8_t) enigma->type; ++i)
     {
         enigma->rotors[i] = create_rotor_by_type(rotor_types[i],
                                                  options->rotor_positions[i] - 'A',
@@ -463,7 +462,7 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
     int32_t err_code = 0;
 
     char *numeration[4] = {"First", "Second", "Third", "Fourth"};
-    for (uint8_t rotor_num = 0; rotor_num < enigma->type; ++rotor_num)
+    for (uint8_t rotor_num = 0; rotor_num < (uint8_t) enigma->type; ++rotor_num)
     {
         char primary_input[INPUT_BUFFER_SIZE];
         char secondary_input[INPUT_BUFFER_SIZE];

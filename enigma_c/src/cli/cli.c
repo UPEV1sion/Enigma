@@ -2,19 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "cyclometer/cyclometer.h"
 #include "cli.h"
 
 #include "cli_enigma.h"
 #include "helper/helper.h"
-#include "enigma/enigma.h"
 #include "turing_bomb/turing_bomb.h"
+#include "gui/start_gui/start_gui.h"
 
-// TODO make the CLI for the Bomb interactive & offsets standard AAA
 
 #define INPUT_BUFFER_SIZE  1024
+
+/*----------GENERAL----------*/
+#define HELP        "--help"
+#define HELP_SHORT  "-h"
+#define GUI         "--gui"
+#define GUI_SHORT   "-g"
 
 /*----------ENIGMA INTERACTIVE CLI----------*/
 #define INTERACTIVE_ENIGMA          "--interactive"
@@ -34,15 +38,22 @@
 #define CRIB_OFFSET                 "--crib-offset"
 #define CRIB_OFFSET_SHORT           "-co"
 
+enum CliMode
+{
+    MODE_HELP,
+    MODE_ENIGMA,
+    MODE_INTERACTIVE_ENIGMA,
+    MODE_CYCLOMETER,
+    MODE_BOMB,
+    MODE_GUI
+};
+
 typedef struct
 {
     char *ciphertext;
     char *crib;
     int32_t crib_offset;
-    uint8_t enigma: 1;
-    uint8_t bomb: 1;
-    uint8_t interactive_enigma: 1;
-    uint8_t cyclometer: 1;
+    enum CliMode mode;
     uint8_t help: 1;
 } CliOptions;
 
@@ -151,32 +162,38 @@ static void save_input(CliOptions *options, const int32_t argc, char *argv[])
     if (string_equals(HELP, argv[1]) ||
         string_equals(HELP_SHORT, argv[1]))
     {
-        options->help = 1;
+        options->mode = MODE_HELP;
         return;
     }
     if (string_equals(INTERACTIVE_ENIGMA, argv[1]) ||
         string_equals(INTERACTIVE_ENIGMA_SHORT, argv[1]))
     {
-        options->interactive_enigma = 1;
+        options->mode = MODE_INTERACTIVE_ENIGMA;
         return;
     }
     if (string_equals(ENIGMA, argv[1]) ||
         string_equals(ENIGMA_SHORT, argv[1]))
     {
-        options->enigma = 1;
+        options->mode = MODE_ENIGMA;
         return;
     }
     if (string_equals(CYCLOMETER, argv[1]) ||
         string_equals(CYCLOMETER_SHORT, argv[1]))
     {
-        options->cyclometer = 1;
+        options->mode = MODE_CYCLOMETER;
         return;
     }
     if (string_equals(BOMB, argv[1]) ||
         string_equals(BOMB_SHORT, argv[1]))
     {
-        options->bomb = 1;
+        options->mode = MODE_BOMB;
         save_bomb_input(options, argc, ++argv);
+    }
+    if(string_equals(GUI, argv[1]) ||
+       string_equals(GUI_SHORT, argv[1]))
+    {
+        options->mode = MODE_GUI;
+        return;
     }
     else
     {
@@ -185,59 +202,67 @@ static void save_input(CliOptions *options, const int32_t argc, char *argv[])
     }
 }
 
-static void normalize_cli_options(const CliOptions *options)
+static void validate_bomb_input(const CliOptions *restrict options) {
+    assertmsg(options->crib != NULL && options->ciphertext != NULL, "Input a valid known and cipher text");
+    assertmsg(options->crib_offset < 0 ||
+              (strlen(options->crib) + options->crib_offset > strlen(options->ciphertext)), "Bad crib offset");
+}
+
+static void normalize_bomb_options(CliOptions *restrict options)
 {
     int err_code = 0;
-    if (options->bomb)
+    err_code |= to_uppercase(options->ciphertext);
+    err_code |= remove_non_alnum(options->ciphertext);
+    err_code |= to_uppercase(options->crib);
+    err_code |= remove_non_alnum(options->crib);
+    assertmsg(err_code == 0, "Bomb normalization failed");
+}
+
+
+static void select_run_mode(CliOptions *options, const int argc, char *argv[])
+{
+    switch(options->mode)
     {
-        err_code |= to_uppercase(options->ciphertext);
-        err_code |= remove_non_alnum(options->ciphertext);
-        err_code |= to_uppercase(options->crib);
-        err_code |= remove_non_alnum(options->crib);
-        err_code |= options->crib_offset < 0;
-        assertmsg(err_code == 0, "normalization failed");
+        case MODE_HELP:
+            query_help();
+            break;
+        case MODE_GUI:
+            run_start_gui(argv);
+            break;
+        case MODE_ENIGMA:
+            query_enigma_input(argc, argv);
+            break;
+        case MODE_INTERACTIVE_ENIGMA:
+            run_interactive_enigma_input();
+            break;
+        case MODE_CYCLOMETER:
+            create_cycles();
+            break;
+        case MODE_BOMB:
+            validate_bomb_input(options);
+            normalize_bomb_options(options);
+            start_turing_bomb(options->crib, options->ciphertext, options->crib_offset);
+            break;
+        default:
+            fprintf(stderr, "Unknown mode");
+            exit(1);
     }
 }
 
-// TODO: refactor into more functions
-void query_input(const int32_t argc, char *argv[])
+void query_input(const int argc, char *argv[])
 {
-    if (argc == 1)
+    if (argc < 2)
     {
-        puts("Usage: enigma [OPTIONS]...");
-        puts("Use enigma -h for addition help");
-        exit(0);
+        puts("Usage: ./enigma [OPTIONS]");
+        puts("Options:");
+        puts(GUI " / " GUI_SHORT " for GUI");
+        puts("CLI use is implicit");
+        puts(HELP " / " HELP_SHORT " for help");
+        exit(1);
     }
 
     CliOptions options = {0};
 
     save_input(&options, argc, argv);
-
-    if (options.help)
-    {
-        query_help();
-        return;
-    }
-    if (options.enigma)
-    {
-        query_enigma_input(argc, argv);
-        return;
-    }
-    if(options.interactive_enigma)
-    {
-        run_interactive_enigma_input();
-        return;
-    }
-    if(options.cyclometer)
-    {
-        create_cycles();
-        return;
-    }
-    if (options.bomb)
-    {
-        assertmsg(options.crib != NULL && options.ciphertext != NULL, "Input a valid known and cipher text");
-        assertmsg(options.crib_offset < 0 ||
-            (strlen(options.crib) + options.crib_offset > strlen(options.ciphertext)), "Bad crib offset");
-        start_turing_bomb(options.crib, options.ciphertext, options.crib_offset);
-    }
+    select_run_mode(&options, argc, argv);
 }

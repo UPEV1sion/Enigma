@@ -85,4 +85,4 @@ size_t count_alphas(const char *str);
 size_t count_c(const char *str, char c);
 bool is_substring(const char *str1, const char *str2);
 double calc_index_of_coincidence(const uint8_t *arr, size_t len);
-size_t my_getline(char *str, size_t lim);
+size_t my_getline(char *str, int32_t lim);

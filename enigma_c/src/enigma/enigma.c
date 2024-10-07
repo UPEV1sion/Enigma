@@ -176,7 +176,7 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
 
 void free_enigma(Enigma *enigma)
 {
-    for (uint8_t i = 0; i < enigma->type; ++i)
+    for (uint8_t i = 0; i < (uint8_t) enigma->type; ++i)
     {
         free(enigma->rotors[i]->notch);
         free(enigma->rotors[i]);

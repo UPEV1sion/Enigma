@@ -10,7 +10,6 @@
 // Created by Emanuel on 07.08.2024.
 //
 
-
 static GtkWidget *list;
 
 void add_output_row(const gchar *rotor, const gchar *position, const gchar *ring, const gchar *plugboard)
@@ -39,7 +38,7 @@ void add_output_row(const gchar *rotor, const gchar *position, const gchar *ring
 }
 
 
-static void add_title_row(const gchar *rotor, const gchar *rotor_positions, const gchar *ring_positions, const gchar *plugboard)
+static void add_title_row(void)
 {
     GtkWidget *row, *grid, *label1, *label2, *label3, *label4;
 
@@ -50,10 +49,10 @@ static void add_title_row(const gchar *rotor, const gchar *rotor_positions, cons
     gtk_grid_set_row_homogeneous(GTK_GRID(grid), TRUE);
     gtk_container_add(GTK_CONTAINER(row), grid);
 
-    label1 = gtk_label_new(rotor);
-    label2 = gtk_label_new(rotor_positions);
-    label3 = gtk_label_new(ring_positions);
-    label4 = gtk_label_new(plugboard);
+    label1 = gtk_label_new("Rotors");
+    label2 = gtk_label_new("Positions");
+    label3 = gtk_label_new("Rings");
+    label4 = gtk_label_new("Plugboard");
 
     PangoAttrList *attr_list = pango_attr_list_new();
     PangoAttribute *attr     = pango_attr_weight_new(PANGO_WEIGHT_SEMIBOLD);
@@ -92,7 +91,7 @@ static void activate(void)
     gtk_list_box_set_selection_mode(GTK_LIST_BOX(list), GTK_SELECTION_NONE);
     gtk_container_add(GTK_CONTAINER(sw), list);
 
-    add_title_row("Rotors", "Positions", "Rings", "Plugboard");
+    add_title_row();
     gtk_widget_show_all(window);
     add_output_row("I II III", "A B C", "01 02 03", "AB CD EF");
     add_output_row("IV V VI", "D E F", "04 05 06", "GH IJ KL");

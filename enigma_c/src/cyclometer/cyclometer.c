@@ -12,7 +12,7 @@
 #define MESSAGE_SIZE               7
 
 /*
- * Advice from Juergen Wolfs C von A bis Z:
+ * Advice from Jürgen Wolfs C von A bis Z:
  * Claim is that const or constexpr is more performant than define when a calculation is involved...
  * And MSVC doesnt support that....
  */
@@ -32,7 +32,7 @@ static const uint8_t possible_rotor_permutations[6][3] = {
 typedef struct
 {
     uint8_t *cycle_values;
-    int32_t length;
+    uint16_t length;
 } Cycle;
 
 typedef struct
@@ -221,7 +221,7 @@ void create_cycles(void)
         {
             for (uint8_t rotor_three_position = 0; rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
             {
-                for (uint8_t rotor_permutation = 0; rotor_permutation < 3 * 2 * 1;
+                for (uint8_t rotor_permutation = 0; rotor_permutation < (uint8_t) (3 * 2 * 1);
                      rotor_permutation++)
                 {
                     CycleConfiguration cycle_configuration = {

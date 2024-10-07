@@ -5,11 +5,8 @@
 
 #include <gtk/gtk.h>
 #include <ctype.h>
-#include <stdbool.h>
 
 #include "enigma_gui.h"
-#include "json/json.h"
-#include "helper/helper.h"
 
 //
 // Created by Emanuel on 25.07.2024.
@@ -27,16 +24,16 @@ enum ENIGMA_TYPE get_enigma_type_from_gui(void)
     return gtk_combo_box_get_active(GTK_COMBO_BOX(model)) == 0 ? ENIGMA_M3 : ENIGMA_M4;
 }
 
-enum ROTOR_TYPE* get_rotors_from_gui(void)
+enum ROTOR_TYPE *get_rotors_from_gui(void)
 {
-    const uint8_t num_rotors   = get_enigma_type_from_gui();
+    const uint8_t num_rotors = get_enigma_type_from_gui();
     enum ROTOR_TYPE *rotor_arr = malloc(sizeof(enum ROTOR_TYPE) * num_rotors);
     assertmsg(rotor_arr != NULL, "rotors == NULL");
     for (uint8_t i = 0; i < 3; ++i)
     {
         rotor_arr[i] = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i])) + 1;
     }
-    if(num_rotors == 4)
+    if (num_rotors == 4)
     {
         rotor_arr[3] = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[3])) == 0 ? ROTOR_BETA : ROTOR_GAMMA;
     }
@@ -46,27 +43,40 @@ enum ROTOR_TYPE* get_rotors_from_gui(void)
 
 enum REFLECTOR_TYPE get_reflector_type_from_gui(void)
 {
-    switch (gtk_combo_box_get_active(GTK_COMBO_BOX(reflector)))
+    const enum ENIGMA_TYPE enigma_type = get_enigma_type_from_gui();
+    if(enigma_type== ENIGMA_M3)
     {
-        case 0:
-            return UKW_A;
-        case 1:
-            return UKW_B;
-        case 2:
-            return UKW_C;
-        case 3:
-            return UKW_B_THIN;
-        case 4:
-            return UKW_C_THIN;
-        default:
-            fprintf(stderr, "Unknown reflector type");
-            exit(1);
+        switch (gtk_combo_box_get_active(GTK_COMBO_BOX(reflector)))
+        {
+            case 0:
+                return UKW_A;
+            case 1:
+                return UKW_B;
+            case 2:
+                return UKW_C;
+            default:
+                fprintf(stderr, "Unknown reflector type");
+                exit(1);
+        }
+    }
+    else
+    {
+        switch (gtk_combo_box_get_active(GTK_COMBO_BOX(reflector)))
+        {
+            case 0:
+                return UKW_B_THIN;
+            case 1:
+                return UKW_C_THIN;
+            default:
+                fprintf(stderr, "Unknown reflector type");
+                exit(1);
+        }
     }
 }
 
-uint8_t* get_rotor_positions_from_gui(void)
+uint8_t *get_rotor_positions_from_gui(void)
 {
-    const uint8_t num_rotors    = get_enigma_type_from_gui();
+    const uint8_t num_rotors = get_enigma_type_from_gui();
     uint8_t *rotor_position_arr = malloc(sizeof(uint8_t) * num_rotors);
     assertmsg(rotor_position_arr != NULL, "rotors == NULL");
     for (uint8_t i = 0; i < num_rotors; ++i)
@@ -78,9 +88,9 @@ uint8_t* get_rotor_positions_from_gui(void)
     return rotor_position_arr;
 }
 
-uint8_t* get_rotor_ring_positions_from_gui(void)
+uint8_t *get_rotor_ring_positions_from_gui(void)
 {
-    const uint8_t num_rotors    = get_enigma_type_from_gui();
+    const uint8_t num_rotors = get_enigma_type_from_gui();
     uint8_t *rotor_position_arr = malloc(sizeof(uint8_t) * num_rotors);
     assertmsg(rotor_position_arr != NULL, "rotors == NULL");
     for (uint8_t i = 0; i < num_rotors; ++i)
@@ -91,12 +101,12 @@ uint8_t* get_rotor_ring_positions_from_gui(void)
     return rotor_position_arr;
 }
 
-char* get_plugboard_from_gui(void)
+char *get_plugboard_from_gui(void)
 {
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
     if (plugboard_text == NULL) return NULL;
     const size_t len = strlen(plugboard_text);
-    char *text       = malloc(len + 1);
+    char *text = malloc(len + 1);
     assertmsg(text != NULL, "malloc failed");
     text[len] = 0;
 
@@ -109,7 +119,7 @@ char* get_plugboard_from_gui(void)
     return text;
 }
 
-char* get_input_text_from_gui(void)
+char *get_input_text_from_gui(void)
 {
     GtkTextIter start_iter, end_iter;
     GtkTextBuffer *buffer = in_buffer;
@@ -120,7 +130,7 @@ char* get_input_text_from_gui(void)
             gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, FALSE);
     if (input_text == NULL || *input_text == '\0') return NULL;
 
-    const gint text_length = g_utf8_strlen(input_text, -1);
+    const glong text_length = g_utf8_strlen(input_text, -1);
 
     char *text = malloc(text_length + 1);
     assertmsg(text != NULL, "malloc failed");
@@ -131,17 +141,17 @@ char* get_input_text_from_gui(void)
     return text;
 }
 
-static char* format_output(const char *output)
+static char *format_output(const char *output_text)
 {
-    const size_t len = strlen(output);
+    const size_t len = strlen(output_text);
     const size_t num_spaces_needed = (len - 1) / 5; // Typically blocks of five
 
     char *new_output = malloc(len + num_spaces_needed + 1);
     size_t new_output_index = 0;
 
-    for(size_t pos = 0; pos < len; ++pos)
+    for (size_t pos = 0; pos < len; ++pos)
     {
-        new_output[new_output_index++] = output[pos];
+        new_output[new_output_index++] = output_text[pos];
         if ((pos + 1) % 5 == 0 && (pos + 1) < len)
             new_output[new_output_index++] = ' ';
 
@@ -171,41 +181,34 @@ static void action_listener_enigma_model(GtkComboBox *combo_box)
     gtk_widget_set_sensitive(positions[3], i);
     gtk_widget_set_sensitive(rings[3], i);
 
-    GtkListStore *liststore = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(reflector)));
-    gtk_list_store_clear(liststore);
+    GtkListStore *list_store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(reflector)));
+    gtk_list_store_clear(list_store);
 
     GtkTreeIter iter;
 
     if (i == 0)
     {
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW A", -1);
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter, 0, "UKW A", -1);
 
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW B", -1);
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter, 0, "UKW B", -1);
 
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW C", -1);
-    }
-    else
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter, 0, "UKW C", -1);
+
+        gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 1);
+    } else
     {
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW A", -1);
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter, 0, "UKW B Thin", -1);
 
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW B", -1);
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter, 0, "UKW C Thin", -1);
 
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW C", -1);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 0);
 
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW B Thin", -1);
-
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter, 0, "UKW C Thin", -1);
     }
-
-    gtk_combo_box_set_active(GTK_COMBO_BOX(reflector), 1);
 }
 
 static void show_rotor_dialog(void)
@@ -213,11 +216,11 @@ static void show_rotor_dialog(void)
     GtkWidget *dialog;
 
     dialog = gtk_message_dialog_new(
-        GTK_WINDOW(window),
-        GTK_DIALOG_MODAL,
-        GTK_MESSAGE_WARNING,
-        GTK_BUTTONS_OK,
-        "Rotors must differ!"
+            GTK_WINDOW(window),
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_OK,
+            "Rotors must differ!"
     );
     gtk_widget_show_all(dialog);
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -240,11 +243,11 @@ static void show_plugboard_dialog(void)
     GtkWidget *dialog;
 
     dialog = gtk_message_dialog_new(
-        GTK_WINDOW(window),
-        GTK_DIALOG_MODAL,
-        GTK_MESSAGE_WARNING,
-        GTK_BUTTONS_OK,
-        "Please enter a valid plugboard configuration!"
+            GTK_WINDOW(window),
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_OK,
+            "Please enter a valid plugboard configuration!"
     );
     gtk_widget_show_all(dialog);
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -256,7 +259,7 @@ static void action_listener_plugboard(GtkEntry *entry,
 {
     const gchar *current_text = gtk_entry_get_text(entry);
 
-    for (uint16_t i = 0; i < length; i++)
+    for (uint16_t i = 0; i < (uint16_t) length; i++)
     {
         if (!isalpha(text[i]) && !isspace(text[i]))
         {
@@ -277,27 +280,26 @@ static void action_listener_plugboard(GtkEntry *entry,
     }
 }
 
-static Enigma* create_enigma_from_input(char *restrict input)
+static Enigma *create_enigma_from_input(char *restrict input_text)
 {
-    enum ROTOR_TYPE *rotor_arr          = get_rotors_from_gui();
-    const enum ENIGMA_TYPE enigma_type  = get_enigma_type_from_gui();
-    const enum REFLECTOR_TYPE reflector = get_reflector_type_from_gui();
-    uint8_t *rotor_position_arr         = get_rotor_positions_from_gui();
-    uint8_t *rotor_ring_position_arr    = get_rotor_ring_positions_from_gui();
-    char *plugboard                     = get_plugboard_from_gui();
-    char *input_text                    = input;
+    enum ROTOR_TYPE *rotor_arr               = get_rotors_from_gui();
+    const enum ENIGMA_TYPE enigma_type       = get_enigma_type_from_gui();
+    const enum REFLECTOR_TYPE reflector_type = get_reflector_type_from_gui();
+    uint8_t *rotor_position_arr              = get_rotor_positions_from_gui();
+    uint8_t *rotor_ring_position_arr         = get_rotor_ring_positions_from_gui();
+    char *plugboard_text                     = get_plugboard_from_gui();
 
     EnigmaConfiguration configuration = {
-        .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
-        .type = enigma_type, .reflector = reflector, .message = input_text
+            .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
+            .type = enigma_type, .reflector = reflector_type, .message = input_text
     };
-    memcpy(configuration.plugboard, plugboard, strlen(plugboard));
+    memcpy(configuration.plugboard, plugboard_text, strlen(plugboard_text));
     Enigma *enigma = create_enigma_from_configuration(&configuration);
 
     free(rotor_arr);
     free(rotor_position_arr);
     free(rotor_ring_position_arr);
-    free(plugboard);
+    free(plugboard_text);
     free(input_text);
 
     return enigma;
@@ -306,7 +308,7 @@ static Enigma* create_enigma_from_input(char *restrict input)
 static void generate_output_with_enigma(char *restrict input_text)
 {
     Enigma *enigma = create_enigma_from_input(input_text);
-    uint8_t *text  = traverse_enigma(enigma);
+    uint8_t *text = traverse_enigma(enigma);
     char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
 
@@ -328,14 +330,14 @@ static void action_listener_start_btn(void)
     const size_t space_count = count_c(input_text, ' ');
     to_uppercase(input_text);
     remove_non_alpha(input_text);
-    if(len != strlen(input_text) + space_count)
+    if (len != strlen(input_text) + space_count)
     {
         fprintf(stderr, "Warning: Only use alphabetic chars and spaces!\n");
         fprintf(stderr, "The invalid chars have been truncated\n");
     }
 
     if (input_text == NULL) return;
-    const gchar *plugboard_text        = gtk_entry_get_text(GTK_ENTRY(plugboard));
+    const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
     const size_t alpha_count_plugboard = count_alphas(plugboard_text);
     assertmsg(alpha_count_plugboard != SIZE_MAX, "count alphas failed");
     if (alpha_count_plugboard % 2 != 0)
@@ -350,7 +352,7 @@ static void action_listener_start_btn(void)
     uint8_t rotor_mask = 0;
     for (uint16_t i = 0; i < 3; ++i)
     {
-        const gint rot             = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
+        const gint rot = gtk_combo_box_get_active(GTK_COMBO_BOX(rotors[i]));
         const uint8_t active_rotor = 1 << rot;
         if (rotor_mask & active_rotor)
         {
@@ -386,15 +388,15 @@ static void activate(void)
     for (uint16_t i = 0; i < 4; ++i)
     {
         char name[] = "rot1_comb";
-        name[3]     = (char) (i + '1');
-        rotors[i]   = GTK_WIDGET(gtk_builder_get_object(builder, name));
+        name[3] = (char) (i + '1');
+        rotors[i] = GTK_WIDGET(gtk_builder_get_object(builder, name));
         assertmsg(GTK_IS_WIDGET(rotors[i]), "Error: rotor not found in the Glade file");
     }
 
     for (uint16_t i = 0; i < 4; ++i)
     {
-        char name[]  = "rot1_pos";
-        name[3]      = (char) (i + '1');
+        char name[] = "rot1_pos";
+        name[3] = (char) (i + '1');
         positions[i] = GTK_WIDGET(gtk_builder_get_object(builder, name));
         assertmsg(GTK_IS_WIDGET(positions[i]), "Error: position not found in the Glade file");
     }
@@ -402,8 +404,8 @@ static void activate(void)
     for (uint16_t i = 0; i < 4; ++i)
     {
         char name[] = "rot1_ring";
-        name[3]     = (char) (i + '1');
-        rings[i]    = GTK_WIDGET(gtk_builder_get_object(builder, name));
+        name[3] = (char) (i + '1');
+        rings[i] = GTK_WIDGET(gtk_builder_get_object(builder, name));
         assertmsg(GTK_IS_WIDGET(rings[i]), "Error: ring not found in the Glade file");
     }
 
@@ -442,7 +444,7 @@ static void activate(void)
     }
     in_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(input));
     // g_signal_connect(in_buffer, "insert-text",
-                     // G_CALLBACK(action_listener_input_in), NULL);
+    // G_CALLBACK(action_listener_input_in), NULL);
 
     g_signal_connect(plugboard, "insert-text", G_CALLBACK(action_listener_plugboard), NULL);
 
