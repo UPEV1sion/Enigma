@@ -52,14 +52,20 @@ struct Contact
     cable_t contact;
     Contact *commons;
     uint8_t num_common_connections;
+    uint8_t contact_num;
     bool active;
 };
 
 typedef struct
 {
+    Contact *test_reg;
+    uint8_t terminal_num, wire_num;
+    uint8_t active_wires;
+} TestRegister;
+
+typedef struct
+{
     Contact *contacts[ALPHABET_SIZE];
-    Contact *test_register;
+    TestRegister *test_register;
     uint8_t num_commons;
 } Terminal;
-
-int32_t create_bomb_menu(TuringBomb *turing_bomb, const CycleCribCipher *restrict cycle);
