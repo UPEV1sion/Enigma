@@ -53,7 +53,6 @@ struct Contact
     Contact *commons;
     uint8_t num_common_connections;
     uint8_t contact_num;
-    bool active;
 };
 
 typedef struct

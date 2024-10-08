@@ -40,6 +40,8 @@ add_library(enigma_lib
         turing_bomb/cycle_finder/cycle_finder.h
         cli/cli_enigma.c
         cli/cli_enigma.h
+        helper/hashmap.h
+        helper/hashmap.c
 )
 
 target_include_directories(enigma_lib PUBLIC .)
