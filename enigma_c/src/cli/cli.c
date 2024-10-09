@@ -6,7 +6,7 @@
 #include "cli.h"
 #include "cli_enigma.h"
 #include "helper/helper.h"
-#include "cyclometer/cyclometer.h"
+#include "cyclometer/cycle_generator.h"
 #include "turing_bomb/turing_bomb.h"
 #include "gui/start_gui/start_gui.h"
 
@@ -117,11 +117,11 @@ static void display_help_dialog(uint8_t cli_options)
             case MODE_CYCLOMETER:
                 cli_options &= ~MODE_CYCLOMETER;
                 NULL;
-                //TODO CYCLOMETER
+                //TODO cyclometer
                 break;
             case MODE_INTERACTIVE_ENIGMA:
                 cli_options &= ~MODE_INTERACTIVE_ENIGMA;
-                //TODO INTERACTIVE HELP?
+                //TODO interactive mode help?
                 break;
             case MODE_BOMB:
                 cli_options &= ~MODE_BOMB;
@@ -199,7 +199,7 @@ static void parse_chained_flags(CliOptions *options, char *arg)
 {
     if(arg[0] == '-' && arg[1] != '-' && strlen(arg) > 1)
     {
-        for (uint8_t j = 1; j < arg[j] != 0; ++j)
+        for (uint8_t j = 1; arg[j] != 0; ++j)
         {
             switch(arg[j])
             {
@@ -275,7 +275,7 @@ static void save_input(CliOptions *options, const int argc, char *argv[])
     }
 }
 
-static void validate_bomb_input(const CliOptions *restrict options)
+static void validate_bomb_input(const CliOptions *options)
 {
     assertmsg(options->crib != NULL && options->ciphertext != NULL, "Input a valid known and cipher text");
     assertmsg(options->crib_offset >= 0 ||

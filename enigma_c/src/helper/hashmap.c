@@ -11,7 +11,7 @@
 
 #define MIN_CAPACITY (1 << 4)
 #define MAX_CAPACITY (1 << 30)
-#define LOAD_FACTOR 0.75
+#define LOAD_FACTOR  0.75
 
 typedef enum { TOMBSTONE, ACTIVE } BucketStatus;
 
@@ -33,7 +33,7 @@ struct HashMap
     Bucket *buckets;
 };
 
-static size_t default_hash(const void *restrict key, const size_t key_size)
+static size_t default_hash(const void *key, const size_t key_size)
 {
     // DJB2 hash func variation
     const unsigned char *data = key;
@@ -47,12 +47,12 @@ static size_t default_hash(const void *restrict key, const size_t key_size)
     return hash;
 }
 
-static inline double calc_load_fac(HashMap restrict hm)
+static inline double calc_load_fac(const struct HashMap *hm)
 {
     return ((double) hm->size) / ((double) hm->capacity);
 }
 
-static inline Bucket* get_bucket(HashMap restrict hm, const size_t hash)
+static inline Bucket* get_bucket(const struct HashMap *hm, const size_t hash)
 {
     return (Bucket *) ((char *) hm->buckets + hash * hm->bucket_size);
 }
@@ -98,7 +98,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     hm->hash_func   = (hash_func == NULL) ? default_hash : hash_func;
     hm->capacity    = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
     hm->bucket_size = sizeof(Bucket) + key_size + value_size;
-    hm->buckets     = malloc(hm->bucket_size * hm->capacity);
+    hm->buckets     = calloc(hm->bucket_size, hm->capacity);
     assert(hm->buckets != NULL);
 
     hm->size       = 0;
@@ -114,7 +114,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     return hm;
 }
 
-int hm_destroy(HashMap restrict hm)
+int hm_destroy(HashMap hm)
 {
     if(hm == NULL) return 1;
     free(hm->buckets);
@@ -122,7 +122,7 @@ int hm_destroy(HashMap restrict hm)
     return 0;
 }
 
-void* hm_get(HashMap restrict hm, const void *restrict key)
+void* hm_get(HashMap hm, const void *key)
 {
     size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
     const size_t start_hash = hash;
@@ -145,7 +145,7 @@ void* hm_get(HashMap restrict hm, const void *restrict key)
     return NULL;
 }
 
-int hm_set(HashMap restrict hm, const void *restrict key, const void *restrict value)
+int hm_set(HashMap hm, const void *key, const void *value)
 {
     size_t hash    = hm->hash_func(key, hm->key_size) % hm->capacity;
     Bucket *bucket = get_bucket(hm, hash);
@@ -164,7 +164,7 @@ int hm_set(HashMap restrict hm, const void *restrict key, const void *restrict v
     return 1;
 }
 
-int hm_put(HashMap restrict hm, const void *key, const void *value)
+int hm_put(HashMap hm, const void *key, const void *value)
 {
     if (calc_load_fac(hm) > LOAD_FACTOR)
         if (hm_resize(hm) != 0)
@@ -199,7 +199,7 @@ int hm_put(HashMap restrict hm, const void *key, const void *value)
     return 0;
 }
 
-bool hm_contains(HashMap restrict hm, const void *restrict key)
+bool hm_contains(HashMap hm, const void *key)
 {
     size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
     const size_t start_hash = hash;
@@ -222,15 +222,15 @@ bool hm_contains(HashMap restrict hm, const void *restrict key)
     return false;
 }
 
-size_t hm_size(HashMap restrict hm)
+size_t hm_size(HashMap hm)
 {
     return hm->size;
 }
 
-int hm_remove(HashMap restrict hm, const void *restrict key)
+int hm_remove(HashMap hm, const void *key)
 {
-    const size_t init_hash = hm->hash_func(key, hm->key_size) % hm->capacity;
-    size_t current_hash    = init_hash;
+    const size_t start_hash = hm->hash_func(key, hm->key_size) % hm->capacity;
+    size_t current_hash    = start_hash;
     Bucket *bucket         = get_bucket(hm, current_hash);
 
     while (bucket->status != TOMBSTONE)
@@ -268,7 +268,7 @@ int hm_remove(HashMap restrict hm, const void *restrict key)
         current_hash = (current_hash + 1) % hm->capacity;
         bucket       = get_bucket(hm, current_hash);
 
-        if (current_hash == init_hash)
+        if (current_hash == start_hash)
         {
             break;
         }

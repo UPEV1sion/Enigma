@@ -25,7 +25,7 @@ typedef struct
 
 typedef struct
 {
-    char plugboard[26];
+    char plugboard[ALPHABET_SIZE];
     char *message;
     uint8_t *rotor_positions;
     uint8_t *ring_settings;

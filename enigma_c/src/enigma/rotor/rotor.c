@@ -43,7 +43,7 @@
  * @brief Makes sure a value is >= 0 and < 26
  * @param value The value to be processed
  */
-#define MOD26(value) (((value) + 26) % 26)
+#define MOD26(value) (((value) + ALPHABET_SIZE) % ALPHABET_SIZE)
 
 
 

@@ -12,7 +12,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 if (MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall")
 else ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wunused-result")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wunused-result -march=native")
 endif ()
 
 set(FILE_PATH_JSON "${CMAKE_SOURCE_DIR}/src/data/enigma.json")
@@ -71,9 +71,6 @@ pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 include_directories(${GTK3_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 add_definitions(${GTK3_CFLAGS_OTHER})
-
-cmake_minimum_required(VERSION 3.10)
-project(MyProject)
 
 ##################### Backend #####################
 add_subdirectory(src)

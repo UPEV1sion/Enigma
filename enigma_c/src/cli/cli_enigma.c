@@ -398,12 +398,12 @@ static Enigma* create_enigma_from_cli_configuration(const EnigmaCliOptions *opti
     return enigma;
 }
 
-static int32_t validate_enigma_type(const char *restrict type)
+static int32_t validate_enigma_type(const char *type)
 {
     return (string_equals(type, "M3") || string_equals(type, "M4")) ? 0 : 1;
 }
 
-static int32_t validate_rotor_type(const char *restrict rotor, const enum ROTOR_TYPE rotor_type)
+static int32_t validate_rotor_type(const char *rotor, const enum ROTOR_TYPE rotor_type)
 {
     if (rotor_type >= ROTOR_1 && rotor_type <= ROTOR_3)
     {
@@ -421,12 +421,12 @@ static int32_t validate_rotor_type(const char *restrict rotor, const enum ROTOR_
     return 1;
 }
 
-static int32_t validate_rotor_positions_and_offsets(const char *restrict input)
+static int32_t validate_rotor_positions_and_offsets(const char *input)
 {
     return !isalpha(*input);
 }
 
-static int32_t validate_reflector(const enum ENIGMA_TYPE type, const char *restrict reflector)
+static int32_t validate_reflector(const enum ENIGMA_TYPE type, const char *reflector)
 {
     if(type == ENIGMA_M3)
     {
@@ -467,6 +467,7 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
         char primary_input[INPUT_BUFFER_SIZE];
         char secondary_input[INPUT_BUFFER_SIZE];
         char tertiary_input[INPUT_BUFFER_SIZE];
+
 
         do
         {

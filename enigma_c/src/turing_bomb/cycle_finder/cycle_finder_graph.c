@@ -33,7 +33,8 @@
  * So the WC is O(n^2)
  *
  * A more realistic scenario is that a cycle is found, marking the visited nodes.
- * So a more realistic runtime would be O(n).
+ * From testing, I can verify that the runtime is linear
+ * for the case ciphertext and crib length is <= 26, which is always the case.
  */
 
 typedef struct Node Node;
@@ -100,7 +101,7 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
     fclose(file);
 }
 
-static void print_graph(const Graph *restrict graph)
+static void print_graph(const Graph *graph)
 {
     for (uint8_t i = 0; i < ALPHABET_SIZE; ++i)
     {
@@ -120,7 +121,7 @@ static inline bool is_matching_chars_tuple(const Node *first, const Node *second
            && first->data.crib_char == second->data.crib_char;
 }
 
-static bool dfs_find_cycle(Graph *restrict graph, Node *node,
+static bool dfs_find_cycle(Graph *graph, Node *node,
                            const Node *parent, const char last_char,
                            CycleCribCipher *restrict cycle)
 {
@@ -212,7 +213,7 @@ static bool find_cycle(Graph *graph, Node *nodes, const uint8_t nodes_len, Cycle
 }
 
 DEPRECATED("Im not linking(allocating) them, so i must no free them.")
-void free_neighbours(const Node *restrict node)
+void free_neighbours(const Node *node)
 {
     for (uint8_t i = 0; i < MAX_CRIB_LEN; ++i)
     {

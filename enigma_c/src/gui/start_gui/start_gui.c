@@ -8,7 +8,7 @@
 #include "start_gui.h"
 #include "gui/enigma_gui/enigma_gui.h"
 #include "helper/helper.h"
-#include "cyclometer/cyclometer.h"
+#include "cyclometer/cycle_generator.h"
 #include "gui/bomb_gui/bomb_gui.h"
 
 //

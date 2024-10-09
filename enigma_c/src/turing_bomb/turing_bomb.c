@@ -53,7 +53,7 @@ static bool is_valid_crip_position(const char *crib, const char *ciphertext, con
 }
 
 static void setup_scramblers(TuringBomb *restrict turing_bomb,
-                             const CycleCribCipher *restrict cycle,
+                             const CycleCribCipher *cycle,
                              const enum ROTOR_TYPE rotor_one_type,
                              const enum ROTOR_TYPE rotor_two_type,
                              const enum ROTOR_TYPE rotor_three_type)
@@ -148,7 +148,7 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
     return 1;
 }
 
-static uint8_t find_test_register_pos(const CycleCribCipher *restrict cycle)
+static uint8_t find_test_register_pos(const CycleCribCipher *cycle)
 {
     // A very present letter in the cycle, but not right next to the input
     //TODO support stubs
@@ -162,7 +162,7 @@ static uint8_t find_test_register_pos(const CycleCribCipher *restrict cycle)
     return most_freq_pos;
 }
 
-static void setup_test_register(TuringBomb *restrict turing_bomb, const CycleCribCipher *restrict cycle)
+static void setup_test_register(TuringBomb *restrict turing_bomb, const CycleCribCipher *cycle)
 {
 //    create_diagonal_board(turing_bomb);
     const uint8_t most_freq_pos = find_test_register_pos(cycle);

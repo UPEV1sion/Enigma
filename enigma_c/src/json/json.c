@@ -32,64 +32,54 @@ static void delete_root(void)
     root = NULL;
 }
 
-static void add_enigma_model_to_json(const Enigma *restrict const enigma)
+static void add_enigma_model_to_json(const enum ENIGMA_TYPE enigma_type)
 {
     cJSON_AddItemToObject(root, "model",
-                          cJSON_CreateNumber(enigma->type));
+                          cJSON_CreateNumber(enigma_type));
 }
 
-static void add_reflector_to_json(const Enigma *restrict const enigma)
+static void add_reflector_to_json(const enum REFLECTOR_TYPE reflector_type)
 {
     // I really don't like this, but works for now
-    const char reflector[2] = {get_reflector_type_from_gui(), 0};
+    const char reflector[2] = {reflector_type, 0};
     cJSON_AddStringToObject(root, "reflector", reflector);
 }
 
-static void add_rotors_to_json(void)
+static void add_rotors_to_json(const enum ROTOR_TYPE *rotors, const uint8_t num_rotors)
 {
-    enum ROTOR_TYPE *rotors = get_rotors_from_gui();
     cJSON *rotors_array     = cJSON_AddArrayToObject(root, "rotors");
-    for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
+    for (uint8_t i = 0; i < num_rotors; ++i)
     {
         cJSON_AddItemToArray(rotors_array, cJSON_CreateNumber(rotors[i]));
     }
-    free(rotors);
 }
 
-static void add_positions_to_json(void)
+static void add_positions_to_json(const uint8_t *positions, const uint8_t num_rotors)
 {
-    uint8_t *positions     = get_rotor_positions_from_gui();
     cJSON *positions_array = cJSON_AddArrayToObject(root, "positions");
-    for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
+    for (uint8_t i = 0; i < num_rotors; ++i)
     {
         cJSON_AddItemToArray(positions_array, cJSON_CreateNumber(positions[i]));
     }
-    free(positions);
 }
 
-static void add_rings_to_json(void)
+static void add_rings_to_json(const uint8_t *rings, const uint8_t num_rotors)
 {
-    uint8_t *rings     = get_rotor_ring_positions_from_gui();
     cJSON *rings_array = cJSON_AddArrayToObject(root, "rings");
-    for (uint16_t i = 0; i < get_enigma_type_from_gui(); ++i)
+    for (uint8_t i = 0; i < num_rotors; ++i)
     {
         cJSON_AddItemToArray(rings_array, cJSON_CreateNumber(rings[i]));
     }
-    free(rings);
 }
 
-static void add_plugboard_to_json(void)
+static void add_plugboard_to_json(const char *plugboard)
 {
-    char *text = get_plugboard_from_gui();
-    cJSON_AddStringToObject(root, "plugboard", text);
-    free(text);
+    cJSON_AddStringToObject(root, "plugboard", plugboard);
 }
 
-static void add_input_to_json(void)
+static void add_input_to_json(const char *input_text)
 {
-    char *input_text = get_input_text_from_gui();
     cJSON_AddStringToObject(root, "input", input_text);
-    free(input_text);
 }
 
 static void add_output_to_json(const char *text)
@@ -109,7 +99,7 @@ static void write_json_to_file(void)
 }
 
 // TODO make it accept a Enigma pointer
-void enigma_to_json(const Enigma *restrict const enigma)
+void enigma_to_json(const Enigma *const enigma)
 {
     root = cJSON_CreateObject();
 

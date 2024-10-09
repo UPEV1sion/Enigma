@@ -29,7 +29,7 @@
 #include "turing_bomb/turing_bomb.h"
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
-
+#include "cyclometer/cyclometer.h"
 
 int main(int argc, char *argv[])
 {
@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
     // return 0;
+
+//    test_permut_table_builder();
 
     query_input(argc, argv);
 

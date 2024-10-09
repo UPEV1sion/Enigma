@@ -305,7 +305,6 @@ static void print_conf(const char *rotor_string, const char *position_string, co
     fwrite("\n", sizeof(char), 1, file);
 }
 
-//TODO refactor
 static void test_config(register const char *known_plaintext,
                         register const EnigmaConfiguration *conf,
                         FILE *file)
@@ -369,7 +368,6 @@ static void test_configs_sorted(const char *known_plaintext)
     for (uint16_t i = 0; i < 1 && conf != NULL; ++i)
     {
         printf("%d %d %d\n", conf->rotors[0], conf->rotors[1], conf->rotors[2]);
-        //TODO: faster solution than a copy of conf?
         #ifdef _OPENMP
         OMP_PARALLEL_PRAGMA
         #endif

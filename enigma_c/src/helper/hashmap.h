@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 typedef struct HashMap *HashMap;
-typedef size_t (*hash)(const void *restrict key, size_t key_size);
+typedef size_t (*hash)(const void *key, size_t key_size);
 
 /**
  * @brief Creates a new HashMap with a hash function.
@@ -38,7 +38,7 @@ int hm_destroy(HashMap hm);
  * @param key The key
  * @return The value at the key
  */
-void *hm_get(HashMap restrict hm, const void *restrict key);
+void *hm_get(HashMap hm, const void *key);
 
 /**
  * @brief Updates the value at the specified key.
@@ -48,7 +48,7 @@ void *hm_get(HashMap restrict hm, const void *restrict key);
  * @param value The value
  * @return Success code
  */
-int hm_set(HashMap restrict hm, const void *restrict key, const void *restrict value);
+int hm_set(HashMap hm, const void *key, const void *value);
 
 /**
  * @brief Adds a new key-value pair to the HashMap.
@@ -58,7 +58,7 @@ int hm_set(HashMap restrict hm, const void *restrict key, const void *restrict v
  * @param value The value
  * @return Success code
  */
-int hm_put(HashMap restrict hm, const void *restrict key, const void *restrict value);
+int hm_put(HashMap hm, const void *key, const void *value);
 
 
 /**
@@ -68,7 +68,7 @@ int hm_put(HashMap restrict hm, const void *restrict key, const void *restrict v
  * @param key The key
  * @return True or Falsehood
  */
-bool hm_contains(HashMap restrict hm, const void *restrict key);
+bool hm_contains(HashMap hm, const void *key);
 
 /**
  * @brief Returns the size of the HashMap.
@@ -76,7 +76,7 @@ bool hm_contains(HashMap restrict hm, const void *restrict key);
  * @param hm The HashMap
  * @return The size
  */
-size_t hm_size(HashMap restrict hm);
+size_t hm_size(HashMap hm);
 
 /**
  * @brief Removes the key-value pair from the HashMap.
@@ -85,4 +85,4 @@ size_t hm_size(HashMap restrict hm);
  * @param key The key
  * @return Success code
  */
-int hm_remove(HashMap restrict hm, const void *restrict key);
+int hm_remove(HashMap hm, const void *key);
