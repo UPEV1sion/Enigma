@@ -4,10 +4,7 @@
 #include <ctype.h>
 
 #include "cli_enigma.h"
-#include "helper/helper.h"
-#include "enigma/reflector/reflector.h"
-#include "enigma/rotor/rotor.h"
-#include "enigma/enigma.h"
+#include "json/json.h"
 
 //
 // Created by Emanuel on 05.10.2024.
@@ -37,20 +34,6 @@
 #define PLUGBOARD_SHORT        "-pb"
 #define PLAINTEXT              "--plaintext"
 #define PLAINTEXT_SHORT        "-pt"
-
-typedef struct
-{
-    enum ENIGMA_TYPE enigma_type;
-    enum ROTOR_TYPE rotor_one_type;
-    enum ROTOR_TYPE rotor_two_type;
-    enum ROTOR_TYPE rotor_three_type;
-    enum ROTOR_TYPE rotor_four_type;
-    enum REFLECTOR_TYPE reflector_type;
-    char *rotor_offsets;
-    char *rotor_positions;
-    char *plugboard;
-    char *plaintext;
-} EnigmaCliOptions;
 
 void print_enigma_help(void)
 {
@@ -651,12 +634,13 @@ void query_enigma_input(const int argc, char *argv[])
     const size_t plaintext_len = strlen(enigma->plaintext);
     uint8_t *text              = traverse_enigma(enigma);
 
-    // char *output_str = get_string_from_int_array(text, plaintext_len);
+     char *output_str = get_string_from_int_array(text, plaintext_len);
 
-    // enigma_to_json(output_str);
+     enigma_cli_options_to_json(&enigma_options, output_str);
 
     pretty_print_enigma_output(text, plaintext_len);
 
     free_enigma(enigma);
     free(text);
+    free(output_str);
 }

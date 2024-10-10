@@ -169,7 +169,7 @@ static void query_help(const uint8_t cli_options)
     }
 }
 
-static void save_bomb_input(CliOptions *options, const int32_t argc, char *argv[])
+static void save_bomb_input(CliOptions *options, const int argc, char *argv[])
 {
     int32_t i = 1;
     while (i < argc - 1)
@@ -246,26 +246,31 @@ static void save_input(CliOptions *options, const int argc, char *argv[])
                  string_equals(INTERACTIVE_ENIGMA_SHORT, arg))
         {
             options->active_mode |= MODE_INTERACTIVE_ENIGMA;
+            break;
         }
         else if (string_equals(ENIGMA, arg) ||
                  string_equals(ENIGMA_SHORT, arg))
         {
             options->active_mode |= MODE_ENIGMA;
+            break;
         }
         else if (string_equals(CYCLOMETER, arg) ||
                  string_equals(CYCLOMETER_SHORT, arg))
         {
             options->active_mode |= MODE_CYCLOMETER;
+            break;
         }
         else if (string_equals(BOMB, arg) ||
                  string_equals(BOMB_SHORT, arg))
         {
             options->active_mode |= MODE_BOMB;
+            break;
         }
         else if (string_equals(GUI, arg) ||
                  string_equals(GUI_SHORT, arg))
         {
             options->active_mode |= MODE_GUI;
+            break;
         }
         else
         {

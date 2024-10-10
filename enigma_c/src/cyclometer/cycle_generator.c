@@ -259,7 +259,7 @@ void create_cycles(void)
                     create_cycle(&cycle_configuration, &cycle);
 
 //                    hm_put(hm, &cycle.cycles, &cycle.rotor_positions);
-//                    print_whole_cycle(&cycle, file);
+                    print_whole_cycle(&cycle, file);
                 }
             }
         }

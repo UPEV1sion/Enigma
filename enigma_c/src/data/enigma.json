@@ -1,10 +1,9 @@
 {
 	"model":	3,
 	"reflector":	"B",
-	"rotors":	[1, 2, 4],
-	"positions":	[0, 0, 0],
+	"rotors":	[1, 2, 3],
+	"positions":	[10, 0, 0],
 	"rings":	[0, 0, 0],
-	"plugboard":	"",
-	"input":	"TESTING",
-	"output":	"DWJKBWM"
+	"input":	"a.ÒV\u0005",
+	"output":	"ILFDFARUBD"
 }
