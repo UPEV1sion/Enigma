@@ -86,8 +86,9 @@ static Bucket* create_bucket(char *key, char *val)
 {
     Bucket *bucket = malloc(sizeof (Bucket));
     assertmsg(bucket != NULL, "malloc failed");
-    bucket->key = key;
-    bucket->val = val;
+    bucket->key = strdup(key);
+    bucket->val = strdup(val);
+    assertmsg(bucket->key != NULL && bucket->val != NULL, "strdup failed");
     bucket->num_buckets_left = 0;
 
     return bucket;
@@ -111,6 +112,8 @@ static int32_t hm_destroy_list(HashMap hm, size_t i)
     for(Bucket *temp = bucket; temp != NULL;)
     {
         Bucket *next_bucket = temp->next;
+        free(temp->key);
+        free(temp->val);
         free(temp);
         temp = next_bucket;
     }
