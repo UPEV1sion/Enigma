@@ -12,7 +12,6 @@
 #define ENIGMA_SHORT           "-e"
 #define ENIGMA_CHAR            'e'
 
-
 typedef struct
 {
     enum ENIGMA_TYPE enigma_type;

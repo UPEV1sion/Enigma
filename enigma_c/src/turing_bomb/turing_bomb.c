@@ -71,7 +71,6 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
     turing_bomb->scrambler_columns_used = bound;
     const uint8_t *cycle_pos = cycle->positions_wo_stubs;
 
-    // Dummy
     ScramblerEnigma dummy = {0};
     ScramblerEnigma *last_column = &dummy;
     for (uint8_t column = 0; column < bound; ++column)
@@ -90,7 +89,7 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
     }
 }
 
-static uint8_t traverse_rotor_column(Rotor **rotor_column, Reflector *reflector, uint8_t input_letter)
+static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *reflector, uint8_t input_letter)
 {
 
     uint8_t character;
@@ -123,27 +122,29 @@ static uint8_t traverse_rotor_column(Rotor **rotor_column, Reflector *reflector,
 
 static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 {
-    TestRegister *test_reg = turing_bomb->terminal->test_register;
+    const TestRegister *test_reg = turing_bomb->terminal->test_register;
     uint8_t input_letter = test_reg->wire_num;
-    ScramblerEnigma *current_column = turing_bomb->bomb_row + test_reg->terminal_num;
-    Reflector *reflector = turing_bomb->reflector;
+    const Reflector *reflector = turing_bomb->reflector;
     Contact **contacts = turing_bomb->terminal->contacts;
+
+    uint8_t column_num = test_reg->terminal_num;
 
     while(test_reg->active_wires != 1 && test_reg->active_wires != 25)
     {
-        //FIXME segfault
-        current_column->out->cable |= (1 << input_letter);
-        // TODO out?
-        contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
+        ScramblerEnigma *current_column = turing_bomb->bomb_row + column_num;
+        column_num = ((column_num + 1) % turing_bomb->scrambler_columns_used);
+
         input_letter = traverse_rotor_column(
                 current_column->rotors,
                 reflector,
                 input_letter);
+        //FIXME segfault
+        current_column->out->cable |= (1 << input_letter);
+        contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
+
         //TODO reposition this
 //        test_reg->active_wires = POPCNT(test_reg->test_reg->cable) - 1;
         //TODO smart traversal
-//        current_column = current_column->
-
     }
 
     return 1;
@@ -163,7 +164,7 @@ static uint8_t find_test_register_pos(const CycleCribCipher *cycle)
     return most_freq_pos;
 }
 
-static void setup_test_register(TuringBomb *restrict turing_bomb, const CycleCribCipher *cycle)
+static void setup_test_register(const TuringBomb *restrict turing_bomb, const CycleCribCipher *cycle)
 {
 //    create_diagonal_board(turing_bomb);
     const uint8_t most_freq_pos = find_test_register_pos(cycle);

@@ -125,19 +125,18 @@ void enigma_cli_options_to_json(const EnigmaCliOptions *const cli_options, const
     uint8_t rotor_positions[4];
     for (uint8_t i = 0; i < (uint8_t) cli_options->enigma_type; ++i)
     {
-        rotor_types[i] = cli_options->rotor_positions[i] - 'A';
+        rotor_positions[i] = cli_options->rotor_positions[i] - 'A';
     }
     add_positions_to_json(json, rotor_positions, cli_options->enigma_type);
     uint8_t ring_settings[4];
     for (uint8_t i = 0; i < (uint8_t) cli_options->enigma_type; ++i)
     {
-        rotor_types[i] = cli_options->rotor_offsets[i] - 'A';
+        ring_settings[i] = cli_options->rotor_offsets[i] - 'A';
     }
     add_rings_to_json(json, ring_settings, cli_options->enigma_type);
     add_plugboard_to_json(json, cli_options->plugboard);
     add_input_to_json(json, cli_options->plaintext);
     add_output_to_json(json, output);
-
 
     write_json_to_file(json);
     delete_json(json);

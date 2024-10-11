@@ -4,20 +4,20 @@
 #include "hashmap.h"
 #include "helper.h"
 
-
 //
 // Created by Emanuel on 10.10.24.
 //
 
 // TODO test
 
-#define MIN_CAPACITY    (1 << 4)
-#define MAX_CAPACITY    (1 << 30)
-#define SCALING_FACTOR  2
-#define LOAD_FACTOR     0.75
+#define MIN_CAPACITY        (1 << 4)
+#define MAX_CAPACITY        (1 << 30)
+#define SCALING_FACTOR      2
+#define LOAD_FACTOR         0.75
 
-#define ERR_TOO_BIG     1
-#define ERR_NULL_PTR    2
+#define ERR_TOO_BIG         1
+#define ERR_NULL_PTR        2
+#define ERR_INVALID_KEY     2
 
 typedef struct Bucket Bucket;
 
@@ -82,7 +82,7 @@ static int32_t hm_resize(HashMap hm)
     return 0;
 }
 
-static Bucket* create_bucket(char *key, char *val)
+static Bucket* create_bucket(const char *const key,const char *const val)
 {
     Bucket *bucket = malloc(sizeof (Bucket));
     assertmsg(bucket != NULL, "malloc failed");
@@ -94,7 +94,7 @@ static Bucket* create_bucket(char *key, char *val)
     return bucket;
 }
 
-HashMap hm_create(size_t size)
+HashMap hm_create(const size_t size)
 {
     HashMap hm = malloc(sizeof(*hm));
     assertmsg(hm != NULL, "malloc failed");
@@ -105,9 +105,9 @@ HashMap hm_create(size_t size)
     return hm;
 }
 
-static int32_t hm_destroy_list(HashMap hm, size_t i)
+static int32_t hm_destroy_list(HashMap hm, const size_t hash_val)
 {
-    Bucket *bucket = hm->buckets[i];
+    Bucket *bucket = hm->buckets[hash_val];
     if(bucket == NULL) return ERR_NULL_PTR;
     for(Bucket *temp = bucket; temp != NULL;)
     {
@@ -143,7 +143,7 @@ int32_t vl_destroy(ValueList *vl)
     return 0;
 }
 
-int32_t hm_put(HashMap hm, char *key, char *val)
+int32_t hm_put(HashMap hm, const char *const key, const char *const val)
 {
     if(hm == NULL)
     {
@@ -175,17 +175,17 @@ int32_t hm_put(HashMap hm, char *key, char *val)
     return err_code;
 }
 
-ValueList* hm_get(HashMap hm, char *key)
+ValueList* hm_get(HashMap hm, const char *const key)
 {
     const size_t hash_val = hash(key) % hm->capacity;
-    Bucket *bucket = hm->buckets[hash_val];
+    const Bucket *bucket = hm->buckets[hash_val];
     if(bucket == NULL) return NULL;
 
     ValueList *value_list = malloc(sizeof (ValueList));
     value_list->values = malloc(sizeof(char *) * (bucket->num_buckets_left + 1));
     value_list->list_size = bucket->num_buckets_left + 1;
 
-    for(size_t i = 0; bucket != NULL && bucket->num_buckets_left >= 0; ++i)
+    for(size_t i = 0; bucket != NULL; ++i)
     {
         value_list->values[i] = bucket->val;
         bucket = bucket->next;
@@ -194,17 +194,17 @@ ValueList* hm_get(HashMap hm, char *key)
     return value_list;
 }
 
-int32_t hm_remove(HashMap hm, char *key)
+int32_t hm_remove(HashMap hm, const char *const key)
 {
-    size_t hash_val = hash(key) % hm->capacity;
-    Bucket *bucket = hm->buckets[hash_val];
+    const size_t hash_val = hash(key) % hm->capacity;
+    const Bucket *bucket = hm->buckets[hash_val];
     if(hm_destroy_list(hm, hash_val) == 0)
     {
         hm->size -= bucket->num_buckets_left;
         return 0;
     }
 
-    return ERR_NULL_PTR;
+    return ERR_INVALID_KEY;
 }
 
 size_t hm_size(HashMap hm)
@@ -212,9 +212,10 @@ size_t hm_size(HashMap hm)
     return hm->size;
 }
 
-bool hm_contains(HashMap hm, char *key)
+bool hm_contains(HashMap hm, const char *const key)
 {
-    Bucket *bucket = hm->buckets[hash(key) % hm->capacity];
+    const size_t hash_val = hash(key) % hm->capacity;
+    const Bucket *bucket = hm->buckets[hash_val];
     while (bucket != NULL) {
         if (strcmp(bucket->key, key) == 0) {
             return true;

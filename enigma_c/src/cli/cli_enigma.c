@@ -376,8 +376,7 @@ static Enigma* create_enigma_from_cli_configuration(const EnigmaCliOptions *opti
 
     enigma->plaintext = strdup(options->plaintext);
     assertmsg(enigma->plaintext != NULL, "strdup failed");
-    free(options->plaintext);
-    free(options->plugboard);
+
     return enigma;
 }
 
@@ -623,6 +622,12 @@ void run_interactive_enigma_input(void)
     free(enigma_output_as_ints);
 }
 
+static void free_enigma_cli_options(EnigmaCliOptions *options)
+{
+    free(options->plaintext);
+    free(options->plugboard);
+}
+
 void query_enigma_input(const int argc, char *argv[])
 {
     EnigmaCliOptions enigma_options = {0};
@@ -634,13 +639,14 @@ void query_enigma_input(const int argc, char *argv[])
     const size_t plaintext_len = strlen(enigma->plaintext);
     uint8_t *text              = traverse_enigma(enigma);
 
-     char *output_str = get_string_from_int_array(text, plaintext_len);
+    char *output_str = get_string_from_int_array(text, plaintext_len);
 
-     enigma_cli_options_to_json(&enigma_options, output_str);
+    enigma_cli_options_to_json(&enigma_options, output_str);
 
     pretty_print_enigma_output(text, plaintext_len);
 
     free_enigma(enigma);
     free(text);
     free(output_str);
+    free_enigma_cli_options(&enigma_options);
 }
