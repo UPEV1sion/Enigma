@@ -8,7 +8,7 @@
  * It detected the cycles/patters between crib and ciphertext by chaining the rotors together.
  * It consisted out of 26 cables á 26 wires.
  * There were 26 contacts at the back of the bombe, that where energized at all time.
- * Each cable/contact represented a letter in the alphabet.
+ * Each cable/cable represented a letter in the alphabet.
  *
  * If our cycle started with the letter 'A' at position 3,
  * and the next letter in the letter was e.g. an 'E' at position 5,
@@ -49,8 +49,9 @@ typedef struct ScramblerEnigma
 
 struct Contact
 {
-    cable_t contact;
-    Contact *commons;
+    cable_t cable;
+    //TODO remove
+//    Contact *commons;
     uint8_t num_common_connections;
     uint8_t contact_num;
 };

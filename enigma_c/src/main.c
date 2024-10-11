@@ -30,6 +30,7 @@
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
 #include "cyclometer/cyclometer.h"
+#include "helper/hashmap.h"
 
 int main(int argc, char *argv[])
 {

@@ -131,15 +131,16 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 
     while(test_reg->active_wires != 1 && test_reg->active_wires != 25)
     {
-        //TODO fix segfault
-        current_column->out->contact |= (1 << input_letter);
-        contacts[input_letter]->contact |= (1 << current_column->in->contact_num);
+        //FIXME segfault
+        current_column->out->cable |= (1 << input_letter);
+        // TODO out?
+        contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
         input_letter = traverse_rotor_column(
                 current_column->rotors,
                 reflector,
                 input_letter);
         //TODO reposition this
-//        test_reg->active_wires = POPCNT(test_reg->test_reg->contact) - 1;
+//        test_reg->active_wires = POPCNT(test_reg->test_reg->cable) - 1;
         //TODO smart traversal
 //        current_column = current_column->
 
@@ -176,11 +177,11 @@ static void setup_test_register(TuringBomb *restrict turing_bomb, const CycleCri
 
     test_reg_contact = contacts[test_reg_letter];
     test_reg->test_reg = test_reg_contact;
-    test_reg_contact->contact = (1 << test_reg_wire_letter);
+    test_reg_contact->cable = (1 << test_reg_wire_letter);
     test_reg->terminal_num = most_freq_pos;
     test_reg->wire_num = test_reg_wire_letter;
     // Commutative properties of the diagonal board
-    contacts[test_reg_wire_letter]->contact = (1 << test_reg_letter);
+    contacts[test_reg_wire_letter]->cable = (1 << test_reg_letter);
 }
 
 

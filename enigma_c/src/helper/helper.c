@@ -4,23 +4,10 @@
 
 #include "helper.h"
 
-
 // I don't know why, but on my Linux WSL this is undefined
 #ifndef ERANGE
 #define ERANGE 34
 #endif
-
-/**
- * @brief The error codes - mainly for debugging.
- * @note In the code, the function return values are only asserted to be == 0, indicating no error.
- */
-#define ERR_NULL_POINTER 1
-//Also empty uint8_t array
-#define ERR_EMPTY_STRING 2
-
-#define ERR_INVALID_INPUT 3
-#define ERR_OUT_OF_RANGE 4
-#define ERR_PARTIAL_CONVERSION 5
 
 /**
  * @brief Gets the number literal from a string

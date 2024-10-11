@@ -186,7 +186,7 @@ static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfR
 
     Enigma *enigma = create_enigma_from_configuration(&configuration);
 
-    for (uint16_t letter = 0; letter < ALPHABET_SIZE; letter++)
+    for (uint16_t letter = 0; letter < ALPHABET_SIZE; ++letter)
     {
         memset(enigma->plaintext, letter + 'A', 6);
 
@@ -203,23 +203,6 @@ static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfR
     calculate_cycle_lengths(rotor_one_permutation, cycle->cycles + 0);
     calculate_cycle_lengths(rotor_two_permutation, cycle->cycles + 1);
     calculate_cycle_lengths(rotor_three_permutation, cycle->cycles + 2);
-}
-
-static size_t hash_func(const void *restrict key, const size_t key_size)
-{
-    // FIXME doesnt produce the same hash?
-    size_t hash = 5381;
-    Cycle *cycle = (Cycle *) key;
-
-    for (uint8_t i = 0; i < 3; ++i)
-    {
-        for(uint8_t cycle_i = 0; cycle_i < cycle[i].length; ++cycle_i)
-        {
-            hash = (hash << 5) + hash + cycle[i].cycle_values[cycle_i];
-        }
-    }
-
-    return hash;
 }
 
 void create_cycles(void)
