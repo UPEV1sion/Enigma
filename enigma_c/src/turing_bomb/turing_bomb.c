@@ -73,23 +73,28 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
 
     ScramblerEnigma dummy = {0};
     ScramblerEnigma *last_column = &dummy;
+    ScramblerEnigma *current_column = turing_bomb->bomb_row;
+    Contact *current_contact = turing_bomb->terminal->contacts[cycle_pos[0]];;
     for (uint8_t column = 0; column < bound; ++column)
     {
         // Rotors work with 1 off.
         // The bottom rotor at the turing bomb, although rotating the slowest,
         // corresponded to the rightmost right enigma rotor
-        ScramblerEnigma *current_column = turing_bomb->bomb_row + column;
+        current_column = turing_bomb->bomb_row + column;
+        //TODO switch?
         current_column->rotors[0] = create_rotor_by_type(rotor_one_type, 1, 1);
         current_column->rotors[1] = create_rotor_by_type(rotor_two_type, 1, 1);
         current_column->rotors[2] = create_rotor_by_type(rotor_three_type, cycle_pos[column] + 1, 1);
-        Contact *current_contact = turing_bomb->terminal->contacts[cycle_pos[column]]; //FIXME
+        current_contact = turing_bomb->terminal->contacts[cycle_pos[column]]; //FIXME
         current_column->in = current_contact;
         last_column->out = current_contact;
         last_column = current_column;
     }
+    current_column->out = current_contact;
+    puts("");
 }
 
-static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *reflector, uint8_t input_letter)
+static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *reflector, const uint8_t input_letter)
 {
 
     uint8_t character;
@@ -122,7 +127,7 @@ static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *refl
 
 static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 {
-    const TestRegister *test_reg = turing_bomb->terminal->test_register;
+    TestRegister *test_reg = turing_bomb->terminal->test_register;
     uint8_t input_letter = test_reg->wire_num;
     const Reflector *reflector = turing_bomb->reflector;
     Contact **contacts = turing_bomb->terminal->contacts;
@@ -143,10 +148,10 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
         contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
 
         //TODO reposition this
-//        test_reg->active_wires = POPCNT(test_reg->test_reg->cable) - 1;
-        //TODO smart traversal
+        test_reg->active_wires = POPCNT(test_reg->test_reg->cable) - 1;
+        //TODO smart traversal aka continue
     }
-
+    printf("%d", test_reg->active_wires);
     return 1;
 }
 
