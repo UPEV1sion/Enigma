@@ -16,6 +16,15 @@
 #define INPUT_BUFFER_SIZE   1024
 #define SEPARATOR_LENGTH    128
 
+#define ERR_BAD_ENIGMA_TYPE     1
+#define ERR_NO_PLAINTEXT        2
+#define ERR_BAD_ROTOR_OFFSET    3
+#define ERR_BAD_ROTOR_POSITIONS 4
+#define ERR_BAD_ROTOR_TYPE      5
+#define ERR_BAD_REFLECTOR_TYPE  6
+#define ERR_DUPLICATE_ROTORS    7
+#define ERR_BAD_PLUGBOARD       8
+
 /*----------ENIGMA----------*/
 #define ROTOR_ONE              "--rotor-one"
 #define ROTOR_ONE_SHORT        "-r1"
@@ -114,15 +123,15 @@ static void parse_enigma_input(EnigmaCliOptions *options, int32_t *i, const int 
     else
     {
         fprintf(stderr, "Invalid enigma type: %s\n", enigma_type);
-        exit(1);
+        exit(ERR_BAD_ENIGMA_TYPE);
     }
 }
 
 static void parse_first_three_rotor_input(EnigmaCliOptions *options, int32_t *i, const int argc, char *argv[],
                                           const enum ROTOR_TYPE rotor_num)
 {
-    int32_t rotor_type = 0;
     if (*i + 1 >= argc) return;
+    int32_t rotor_type = 0;
     assertmsg(get_number_from_string(argv[++*i], &rotor_type) == 0, "Number parsing failed, invalid rotor 1-3 type");
 
     switch (rotor_num)
@@ -160,7 +169,7 @@ static void parse_fourth_rotor_input(EnigmaCliOptions *options, int32_t *i, char
     else
     {
         fprintf(stderr, "Please enter a valid fourth rotor (gamma or beta)");
-        exit(1);
+        exit(ERR_BAD_ROTOR_TYPE);
     }
 }
 
@@ -192,7 +201,7 @@ static void parse_reflector_input(EnigmaCliOptions *options, int32_t *i, const i
     else
     {
         fprintf(stderr, "Invalid reflector type: %s\n", reflector_type);
-        exit(1);
+        exit(ERR_BAD_REFLECTOR_TYPE);
     }
 }
 
@@ -275,30 +284,30 @@ static void save_enigma_input(EnigmaCliOptions *options, const int argc, char *a
 
 static int32_t validate_cli_enigma_options(const EnigmaCliOptions *options)
 {
-    if (options->enigma_type != ENIGMA_M3 && options->enigma_type != ENIGMA_M4) return 1;
-    if (options->plaintext == NULL) return 1;
-    if (options->rotor_offsets == NULL) return 1;
-    if (!only_contains_upper_alpha(options->rotor_offsets)) return 1;
-    if (options->rotor_positions == NULL) return 1;
-    if (!only_contains_upper_alpha(options->rotor_positions)) return 1;
+    if (options->enigma_type != ENIGMA_M3 && options->enigma_type != ENIGMA_M4) return ERR_BAD_ENIGMA_TYPE;
+    if (options->plaintext == NULL) return ERR_NO_PLAINTEXT;
+    if (options->rotor_offsets == NULL) return ERR_BAD_ROTOR_OFFSET;
+    if (!only_contains_upper_alpha(options->rotor_offsets)) return ERR_BAD_ROTOR_OFFSET;
+    if (options->rotor_positions == NULL) return ERR_BAD_ROTOR_POSITIONS;
+    if (!only_contains_upper_alpha(options->rotor_positions)) return ERR_BAD_ROTOR_POSITIONS;
 
     // This will fail in the create_reflector_by_type switch case and give a clearer error
-    // if (options->reflector_type < UKW_A || options->reflector_type > UKW_C) return 1;
+     if (options->reflector_type < UKW_A || options->reflector_type > UKW_C) return ERR_BAD_REFLECTOR_TYPE;
 
-    if (strlen(options->rotor_offsets) != options->enigma_type) return 1;
-    if (strlen(options->rotor_positions) != options->enigma_type) return 1;
-    if (options->rotor_one_type < ROTOR_1 || options->rotor_one_type > ROTOR_8) return 1;
-    if (options->rotor_two_type < ROTOR_1 || options->rotor_two_type > ROTOR_8) return 1;
-    if (options->rotor_three_type < ROTOR_1 || options->rotor_three_type > ROTOR_8) return 1;
+    if (strlen(options->rotor_offsets) != options->enigma_type) return ERR_BAD_ROTOR_OFFSET;
+    if (strlen(options->rotor_positions) != options->enigma_type) return ERR_BAD_ROTOR_POSITIONS;
+    if (options->rotor_one_type < ROTOR_1 || options->rotor_one_type > ROTOR_8) return ERR_BAD_ROTOR_TYPE;
+    if (options->rotor_two_type < ROTOR_1 || options->rotor_two_type > ROTOR_8) return ERR_BAD_ROTOR_TYPE;
+    if (options->rotor_three_type < ROTOR_1 || options->rotor_three_type > ROTOR_8) return ERR_BAD_ROTOR_TYPE;
 
     if (options->enigma_type == ENIGMA_M3 && options->rotor_four_type != 0)
-        return 1;
+        return ERR_BAD_ROTOR_TYPE;
     if (options->enigma_type == ENIGMA_M4)
     {
         if (options->rotor_four_type != ROTOR_BETA && options->rotor_four_type != ROTOR_GAMMA)
-            return 1;
+            return ERR_BAD_ROTOR_TYPE;
         if (options->reflector_type != UKW_B_THIN && options->reflector_type != UKW_C_THIN)
-            return 1;
+            return ERR_BAD_REFLECTOR_TYPE;
     }
 
     int32_t rotor_num[4];
@@ -312,29 +321,25 @@ static int32_t validate_cli_enigma_options(const EnigmaCliOptions *options)
     for (uint8_t i = 0; i < (uint8_t) options->enigma_type; ++i)
     {
         const uint8_t rotor_index = rotor_num[i] - 1;
-        if (rotor_seen[rotor_index]) return 1;
+        if (rotor_seen[rotor_index]) return ERR_DUPLICATE_ROTORS;
         rotor_seen[rotor_index] = true;
     }
     if (options->plugboard != NULL && strlen(options->plugboard) > 0 && has_duplicates(options->plugboard))
-        return 1;
+        return ERR_BAD_PLUGBOARD;
     return 0;
 }
 
+static int32_t normalize_input(char *input)
+{
+    return to_uppercase(input) | remove_non_alnum(input);
+}
 
 static void normalize_cli_options(const EnigmaCliOptions *options)
 {
-    int32_t err_code = 0;
-    err_code = to_uppercase(options->rotor_offsets) | remove_non_alnum(options->rotor_offsets);
-    assertmsg(err_code == 0, "Rotor offsets normalization failed");
-
-    err_code = to_uppercase(options->rotor_positions) | remove_non_alnum(options->rotor_positions);
-    assertmsg(err_code == 0, "Rotor positions normalization failed");
-
-    to_uppercase(options->plugboard);
-    remove_non_alnum(options->plugboard);
-
-    err_code = to_uppercase(options->plaintext) | remove_non_alnum(options->plaintext);
-    assertmsg(err_code == 0, "Plaintext normalization failed");
+    assertmsg(normalize_input(options->rotor_offsets) == 0, "Rotor offsets normalization failed");
+    assertmsg(normalize_input(options->rotor_positions) == 0, "Rotor positions normalization failed");
+    normalize_input(options->plugboard);
+    assertmsg(normalize_input(options->plaintext) == 0, "Plaintext normalization failed");
 }
 
 static enum ENIGMA_TYPE parse_enigma_type(const char *enigma_type)
@@ -457,7 +462,6 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
         char secondary_input[INPUT_BUFFER_SIZE];
         char tertiary_input[INPUT_BUFFER_SIZE];
 
-
         do
         {
             if (rotor_num < 3)
@@ -470,11 +474,12 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
             }
             while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
                 ;
-            err_code = to_uppercase(primary_input) | remove_non_alnum(primary_input);
+            err_code = normalize_input(primary_input);
             err_code |= validate_rotor_type(primary_input, rotor_num + 1);
             if (err_code != 0)
             {
                 fprintf(stderr, "Invalid rotor type: %s\n", primary_input);
+                print_enigma_help();
             }
         } while (err_code != 0);
 
@@ -483,11 +488,12 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
             printf("%s rotor position (A, B, C, etc): ", numeration[rotor_num]);
             while (my_getline(secondary_input, INPUT_BUFFER_SIZE) == 0)
                 ;
-            err_code = to_uppercase(secondary_input) | remove_non_alnum(secondary_input);
+            err_code = normalize_input(primary_input);
             err_code |= validate_rotor_positions_and_offsets(secondary_input);
             if (err_code != 0)
             {
                 fprintf(stderr, "Invalid rotor positions: %s\n", secondary_input);
+                print_enigma_help();
             }
         } while (err_code != 0);
 
@@ -496,11 +502,12 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
             printf("%s rotor offset / ring setting (A, B, C, etc): ", numeration[rotor_num]);
             while (my_getline(tertiary_input, INPUT_BUFFER_SIZE) == 0)
                 ;
-            err_code = to_uppercase(tertiary_input) | remove_non_alnum(tertiary_input);
+            err_code = normalize_input(tertiary_input);
             err_code |= validate_rotor_positions_and_offsets(tertiary_input);
             if (err_code != 0)
             {
                 fprintf(stderr, "Invalid rotor offset: %s\n", secondary_input);
+                print_enigma_help();
             }
         } while (err_code != 0);
 
@@ -521,12 +528,13 @@ void parse_enigma_type_interactive(Enigma *enigma)
         printf("Enigma type (M3, M4): ");
         while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
             ;
-        err_code = to_uppercase(primary_input) | remove_non_alnum(primary_input);
+        err_code = normalize_input(primary_input);
         err_code |= validate_enigma_type(primary_input);
         enigma->type = parse_enigma_type(primary_input);
         if (err_code != 0)
         {
             fprintf(stderr, "Invalid enigma type: %s\n", primary_input);
+            print_enigma_help();
         }
     } while (err_code != 0);
 }
@@ -541,11 +549,12 @@ void parse_reflector_type_interactive(Enigma *enigma)
         printf("Reflector type (A, B, C): ");
         while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
             ;
-        err_code = to_uppercase(primary_input) | remove_non_alnum(primary_input);
+        err_code = normalize_input(primary_input);
         err_code |= validate_reflector(enigma->type, primary_input);
         if (err_code != 0)
         {
             fprintf(stderr, "Invalid reflector: %s\n", primary_input);
+            print_enigma_help();
         }
     } while (err_code != 0);
     enigma->reflector = create_reflector_by_type(*primary_input);
@@ -564,12 +573,13 @@ void parse_plugboard_interactive(Enigma *enigma)
             enigma->plugboard = create_plugboard(NULL);
             continue;
         }
-        err_code = to_uppercase(primary_input) | remove_non_alnum(primary_input);
+        err_code = normalize_input(primary_input);
         err_code |= validate_plugboard(primary_input);
         enigma->plugboard = create_plugboard(primary_input);
         if (err_code != 0)
         {
             fprintf(stderr, "Invalid plugboard: %s\n", primary_input);
+            print_enigma_help();
         }
     } while (err_code != 0);
 }
@@ -584,12 +594,13 @@ void parse_plaintext_interactive(Enigma *enigma)
         printf("\nPlaintext: ");
         while (my_getline(primary_input, INPUT_BUFFER_SIZE) == 0)
             ;
+        err_code = normalize_input(primary_input);
         enigma->plaintext = strdup(primary_input);
         assertmsg(enigma->plaintext != NULL, "strdup failed");
-        err_code = to_uppercase(enigma->plaintext) | remove_non_alnum(enigma->plaintext);
         if(err_code != 0)
         {
             fprintf(stderr, "Can't normalize plaintext: %s\n", primary_input);
+            print_enigma_help();
         }
     } while (err_code != 0);
 }

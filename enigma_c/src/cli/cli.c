@@ -307,7 +307,7 @@ static void normalize_bomb_options(const CliOptions *restrict options)
 
 static void select_run_mode(CliOptions *options, const int argc, char *argv[])
 {
-    for (int mode = 0; mode < NUM_MODES; ++mode)
+    for (uint8_t mode = 0; mode < NUM_MODES; ++mode)
     {
         switch (options->active_mode & (1 << mode))
         {
