@@ -67,39 +67,37 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
     //                                : cycle->positions_wo_stubs;
 
     // I haven't found a good way yet to denote that a position is part of a stub. Maybe a bitmask will do the trick
-    const uint8_t bound = cycle->len_wo_stubs;
+    const uint8_t bound                 = cycle->len_wo_stubs;
     turing_bomb->scrambler_columns_used = bound;
-    const uint8_t *cycle_pos = cycle->positions_wo_stubs;
+    const uint8_t *cycle_pos            = cycle->positions_wo_stubs;
 
-    ScramblerEnigma dummy = {0};
-    ScramblerEnigma *last_column = &dummy;
+    ScramblerEnigma dummy           = {0};
+    ScramblerEnigma *last_column    = &dummy;
     ScramblerEnigma *current_column = turing_bomb->bomb_row;
-    Contact *current_contact = turing_bomb->terminal->contacts[cycle_pos[0]];;
+    Contact *current_contact        = turing_bomb->terminal->contacts[cycle_pos[0]];;
     for (uint8_t column = 0; column < bound; ++column)
     {
         // Rotors work with 1 off.
         // The bottom rotor at the turing bomb, although rotating the slowest,
         // corresponded to the rightmost right enigma rotor
         current_column = turing_bomb->bomb_row + column;
-        //TODO switch?
+        //TODO switch top bottom? check this
         current_column->rotors[0] = create_rotor_by_type(rotor_one_type, 1, 1);
         current_column->rotors[1] = create_rotor_by_type(rotor_two_type, 1, 1);
         current_column->rotors[2] = create_rotor_by_type(rotor_three_type, cycle_pos[column] + 1, 1);
-        current_contact = turing_bomb->terminal->contacts[cycle_pos[column]]; //FIXME
-        current_column->in = current_contact;
-        last_column->out = current_contact;
-        last_column = current_column;
+        current_contact           = turing_bomb->terminal->contacts[cycle_pos[column]]; //FIXME
+        current_column->in        = current_contact;
+        last_column->out          = current_contact;
+        last_column               = current_column;
     }
     current_column->out = current_contact;
-    puts("");
 }
 
 static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *reflector, const uint8_t input_letter)
 {
-
     uint8_t character;
-    Rotor *rotor_one = rotor_column[0];
-    Rotor *rotor_two = rotor_column[1];
+    Rotor *rotor_one   = rotor_column[0];
+    Rotor *rotor_two   = rotor_column[1];
     Rotor *rotor_three = rotor_column[2];
 
     rotor_one->position = (rotor_one->position + 1) % 26;
@@ -127,25 +125,29 @@ static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *refl
 
 static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 {
-    TestRegister *test_reg = turing_bomb->terminal->test_register;
-    uint8_t input_letter = test_reg->wire_num;
+    TestRegister *test_reg     = turing_bomb->terminal->test_register;
+    uint8_t input_letter       = test_reg->wire_num;
     const Reflector *reflector = turing_bomb->reflector;
-    Contact **contacts = turing_bomb->terminal->contacts;
+    Contact **contacts         = turing_bomb->terminal->contacts;
 
     uint8_t column_num = test_reg->terminal_num;
 
-    while(test_reg->active_wires != 1 && test_reg->active_wires != 25)
+
+    // In of first contact is already set
+    while (test_reg->active_wires != 1 && test_reg->active_wires != 25)
     {
         ScramblerEnigma *current_column = turing_bomb->bomb_row + column_num;
         column_num = ((column_num + 1) % turing_bomb->scrambler_columns_used);
 
         input_letter = traverse_rotor_column(
-                current_column->rotors,
-                reflector,
-                input_letter);
-        //FIXME segfault
+            current_column->rotors,
+            reflector,
+            input_letter);
+
         current_column->out->cable |= (1 << input_letter);
         contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
+        // current_column->out->cable |= (1 << input_letter);
+        // contacts[input_letter]->cable |= (1 << current_column->in->contact_num); //TODO out
 
         //TODO reposition this
         test_reg->active_wires = POPCNT(test_reg->test_reg->cable) - 1;
@@ -171,23 +173,23 @@ static uint8_t find_test_register_pos(const CycleCribCipher *cycle)
 
 static void setup_test_register(const TuringBomb *restrict turing_bomb, const CycleCribCipher *cycle)
 {
-//    create_diagonal_board(turing_bomb);
+    //    create_diagonal_board(turing_bomb);
     const uint8_t most_freq_pos = find_test_register_pos(cycle);
 
-    const uint8_t test_reg_letter = cycle->chars_wo_stubs[most_freq_pos] - 'A';
+    const uint8_t test_reg_letter      = cycle->chars_wo_stubs[most_freq_pos] - 'A';
     const uint8_t test_reg_wire_letter = cycle->chars_wo_stubs[most_freq_pos + 1] - 'A';
 
     Contact *test_reg_contact;
     TestRegister *test_reg = turing_bomb->terminal->test_register;
-    Contact **contacts = turing_bomb->terminal->contacts;
+    Contact **contacts     = turing_bomb->terminal->contacts;
 
-    test_reg_contact = contacts[test_reg_letter];
-    test_reg->test_reg = test_reg_contact;
-    test_reg_contact->cable = (1 << test_reg_wire_letter);
-    test_reg->terminal_num = most_freq_pos;
-    test_reg->wire_num = test_reg_wire_letter;
+    test_reg_contact                      = contacts[test_reg_letter];
+    test_reg->test_reg                    = test_reg_contact;
+    test_reg_contact->cable               = (1 << test_reg_wire_letter);
     // Commutative properties of the diagonal board
     contacts[test_reg_wire_letter]->cable = (1 << test_reg_letter);
+    test_reg->terminal_num                = most_freq_pos;
+    test_reg->wire_num                    = test_reg_wire_letter;
 }
 
 
@@ -196,15 +198,15 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return ERR_INVALID_CRIB;
 
     Contact contacts[ALPHABET_SIZE] = {0};
-    Terminal terminal = {0};
-    TestRegister test_reg = {0};
+    Terminal terminal               = {0};
+    TestRegister test_reg           = {0};
     for (uint8_t contact = 0; contact < ALPHABET_SIZE; ++contact)
     {
         contacts[contact].contact_num = contact;
-        terminal.contacts[contact] = &contacts[contact];
+        terminal.contacts[contact]    = &contacts[contact];
     }
     terminal.test_register = &test_reg;
-    Reflector *reflector = create_reflector_by_type(UKW_B);
+    Reflector *reflector   = create_reflector_by_type(UKW_B);
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
 

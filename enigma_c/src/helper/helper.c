@@ -1,6 +1,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include "helper.h"
 
@@ -244,13 +245,13 @@ bool contains_spaces(const char *restrict str)
 /**
  * @brief Counts alphabetic characters in a string
  * @param str the string where the alphas should be counted
- * @return size_t: num of alphas, SIZE_MAX for errors
+ * @return size_t: num of alphas
  */
-size_t count_alphas(const char *restrict str)
+ssize_t count_alphas(const char *restrict str)
 {
-    if (str == NULL) return 0;
+    if (str == NULL) return ERR_NULL_POINTER;
     size_t len;
-    if ((len = strlen(str)) == 0) return 0;
+    if ((len = strlen(str)) == 0) return ERR_EMPTY_STRING;
 
     size_t counter   = 0;
     for (size_t i = 0; i < len; ++i)
@@ -265,13 +266,13 @@ size_t count_alphas(const char *restrict str)
  * @brief Counts the number of occurrences of c in str
  * @param str string where the chars should be counted
  * @param c the char which is to be counted
- * @return size_t: the number of chars, SIZE_MAX for error
+ * @return ssize_t: the number of chars
  */
-size_t count_c(const char *restrict str, const char c)
+ssize_t count_c(const char *restrict str, const char c)
 {
-    if (str == NULL) return SIZE_MAX;
+    if (str == NULL) return ERR_NULL_POINTER;
     size_t len;
-    if ((len = strlen(str)) == 0) return SIZE_MAX;
+    if ((len = strlen(str)) == 0) return ERR_EMPTY_STRING;
 
     size_t counter = 0;
     for (size_t i = 0; i < len; ++i)
@@ -344,8 +345,7 @@ size_t my_getline(char *restrict str, const int32_t lim)
 
     if (len > 0 && str[len - 1] == '\n')
     {
-        str[len - 1] = 0;
-        len--;
+        str[--len] = 0;
     }
 
     return len;

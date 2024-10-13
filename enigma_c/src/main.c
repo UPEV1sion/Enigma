@@ -8,7 +8,7 @@
 
 /**
  * @name Enigma Simulator
- * @authors Arif Hasanic, Emanuel Schäffer 
+ * @authors Arif Hasanic, Emanuel Schäffer
  */
 
 //
@@ -20,23 +20,18 @@
 //
 
 #include "cli/cli.h"
-#include "enigma/enigma.h"
-#include "enigma/rotor/rotor.h"
 #include "gui/bomb_out_gui/bomb_out.h"
-#include "gui/start_gui/start_gui.h"
 #include "helper/helper.h"
-#include "turing_bomb/brute_force.h"
 #include "turing_bomb/turing_bomb.h"
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
-#include "cyclometer/cyclometer.h"
 #include "helper/hashmap.h"
 
 int main(int argc, char *argv[])
 {
     // uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
-     start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+     // start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
      // find_best_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_best_cycle_graph("BEACHHEAD", "EDBGEAHDB");
 //     find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
@@ -45,8 +40,7 @@ int main(int argc, char *argv[])
     // return 0;
 
 //    test_permut_table_builder();
-
-    // query_input(argc, argv);
+    query_input(argc, argv);
 
     return EXIT_SUCCESS;
 }

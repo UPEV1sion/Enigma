@@ -10,8 +10,8 @@
 #include "turing_bomb/turing_bomb.h"
 #include "gui/start_gui/start_gui.h"
 
-
 #define INPUT_BUFFER_SIZE  1024
+#define SEPARATOR_LENGTH   50
 #define NUM_MODES          6
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -72,15 +72,21 @@ static int32_t string_equals(const char *str1, const char *str2)
     return strcmp(str1, str2) == 0;
 }
 
+static void print_separator(void)
+{
+    for (uint8_t i = 0; i < SEPARATOR_LENGTH; ++i) printf("%c", '=');
+    puts("");
+}
+
 static void print_bomb_help(void)
 {
     puts("\n\n");
-    puts("Usage: enigma [OPTIONS]...");
+    puts("Usage: ./enigma [OPTIONS]...");
     puts("Decrypts message text using the a turing bomb implementation\n");
     puts("Bomb options:");
     printf("%6s, %-15s | %-40s\n", "-short", "--long", "description");
-    for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
-    printf("\n%6s, %-15s | %-40s\n", BOMB_SHORT, BOMB_SHORT, "bomb mode");
+    print_separator();
+    printf("%6s, %-15s | %-40s\n", BOMB_SHORT, BOMB_SHORT, "bomb mode");
     printf("%6s, %-15s | %-40s\n", CIPHERTEXT_SHORT, CIPHERTEXT, "ciphertext");
     printf("%6s, %-15s | %-40s\n", CRIB_SHORT, CRIB, "crib");
     printf("%6s, %-15s | %-40s\n\n", CRIB_OFFSET_SHORT, CRIB_OFFSET, "crib offset");
@@ -95,8 +101,8 @@ static void print_help(void)
     puts("\n\n");
     puts("Usage: enigma [OPTIONS]...");
     printf("%6s, %-15s | %-40s\n", "-short", "--long", "description");
-    for (uint16_t i = 0; i < 41; ++i) printf("%c", '=');
-    printf("\n%6s, %-15s | %-40s\n", HELP_SHORT, HELP, "display this help and exit");
+    print_separator();
+    printf("%6s, %-15s | %-40s\n", HELP_SHORT, HELP, "display this help and exit");
     printf("%6s, %-15s | %-40s\n", ENIGMA_SHORT, ENIGMA, "enigma mode");
     printf("%6s, %-15s | %-40s\n", INTERACTIVE_ENIGMA_SHORT, INTERACTIVE_ENIGMA, "configure the enigma interactively");
     printf("%6s, %-15s | %-80s\n", CYCLOMETER_SHORT, CYCLOMETER, "generate all possible cycles of an enigma "
@@ -127,6 +133,7 @@ static void display_help_dialog(uint8_t cli_options)
                 cli_options &= ~MODE_BOMB;
                 print_bomb_help();
                 break;
+            default:
         }
     }
 }
@@ -140,7 +147,7 @@ static void query_help(const uint8_t cli_options)
     }
 
     //TODO cyclometer
-    puts("Usage: enigma [OPTIONS]...");
+    puts("Usage: ./enigma [OPTIONS]...");
     puts("-a to show all options");
     puts("-e for additional enigma help");
     puts("-b for additional bomb help");
@@ -287,7 +294,7 @@ static void validate_bomb_input(const CliOptions *options)
               (strlen(options->crib) + options->crib_offset <= strlen(options->ciphertext)), "Bad crib offset");
 }
 
-static void normalize_bomb_options(CliOptions *restrict options)
+static void normalize_bomb_options(const CliOptions *restrict options)
 {
     int err_code = 0;
     err_code |= to_uppercase(options->ciphertext);
@@ -325,6 +332,7 @@ static void select_run_mode(CliOptions *options, const int argc, char *argv[])
                 normalize_bomb_options(options);
                 start_turing_bomb(options->crib, options->ciphertext, options->crib_offset);
                 break;
+            default:
         }
     }
 }
@@ -333,17 +341,16 @@ void query_input(const int argc, char *argv[])
 {
     if (argc < 2)
     {
-        puts("Usage: ./enigma [OPTIONS]");
+        printf("Usage: ./%s [OPTIONs]", argv[0]);
         puts("Options:");
         puts(GUI " / " GUI_SHORT " for GUI");
         puts("CLI use is implicit");
         puts(HELP " / " HELP_SHORT " for help");
-        puts("Chained help flags like -he for Enigma help are allowed");
+        puts("Chained help-flags like -he for Enigma help are allowed");
         exit(1);
     }
 
     CliOptions options = {0};
-
     save_input(&options, argc, argv);
     select_run_mode(&options, argc, argv);
 }

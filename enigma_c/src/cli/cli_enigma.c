@@ -13,7 +13,8 @@
 // TODO Error codes
 // TODO make the CLI for the Bomb interactive & offsets standard AAA
 
-#define INPUT_BUFFER_SIZE 1024
+#define INPUT_BUFFER_SIZE   1024
+#define SEPARATOR_LENGTH    128
 
 /*----------ENIGMA----------*/
 #define ROTOR_ONE              "--rotor-one"
@@ -35,15 +36,21 @@
 #define PLAINTEXT              "--plaintext"
 #define PLAINTEXT_SHORT        "-pt"
 
+static void print_separator(void)
+{
+    for (uint8_t i = 0; i < SEPARATOR_LENGTH; ++i) printf("%c", '=');
+    puts("");
+}
+
 void print_enigma_help(void)
 {
     puts("\n\n");
-    puts("Usage: enigma [OPTIONS]...");
+    puts("Usage: ./enigma [OPTIONS]...");
     puts("Encrypts/decrypts text using the Enigma machine\n");
     puts("Enigma options:");
     printf("%6s, %-20s | %-40s\n", "-short", "--long", "description");
-    for (uint16_t i = 0; i < 50; ++i) printf("%c", '=');
-    printf("\n%6s, %-20s | %-40s\n", ENIGMA_SHORT, ENIGMA, "Enigma type (M3, M4)");
+    print_separator();
+    printf("%6s, %-20s | %-40s\n", ENIGMA_SHORT, ENIGMA, "Enigma type (M3, M4)");
     printf("%6s, %-20s | %-40s\n", ROTOR_ONE_SHORT, ROTOR_ONE, "first rotor type (1 - 8)");
     printf("%6s, %-20s | %-40s\n", ROTOR_TWO_SHORT, ROTOR_TWO, "second rotor type (1 - 8)");
     printf("%6s, %-20s | %-40s\n", ROTOR_THREE_SHORT, ROTOR_THREE, "third rotor type (1 - 8)");
@@ -54,8 +61,8 @@ void print_enigma_help(void)
            " (B_THIN / b, C_THIN / c) Enigma M4 only");
     printf("%6s, %-20s | %-40s\n", PLUGBOARD_SHORT, PLUGBOARD, "plugboard (e.g. AB CD EF)");
     printf("%6s, %-20s | %-40s\n\n", PLAINTEXT_SHORT, PLAINTEXT, "plaintext (A secret Text)");
-    puts("Note: Enigma type, Rotor offsets, rotor positions, "
-        "and plugboard settings are case-insensitive and will be automatically normalized.");
+    puts("Note: Enigma type, rotor offsets, rotor positions, "
+        "and plugboard settings are case-insensitive and will be automatically normalized.\n");
     puts("Example:");
     puts("\tenigma "ENIGMA_SHORT " M3 " ROTOR_ONE_SHORT " 1 " ROTOR_TWO_SHORT " 2 " ROTOR_THREE_SHORT " 3 "
         ROTOR_OFFSETS_SHORT " ABC " ROTOR_POSITIONS_SHORT " ABC " REFLECTOR_SHORT " B " PLUGBOARD_SHORT " AB CD EF "

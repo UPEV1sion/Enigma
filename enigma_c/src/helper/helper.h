@@ -76,13 +76,13 @@
  * @brief The error codes - mainly for debugging.
  * @note In the code, the function return values are only asserted to be == 0, indicating no error.
  */
-#define ERR_NULL_POINTER 1
+#define ERR_NULL_POINTER        -1
 //Also empty uint8_t array
-#define ERR_EMPTY_STRING 2
+#define ERR_EMPTY_STRING        -2
 
-#define ERR_INVALID_INPUT 3
-#define ERR_OUT_OF_RANGE 4
-#define ERR_PARTIAL_CONVERSION 5
+#define ERR_INVALID_INPUT       -3
+#define ERR_OUT_OF_RANGE        -4
+#define ERR_PARTIAL_CONVERSION  -5
 
 int32_t get_number_from_string(const char *str, int32_t *number);
 int32_t to_uppercase(char *input);
@@ -93,8 +93,8 @@ uint8_t* get_int_array_from_string(const char *str);
 char* get_string_from_int_array(const uint8_t *array, size_t size);
 bool has_duplicates(const char *str);
 bool contains_spaces(const char *str);
-size_t count_alphas(const char *str);
-size_t count_c(const char *str, char c);
+ssize_t count_alphas(const char *str);
+ssize_t count_c(const char *str, char c);
 bool is_substring(const char *str1, const char *str2);
 double calc_index_of_coincidence(const uint8_t *arr, size_t len);
 size_t my_getline(char *str, int32_t lim);

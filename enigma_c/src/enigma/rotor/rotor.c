@@ -45,8 +45,6 @@
  */
 #define MOD26(value) (((value) + ALPHABET_SIZE) % ALPHABET_SIZE)
 
-
-
 /**
  * @brief Determines if the turning point for the rotor to the left has been reached.
  * @param rotor The rotor to the right from the rotor, which is in question to be rotated.

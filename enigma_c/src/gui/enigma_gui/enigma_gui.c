@@ -327,7 +327,7 @@ static void action_listener_start_btn(void)
 {
     char *input_text = get_input_text_from_gui();
     const size_t len = strlen(input_text);
-    const size_t space_count = count_c(input_text, ' ');
+    const ssize_t space_count = count_c(input_text, ' ');
     to_uppercase(input_text);
     remove_non_alpha(input_text);
     if (len != strlen(input_text) + space_count)
@@ -338,8 +338,8 @@ static void action_listener_start_btn(void)
 
     if (input_text == NULL) return;
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
-    const size_t alpha_count_plugboard = count_alphas(plugboard_text);
-    assertmsg(alpha_count_plugboard != SIZE_MAX, "count alphas failed");
+    const ssize_t alpha_count_plugboard = count_alphas(plugboard_text);
+    assertmsg(alpha_count_plugboard >= 0, "count alphas failed");
     if (alpha_count_plugboard % 2 != 0)
     {
         free(input_text);
