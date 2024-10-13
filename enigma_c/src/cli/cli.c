@@ -134,6 +134,7 @@ static void display_help_dialog(uint8_t cli_options)
                 print_bomb_help();
                 break;
             default:
+                NULL;
         }
     }
 }
@@ -333,6 +334,7 @@ static void select_run_mode(CliOptions *options, const int argc, char *argv[])
                 start_turing_bomb(options->crib, options->ciphertext, options->crib_offset);
                 break;
             default:
+                NULL;
         }
     }
 }

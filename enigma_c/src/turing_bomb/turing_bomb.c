@@ -34,13 +34,13 @@
 
 static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
-    const size_t crip_len = strlen(crib);
-    if (crip_len + crib_pos > strlen(ciphertext))
+    const size_t crib_len = strlen(crib);
+    if (crib_len + crib_pos > strlen(ciphertext))
     {
         fprintf(stderr, "Plain outside crib\n");
         return false;
     }
-    for (size_t i = 0; i < crip_len; ++i)
+    for (size_t i = 0; i < crib_len; ++i)
     {
         if (ciphertext[crib_pos + i] == crib[i])
         {
@@ -74,8 +74,8 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
     ScramblerEnigma dummy           = {0};
     ScramblerEnigma *last_column    = &dummy;
     ScramblerEnigma *current_column = turing_bomb->bomb_row;
-    Contact *current_contact        = turing_bomb->terminal->contacts[cycle_pos[0]];;
-    for (uint8_t column = 0; column < bound; ++column)
+    Contact *current_contact        = turing_bomb->terminal->contacts[cycle_pos[0]]; //FIXME test reg contact not in cycle?
+    for (uint8_t column = 0; column <= bound; ++column)
     {
         // Rotors work with 1 off.
         // The bottom rotor at the turing bomb, although rotating the slowest,
@@ -95,7 +95,6 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
 
 static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *reflector, const uint8_t input_letter)
 {
-    uint8_t character;
     Rotor *rotor_one   = rotor_column[0];
     Rotor *rotor_two   = rotor_column[1];
     Rotor *rotor_three = rotor_column[2];
@@ -112,13 +111,13 @@ static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *refl
         }
     }
 
-    character = traverse_rotor(rotor_one, input_letter);
-    character = traverse_rotor(rotor_two, character);
-    character = traverse_rotor(rotor_three, character);
-    character = reflector->wiring[character];
-    character = traverse_rotor_inverse(rotor_three, character);
-    character = traverse_rotor_inverse(rotor_two, character);
-    character = traverse_rotor_inverse(rotor_one, character);
+    uint8_t character = traverse_rotor(rotor_one, input_letter);
+    character         = traverse_rotor(rotor_two, character);
+    character         = traverse_rotor(rotor_three, character);
+    character         = reflector->wiring[character];
+    character         = traverse_rotor_inverse(rotor_three, character);
+    character         = traverse_rotor_inverse(rotor_two, character);
+    character         = traverse_rotor_inverse(rotor_one, character);
 
     return character;
 }
@@ -132,6 +131,12 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 
     uint8_t column_num = test_reg->terminal_num;
 
+
+    for (int i = 0; i < turing_bomb->scrambler_columns_used; ++i)
+    {
+        ScramblerEnigma *current_column = turing_bomb->bomb_row + i;
+        puts("");
+    }
 
     // In of first contact is already set
     while (test_reg->active_wires != 1 && test_reg->active_wires != 25)

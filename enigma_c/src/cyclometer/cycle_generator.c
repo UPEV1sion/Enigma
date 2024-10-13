@@ -172,13 +172,13 @@ static void get_enigma_settings_string(const CycleOfRotorSetting *cycle, char *b
 {
     size_t offset = 0;
 
-    offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "%c %c %c : %d %d %d",
-                       cycle->rotor_positions[0] + 'A',
-                       cycle->rotor_positions[1] + 'A',
-                       cycle->rotor_positions[2] + 'A',
-                       cycle->rotors[0],
-                       cycle->rotors[1],
-                       cycle->rotors[2]);
+    snprintf(buffer + offset, BUFFER_SIZE - offset, "%c %c %c : %d %d %d",
+             cycle->rotor_positions[0] + 'A',
+             cycle->rotor_positions[1] + 'A',
+             cycle->rotor_positions[2] + 'A',
+             cycle->rotors[0],
+             cycle->rotors[1],
+             cycle->rotors[2]);
 }
 
 static void reset_enigma(Enigma *restrict enigma, const uint8_t *rotor_positions)
