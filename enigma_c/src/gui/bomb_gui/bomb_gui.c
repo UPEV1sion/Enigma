@@ -36,7 +36,7 @@ static void action_listener_start(void)
 {
     gchar *encrypted_text   = get_encrypted_text();
     const gchar *known_text = gtk_entry_get_text(GTK_ENTRY(known_plaintext));
-    crack_enigma(known_text, encrypted_text);
+    brute_force_enigma(known_text, encrypted_text);
 }
 
 static void activate(void)

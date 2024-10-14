@@ -6,4 +6,4 @@
 
 
 // EnigmaConfiguration* pop(void);
-void crack_enigma(const char *known_plaintext, char *encrypted_text);
+void brute_force_enigma(const char *known_plaintext, char *encrypted_text);

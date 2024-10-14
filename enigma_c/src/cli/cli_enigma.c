@@ -448,7 +448,7 @@ static int32_t validate_plugboard(const char *plugboard)
     return 0;
 }
 
-void parse_enigma_rotors_interactive(Enigma *enigma)
+static void parse_enigma_rotors_interactive(Enigma *enigma)
 {
     enigma->rotors = malloc(enigma->type * sizeof(Rotor *));
     assertmsg(enigma->rotors != NULL, "malloc failed");
@@ -518,7 +518,7 @@ void parse_enigma_rotors_interactive(Enigma *enigma)
     }
 }
 
-void parse_enigma_type_interactive(Enigma *enigma)
+static void parse_enigma_type_interactive(Enigma *enigma)
 {
     int32_t err_code = 0;
 
@@ -539,7 +539,7 @@ void parse_enigma_type_interactive(Enigma *enigma)
     } while (err_code != 0);
 }
 
-void parse_reflector_type_interactive(Enigma *enigma)
+static void parse_reflector_type_interactive(Enigma *enigma)
 {
     int32_t err_code = 0;
     char primary_input[INPUT_BUFFER_SIZE];
@@ -560,7 +560,7 @@ void parse_reflector_type_interactive(Enigma *enigma)
     enigma->reflector = create_reflector_by_type(*primary_input);
 }
 
-void parse_plugboard_interactive(Enigma *enigma)
+static void parse_plugboard_interactive(Enigma *enigma)
 {
     int32_t err_code = 0;
 
@@ -584,7 +584,7 @@ void parse_plugboard_interactive(Enigma *enigma)
     } while (err_code != 0);
 }
 
-void parse_plaintext_interactive(Enigma *enigma)
+static void parse_plaintext_interactive(Enigma *enigma)
 {
     int32_t err_code = 0;
 
@@ -605,7 +605,7 @@ void parse_plaintext_interactive(Enigma *enigma)
     } while (err_code != 0);
 }
 
-Enigma* query_enigma_input_interactive(void)
+static Enigma* query_enigma_input_interactive(void)
 {
     Enigma *enigma = malloc(sizeof(Enigma));
     assertmsg(enigma != NULL, "malloc failed");

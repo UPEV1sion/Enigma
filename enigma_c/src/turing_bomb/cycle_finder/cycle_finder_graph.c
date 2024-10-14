@@ -47,7 +47,7 @@ struct Node
     struct
     {
         char crib_char, cipher_char;
-        uint8_t position;
+        uint8_t position, cycle_position;
     } data;
 
     bool visited;
@@ -129,6 +129,9 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     if (node->data.crib_char == 0) return false;
     if (node == parent) return false;
 
+    if(is_matching_chars_tuple(node, parent)) return false;
+
+    node->data.cycle_position = cycle->len_wo_stubs;
     // TODO continue cycle search after a tuple of tuples is found.
     // A tuple of tuples is a very powerful way to eliminate invalid plugboard settings
     // Turns out this is a well known compsci problem... maybe just denote it and continue?
@@ -136,14 +139,15 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     cycle->chars_wo_stubs[cycle->len_wo_stubs]       = last_char;
     cycle->positions_w_stubs[cycle->len_w_stubs++]   = node->data.position;
     cycle->positions_wo_stubs[cycle->len_wo_stubs++] = node->data.position;
+
     if(is_matching_chars_tuple(node, parent))
     {
-
         return false;
     }
 
     // printf("Visiting node: %c : %c, %u\n", node->data.crib_char, node->data.cipher_char, node->data.position);
-    if (node->visited) return true;
+    if (node->visited)
+        return true;
 
     node->visited = true;
 
@@ -222,7 +226,7 @@ void free_neighbours(const Node *node)
     }
 }
 
-void build_graph(Graph *restrict graph, const char *restrict crib, const char *restrict ciphertext, const size_t len,
+static void build_graph(Graph *restrict graph, const char *restrict crib, const char *restrict ciphertext, const size_t len,
                  Node *nodes)
 {
     for (uint8_t i = 0; i < (uint8_t) len; ++i)

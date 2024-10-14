@@ -67,30 +67,38 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
     //                                : cycle->positions_wo_stubs;
 
     // I haven't found a good way yet to denote that a position is part of a stub. Maybe a bitmask will do the trick
-    const uint8_t bound                 = cycle->len_wo_stubs;
+    const uint8_t bound                 = cycle->len_wo_stubs - 1;
     turing_bomb->scrambler_columns_used = bound;
+//    const uint8_t *cycle_pos            = cycle->positions_wo_stubs;
+    const char *cycle_letters           = cycle->chars_wo_stubs;
     const uint8_t *cycle_pos            = cycle->positions_wo_stubs;
 
-    ScramblerEnigma dummy           = {0};
-    ScramblerEnigma *last_column    = &dummy;
+//    ScramblerEnigma dummy           = {0};
+//    ScramblerEnigma *last_column    = &dummy;
     ScramblerEnigma *current_column = turing_bomb->bomb_row;
-    Contact *current_contact        = turing_bomb->terminal->contacts[cycle_pos[0]]; //FIXME test reg contact not in cycle?
-    for (uint8_t column = 0; column <= bound; ++column)
+    uint8_t current_terminal        = cycle_letters[0] - 'A';
+    uint8_t next_terminal;
+    Contact *current_contact;
+    Contact *next_contact;
+
+    for (uint8_t column = 0; column < bound; ++column)
     {
         // Rotors work with 1 off.
         // The bottom rotor at the turing bomb, although rotating the slowest,
         // corresponded to the rightmost right enigma rotor
         current_column = turing_bomb->bomb_row + column;
-        //TODO switch top bottom? check this
         current_column->rotors[0] = create_rotor_by_type(rotor_one_type, 1, 1);
         current_column->rotors[1] = create_rotor_by_type(rotor_two_type, 1, 1);
         current_column->rotors[2] = create_rotor_by_type(rotor_three_type, cycle_pos[column] + 1, 1);
-        current_contact           = turing_bomb->terminal->contacts[cycle_pos[column]]; //FIXME
+        next_terminal             = cycle_letters[column + 1] - 'A';
+        current_contact           = turing_bomb->terminal->contacts[current_terminal];
+        next_contact              = turing_bomb->terminal->contacts[next_terminal];
         current_column->in        = current_contact;
-        last_column->out          = current_contact;
-        last_column               = current_column;
+        current_column->out       = next_contact;
+
+        current_terminal          = next_terminal;
     }
-    current_column->out = current_contact;
+    puts("");
 }
 
 static uint8_t traverse_rotor_column(Rotor **rotor_column, const Reflector *reflector, const uint8_t input_letter)
@@ -129,36 +137,44 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
     const Reflector *reflector = turing_bomb->reflector;
     Contact **contacts         = turing_bomb->terminal->contacts;
 
-    uint8_t column_num = test_reg->terminal_num;
+    uint8_t column_num         = test_reg->terminal_num;
 
 
     for (int i = 0; i < turing_bomb->scrambler_columns_used; ++i)
     {
         ScramblerEnigma *current_column = turing_bomb->bomb_row + i;
-        puts("");
+        printf("%d -> %d\n", current_column->in->contact_num, current_column->out->contact_num);
     }
 
     // In of first contact is already set
     while (test_reg->active_wires != 1 && test_reg->active_wires != 25)
     {
-        ScramblerEnigma *current_column = turing_bomb->bomb_row + column_num;
-        column_num = ((column_num + 1) % turing_bomb->scrambler_columns_used);
+        ScramblerEnigma *current_column;
+        do
+        {
+            //FIXME test_reg postion in the contacts isnt the postion in the scramblers.
+            current_column = turing_bomb->bomb_row + column_num;
+            column_num = ((column_num + 1) % turing_bomb->scrambler_columns_used);
 
-        input_letter = traverse_rotor_column(
-            current_column->rotors,
-            reflector,
-            input_letter);
+            input_letter = traverse_rotor_column(current_column->rotors, reflector, input_letter);
 
+            current_column->out->cable |= (1 << input_letter);
+//            contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
+            contacts[input_letter]->cable |= (1 << current_column->out->contact_num);
+        } while(column_num != test_reg->terminal_num);
+
+        //TODO test_reg
+        input_letter = traverse_rotor_column(current_column->rotors, reflector, input_letter);
         current_column->out->cable |= (1 << input_letter);
         contacts[input_letter]->cable |= (1 << current_column->in->contact_num);
+
+        test_reg->active_wires = POPCNT(test_reg->test_reg->cable);
+        puts("Iter");
         // current_column->out->cable |= (1 << input_letter);
         // contacts[input_letter]->cable |= (1 << current_column->in->contact_num); //TODO out
-
-        //TODO reposition this
-        test_reg->active_wires = POPCNT(test_reg->test_reg->cable) - 1;
-        //TODO smart traversal aka continue
     }
     printf("%d", test_reg->active_wires);
+
     return 1;
 }
 
@@ -193,7 +209,7 @@ static void setup_test_register(const TuringBomb *restrict turing_bomb, const Cy
     test_reg_contact->cable               = (1 << test_reg_wire_letter);
     // Commutative properties of the diagonal board
     contacts[test_reg_wire_letter]->cable = (1 << test_reg_letter);
-    test_reg->terminal_num                = most_freq_pos;
+    test_reg->terminal_num                = test_reg_letter;
     test_reg->wire_num                    = test_reg_wire_letter;
 }
 

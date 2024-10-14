@@ -58,7 +58,7 @@ static char *generate_message_key(void)
     return message_key;
 }
 
-void sort_cycles(uint8_t *cycle_lens, const uint8_t len)
+static void sort_cycles(uint8_t *cycle_lens, const uint8_t len)
 {
     for (uint8_t i = 0; i < len; ++i)
     {

@@ -15,7 +15,7 @@
  * @param array_size The size of the text.
  * @return uint8_t*: The traversed text as an uint8_t* array.
  */
-uint8_t* traverse_m3_enigma(const Enigma *enigma, const uint8_t *text_in_integer, const size_t array_size)
+static uint8_t* traverse_m3_enigma(const Enigma *enigma, const uint8_t *text_in_integer, const size_t array_size)
 {
     uint8_t *output = malloc(array_size * sizeof(uint8_t));
     assertmsg(output != NULL, "malloc failed");
@@ -61,7 +61,7 @@ uint8_t* traverse_m3_enigma(const Enigma *enigma, const uint8_t *text_in_integer
  * @param array_size The size of the text.
  * @return uint8_t*: The traversed text as an uint8_t array.
  */
-uint8_t* traverse_m4_enigma(const Enigma *enigma, const uint8_t *text_in_integer, const size_t array_size)
+static uint8_t* traverse_m4_enigma(const Enigma *enigma, const uint8_t *text_in_integer, const size_t array_size)
 {
     uint8_t *output = malloc(array_size * sizeof(uint8_t));
     assertmsg(output != NULL, "malloc failed");

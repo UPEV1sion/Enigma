@@ -73,7 +73,7 @@ bool should_rotate(const Rotor *rotor)
  * @param offset The rotor offset / ring setting.
  * @return Rotor*
  */
-Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, const char notch,
+static Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, const char notch,
                               const uint8_t position, const uint8_t offset)
 {
     Rotor *rotor = malloc(sizeof(Rotor));
@@ -107,7 +107,7 @@ Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wiring, co
  * @param offset The rotor offset / ring setting.
  * @return Rotor*
  */
-Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wiring, const char notch1,
+static Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wiring, const char notch1,
                               const char notch2, const uint8_t position, const uint8_t offset)
 {
     Rotor *rotor = malloc(sizeof(Rotor));
