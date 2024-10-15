@@ -53,8 +53,8 @@ static bool is_valid_crip_position(const char *crib, const char *ciphertext, con
 }
 
 static void traverse_rotor_column(const Reflector *reflector,
-                                     ScramblerEnigma *restrict current_column,
-                                     Contact **restrict contacts)
+                                  ScramblerEnigma *restrict current_column,
+                                  Contact **restrict contacts)
 {
     Rotor *rotor_one   = current_column->rotors[0];
     Rotor *rotor_two   = current_column->rotors[1];
@@ -88,9 +88,9 @@ static void traverse_rotor_column(const Reflector *reflector,
         character = traverse_rotor_inverse(rotor_two, character);
         character = traverse_rotor_inverse(rotor_one, character);
 
-        output_contact->active_cable_connections[letter_num] = character;
+        output_contact->active_cable_connections[output_contact->num_active_connections++] = character;
         Contact *diagonal_contact = contacts[character];
-        diagonal_contact->active_cable_connections[++diagonal_contact->num_active_connections] = letter_num;
+        diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections++] = letter_num;
     }
 
     output_contact->num_active_connections = letter_num;
@@ -145,6 +145,7 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
 static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 {
     TestRegister *test_reg     = turing_bomb->terminal->test_register;
+    Contact *test_reg_contact  = turing_bomb->terminal->test_register->test_reg;
     uint8_t input_letter       = test_reg->wire_num;
     const Reflector *reflector = turing_bomb->reflector;
     Contact **contacts         = turing_bomb->terminal->contacts;
@@ -159,22 +160,23 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
     }
 
     // In of first contact is already set
-    while (test_reg->active_wires != 1 && test_reg->active_wires != 25)
+    do
     {
         ScramblerEnigma *current_column;
         do
         {
-            //FIXME test_reg postion in the contacts isnt the postion in the scramblers.
+            //FIXME test_reg postion in the contacts isn't the postion in the scramblers.
             current_column = turing_bomb->bomb_row + column_num;
             column_num = ((column_num + 1) % turing_bomb->scrambler_columns_used);
 
+            //FIXME traversal isn't connect
             traverse_rotor_column(reflector, current_column, contacts);
-
         } while(column_num != test_reg->terminal_num);
 
         traverse_rotor_column(reflector, current_column, contacts);
-    }
-    printf("%d", test_reg->active_wires);
+    } while (test_reg_contact->num_active_connections != 1 && test_reg_contact->num_active_connections!= 25);
+
+    printf("%d\n", test_reg_contact->num_active_connections);
 
     return 1;
 }
@@ -207,10 +209,10 @@ static void setup_test_register(const TuringBomb *restrict turing_bomb, const Cy
 
     test_reg_contact                      = contacts[test_reg_letter];
     test_reg->test_reg                    = test_reg_contact;
-//    test_reg_contact->cable               = (1 << test_reg_wire_letter);
-    // Commutative properties of the diagonal board
-//    contacts[test_reg_wire_letter]->cable = (1 << test_reg_letter);
-    test_reg->terminal_num                = test_reg_letter;
+    test_reg_contact->active_cable_connections[test_reg_contact->num_active_connections++] = test_reg_wire_letter;
+    Contact *diagonal_contact             = contacts[test_reg_wire_letter];
+    diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections++] = test_reg_letter;
+    test_reg->terminal_num                = most_freq_pos;
     test_reg->wire_num                    = test_reg_wire_letter;
 }
 
@@ -274,7 +276,7 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
                 }
                 //TODO reuse rotors?
                 setup_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
-//                ret_val |= traverse_rotor_conf(&turing_bomb);
+                ret_val |= traverse_rotor_conf(&turing_bomb);
                 free_scramblers(&turing_bomb);
 
             }

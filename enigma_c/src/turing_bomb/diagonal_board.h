@@ -60,7 +60,6 @@ typedef struct
 {
     Contact *test_reg;
     uint8_t terminal_num, wire_num;
-    uint8_t active_wires;
 } TestRegister;
 
 typedef struct
