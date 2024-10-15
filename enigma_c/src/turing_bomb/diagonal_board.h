@@ -35,7 +35,6 @@
 #define MAX_CONTACTS_PER_COMMON     5
 #define MAX_NUM_COMMONS             5
 
-typedef uint32_t cable_t;
 typedef struct Contact Contact;
 typedef struct TuringBomb TuringBomb;
 
@@ -49,10 +48,11 @@ typedef struct ScramblerEnigma
 
 struct Contact
 {
-    cable_t cable;
-    //TODO remove
+    uint8_t active_cable_connections[ALPHABET_SIZE];
+
 //    Contact *commons;
-    uint8_t num_common_connections;
+    uint8_t num_active_connections;
+//    uint8_t num_common_connections;
     uint8_t contact_num;
 };
 

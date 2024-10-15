@@ -9,6 +9,7 @@
 
 typedef struct
 {
+    //TODO dynamic array?
     char chars_w_stubs[ALPHABET_SIZE];
     char chars_wo_stubs[ALPHABET_SIZE];
     uint8_t positions_w_stubs[ALPHABET_SIZE]; // with / without

@@ -9,15 +9,16 @@
 /**
  * @name Enigma Simulator
  * @authors Arif Hasanic, Emanuel Schäffer
+ * @version 1.1
  */
 
-//
-// Files that I created include a header marking them.
-// Files that Arif created include no header.
-// Arif's files are highly likely to also be modified/expanded by me, but I didn't explicitly mark the changes
-// because that would clutter everything.
-// For reference here's Arif's GitHub repository: https://github.com/murderbaer/enigma
-//
+/*
+ * Files that Emanuel created include a header marking them.
+ * Files that Arif created include no header.
+ * Arif's files are highly likely to also be modified/expanded by Emanuel.
+ * Modifications and expansions are not documented, because that would clutter everything.
+ * For reference here's Arif's GitHub repository: https://github.com/murderbaer/enigma
+ */
 
 #include "cli/cli.h"
 #include "gui/bomb_out_gui/bomb_out.h"
@@ -25,7 +26,6 @@
 #include "turing_bomb/turing_bomb.h"
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
-#include "helper/hashmap.h"
 
 int main(int argc, char *argv[])
 {
