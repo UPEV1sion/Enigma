@@ -9,9 +9,7 @@
 #include <gtk/gtk.h>
 
 #include "cJSON.h"
-
 #include "json.h"
-#include "cli/cli_enigma.h"
 
 //
 // Created by Emanuel on 26.07.2024.

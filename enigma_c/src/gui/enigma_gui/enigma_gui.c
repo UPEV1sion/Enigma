@@ -7,6 +7,7 @@
 #include <ctype.h>
 
 #include "enigma_gui.h"
+#include "json/json.h"
 
 //
 // Created by Emanuel on 25.07.2024.
@@ -294,13 +295,23 @@ static Enigma *create_enigma_from_input(char *restrict input_text)
             .type = enigma_type, .reflector = reflector_type, .message = input_text
     };
     memcpy(configuration.plugboard, plugboard_text, strlen(plugboard_text));
+
     Enigma *enigma = create_enigma_from_configuration(&configuration);
+
+    //TODO rewrite this!
+    uint8_t *output_text_as_ints = traverse_enigma(enigma);
+    const char *output_text = get_string_from_int_array(output_text_as_ints, strlen(input_text));
+    enigma_config_to_json(&configuration, output_text);
+
+
 
     free(rotor_arr);
     free(rotor_position_arr);
     free(rotor_ring_position_arr);
     free(plugboard_text);
     free(input_text);
+    free(output_text_as_ints);
+    free(output);
 
     return enigma;
 }

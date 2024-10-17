@@ -72,7 +72,7 @@ int32_t to_uppercase(char *restrict input)
 
 /**
  * @brief Removes all non-alphabetic and numeric chars from a string
- * @param input the string where the alnums chars should be removed
+ * @param input the string where the non-alnum chars should be removed
  * @return int32_t: error code
  */
 int32_t remove_non_alnum(char *restrict input)
@@ -96,7 +96,7 @@ int32_t remove_non_alnum(char *restrict input)
 
 /**
  * @brief Removes all non-alphabetic chars
- * @param input the string where the none alphabetic chars should be removed
+ * @param input the string where the non-alphabetic chars should be removed
  * @return int32_t: error code
  */
 int32_t remove_non_alpha(char *restrict input)
@@ -119,6 +119,11 @@ int32_t remove_non_alpha(char *restrict input)
     return 0;
 }
 
+/**
+ * Removes all non-ascii chars
+ * @param input the string where the non-ascii chars should be removed
+ * @return int32_t: error code
+ */
 int32_t remove_non_ascii(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
