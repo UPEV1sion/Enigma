@@ -105,14 +105,13 @@ char *get_plugboard_from_gui(void)
 {
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
     if (plugboard_text == NULL) return NULL;
-    const size_t len = strlen(plugboard_text);
-    char *text = malloc(len + 1);
-    assertmsg(text != NULL, "malloc failed");
-    text[len] = 0;
 
-    strcpy(text, plugboard_text);
+    char *text = strdup(plugboard_text);
+    assertmsg(text != NULL, "strdup failed");
+
     // Error checking has been omitted,
     // since the only two errors ERR_EMPTY_STRING and ERR_NULL_POINTER are "valid inputs"
+    remove_non_ascii(text);
     to_uppercase(text);
     remove_non_alpha(text);
 
@@ -128,14 +127,15 @@ char *get_input_text_from_gui(void)
 
     gchar *input_text =
             gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, FALSE);
-    if (input_text == NULL || *input_text == '\0') return NULL;
+    if (input_text == NULL || *input_text == 0) return NULL;
 
-    const glong text_length = g_utf8_strlen(input_text, -1);
+    char *text = strdup(input_text);
+    assertmsg(text != NULL, "strdup failed");
 
-    char *text = malloc(text_length + 1);
-    assertmsg(text != NULL, "malloc failed");
-    text[text_length] = 0;
-    strcpy(text, input_text);
+    //TODO replace umlauts with paraphrases
+    remove_non_ascii(text);
+
+
     g_free(input_text);
 
     return text;

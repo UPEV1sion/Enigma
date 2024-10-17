@@ -105,7 +105,7 @@ static void find_cycle_lens(const char *rotor_permutation)
 
     sort_cycles(cycle_lens, cycle_count);
 
-    for(uint cycle = 0; cycle < cycle_count; ++cycle)
+    for(uint8_t cycle = 0; cycle < cycle_count; ++cycle)
     {
         printf("%d ", cycle_lens[cycle]);
     }

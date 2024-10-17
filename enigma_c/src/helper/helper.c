@@ -119,6 +119,27 @@ int32_t remove_non_alpha(char *restrict input)
     return 0;
 }
 
+int32_t remove_non_ascii(char *restrict input)
+{
+    if (input == NULL) return ERR_NULL_POINTER;
+    if (strlen(input) == 0) return ERR_EMPTY_STRING;
+
+    int32_t i = 0, j = 0;
+
+    while (input[i] != 0)
+    {
+        if (isascii(input[i]))
+        {
+            input[j++] = input[i];
+        }
+        i++;
+    }
+
+    input[j] = 0;
+
+    return 0;
+}
+
 /**
  * @brief Checks if second is a permutation of first
  * @note Only works with uppercase alphabetic strings
@@ -253,7 +274,7 @@ ssize_t count_alphas(const char *restrict str)
     size_t len;
     if ((len = strlen(str)) == 0) return ERR_EMPTY_STRING;
 
-    size_t counter   = 0;
+    ssize_t counter   = 0;
     for (size_t i = 0; i < len; ++i)
     {
         if (isalpha(str[i])) counter++;
@@ -274,7 +295,7 @@ ssize_t count_c(const char *restrict str, const char c)
     size_t len;
     if ((len = strlen(str)) == 0) return ERR_EMPTY_STRING;
 
-    size_t counter = 0;
+    ssize_t counter = 0;
     for (size_t i = 0; i < len; ++i)
     {
         if (str[i] == c) counter++;
