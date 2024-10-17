@@ -88,9 +88,11 @@ static void traverse_rotor_column(const Reflector *reflector,
         character = traverse_rotor_inverse(rotor_two, character);
         character = traverse_rotor_inverse(rotor_one, character);
 
-        output_contact->active_cable_connections[output_contact->num_active_connections++] = character;
+        output_contact->active_cable_connections[output_contact->num_active_connections] = character;
+        output_contact->num_active_connections++;
         Contact *diagonal_contact = contacts[character];
-        diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections++] = letter_num;
+        diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections] = letter_num;
+        diagonal_contact->num_active_connections++;
     }
 
     output_contact->num_active_connections = letter_num;

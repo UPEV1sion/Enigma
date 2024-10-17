@@ -250,8 +250,8 @@ void create_cycles(void)
 
     // CycleOfRotorSetting *cycles[TOTAL_CYCLES];
 
-//    FILE *file;
-//    assertmsg((file = fopen(FILE_PATH_CYCLO, "w")) != NULL, "can't open " FILE_PATH_CYCLO);
+    FILE *file;
+    assertmsg((file = fopen(FILE_PATH_CYCLO, "w")) != NULL, "can't open " FILE_PATH_CYCLO);
 
     CycleOfRotorSetting cycle = {0};
 
@@ -280,7 +280,7 @@ void create_cycles(void)
                     get_cycle_whole_lens_string(&cycle, cycle_len_buffer);
                     get_enigma_settings_string(&cycle, enigma_settings_buffer);
                     hm_put(hm, cycle_len_buffer, enigma_settings_buffer);
-//                    print_whole_cycle(&cycle, file);
+                    print_whole_cycle(&cycle, file);
                 }
             }
         }
@@ -294,7 +294,7 @@ void create_cycles(void)
         puts(vl->values[i]);
     }
 
-//    fclose(file);
+    fclose(file);
     hm_destroy(hm);
     vl_destroy(vl);
     puts("Cycles have been written to: " FILE_PATH_CYCLO);

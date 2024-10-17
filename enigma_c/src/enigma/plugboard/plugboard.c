@@ -13,7 +13,7 @@
 Plugboard* create_plugboard(const char *input)
 {
     Plugboard *plugboard = malloc(sizeof(Plugboard));
-    assertmsg(plugboard != NULL, "plugboard == NULL");
+    assertmsg(plugboard != NULL, "malloc failed");
 
     for (uint8_t i = 0; i < ALPHABET_SIZE; i++)
     {
@@ -27,7 +27,7 @@ Plugboard* create_plugboard(const char *input)
         return plugboard;
     }
 
-    for (uint8_t i = 0; i < input_length; i += 2)
+    for (uint8_t i = 0; i < (uint8_t) input_length; i += 2)
     {
         const uint8_t input_left  = input[i] - 'A';
         const uint8_t input_right = input[i + 1] - 'A';

@@ -339,7 +339,7 @@ static void action_listener_start_btn(void)
     if (input_text == NULL) return;
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
     const ssize_t alpha_count_plugboard = count_alphas(plugboard_text);
-    assertmsg(alpha_count_plugboard >= 0, "count alphas failed");
+//    assertmsg(alpha_count_plugboard >= 0, "count alphas failed");
     if (alpha_count_plugboard % 2 != 0)
     {
         free(input_text);

@@ -122,7 +122,8 @@ static void parse_enigma_input(EnigmaCliOptions *options, int32_t *i, const int 
     }
     else
     {
-        fprintf(stderr, "Invalid enigma type: %s\n", enigma_type);
+        fprintf(stderr, "\nInvalid enigma type: %s\n", enigma_type);
+        fflush(stderr);
         exit(ERR_BAD_ENIGMA_TYPE);
     }
 }
@@ -200,7 +201,8 @@ static void parse_reflector_input(EnigmaCliOptions *options, int32_t *i, const i
     }
     else
     {
-        fprintf(stderr, "Invalid reflector type: %s\n", reflector_type);
+        fprintf(stderr, "\nInvalid reflector type: %s\n", reflector_type);
+        fflush(stderr);
         exit(ERR_BAD_REFLECTOR_TYPE);
     }
 }
@@ -478,7 +480,8 @@ static void parse_enigma_rotors_interactive(Enigma *enigma)
             err_code |= validate_rotor_type(primary_input, rotor_num + 1);
             if (err_code != 0)
             {
-                fprintf(stderr, "Invalid rotor type: %s\n", primary_input);
+                fprintf(stderr, "\nInvalid rotor type: %s\n", primary_input);
+                fflush(stderr);
                 print_enigma_help();
             }
         } while (err_code != 0);
@@ -492,7 +495,8 @@ static void parse_enigma_rotors_interactive(Enigma *enigma)
             err_code |= validate_rotor_positions_and_offsets(secondary_input);
             if (err_code != 0)
             {
-                fprintf(stderr, "Invalid rotor positions: %s\n", secondary_input);
+                fprintf(stderr, "\nInvalid rotor positions: %s\n", secondary_input);
+                fflush(stderr);
                 print_enigma_help();
             }
         } while (err_code != 0);
@@ -506,7 +510,8 @@ static void parse_enigma_rotors_interactive(Enigma *enigma)
             err_code |= validate_rotor_positions_and_offsets(tertiary_input);
             if (err_code != 0)
             {
-                fprintf(stderr, "Invalid rotor offset: %s\n", secondary_input);
+                fprintf(stderr, "\nInvalid rotor offset: %s\n", secondary_input);
+                fflush(stderr);
                 print_enigma_help();
             }
         } while (err_code != 0);
@@ -533,7 +538,8 @@ static void parse_enigma_type_interactive(Enigma *enigma)
         enigma->type = parse_enigma_type(primary_input);
         if (err_code != 0)
         {
-            fprintf(stderr, "Invalid enigma type: %s\n", primary_input);
+            fprintf(stderr, "\nInvalid enigma type: %s\n", primary_input);
+            fflush(stderr);
             print_enigma_help();
         }
     } while (err_code != 0);
@@ -553,7 +559,8 @@ static void parse_reflector_type_interactive(Enigma *enigma)
         err_code |= validate_reflector(enigma->type, primary_input);
         if (err_code != 0)
         {
-            fprintf(stderr, "Invalid reflector: %s\n", primary_input);
+            fprintf(stderr, "\nInvalid reflector: %s\n", primary_input);
+            fflush(stderr);
             print_enigma_help();
         }
     } while (err_code != 0);
@@ -578,7 +585,8 @@ static void parse_plugboard_interactive(Enigma *enigma)
         enigma->plugboard = create_plugboard(primary_input);
         if (err_code != 0)
         {
-            fprintf(stderr, "Invalid plugboard: %s\n", primary_input);
+            fprintf(stderr, "\nInvalid plugboard: %s\n", primary_input);
+            fflush(stderr);
             print_enigma_help();
         }
     } while (err_code != 0);
@@ -599,7 +607,8 @@ static void parse_plaintext_interactive(Enigma *enigma)
         assertmsg(enigma->plaintext != NULL, "strdup failed");
         if(err_code != 0)
         {
-            fprintf(stderr, "Can't normalize plaintext: %s\n", primary_input);
+            fprintf(stderr, "\nCan't normalize plaintext: %s\n", primary_input);
+            fflush(stderr);
             print_enigma_help();
         }
     } while (err_code != 0);

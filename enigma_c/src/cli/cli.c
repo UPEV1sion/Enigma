@@ -343,7 +343,7 @@ void query_input(const int argc, char *argv[])
 {
     if (argc < 2)
     {
-        printf("Usage: ./%s [OPTIONs]", argv[0]);
+        printf("Usage: ./%s [OPTIONS]", argv[0]);
         puts("Options:");
         puts(GUI " / " GUI_SHORT " for GUI");
         puts("CLI use is implicit");
