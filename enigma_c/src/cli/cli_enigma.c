@@ -13,17 +13,17 @@
 // TODO Error codes
 // TODO make the CLI for the Bomb interactive & offsets standard AAA
 
-#define INPUT_BUFFER_SIZE   1024
-#define SEPARATOR_LENGTH    128
+#define INPUT_BUFFER_SIZE       (1024)
+#define SEPARATOR_LENGTH        (128)
 
-#define ERR_BAD_ENIGMA_TYPE     1
-#define ERR_NO_PLAINTEXT        2
-#define ERR_BAD_ROTOR_OFFSET    3
-#define ERR_BAD_ROTOR_POSITIONS 4
-#define ERR_BAD_ROTOR_TYPE      5
-#define ERR_BAD_REFLECTOR_TYPE  6
-#define ERR_DUPLICATE_ROTORS    7
-#define ERR_BAD_PLUGBOARD       8
+#define ERR_BAD_ENIGMA_TYPE     (1)
+#define ERR_NO_PLAINTEXT        (2)
+#define ERR_BAD_ROTOR_OFFSET    (3)
+#define ERR_BAD_ROTOR_POSITIONS (4)
+#define ERR_BAD_ROTOR_TYPE      (5)
+#define ERR_BAD_REFLECTOR_TYPE  (6)
+#define ERR_DUPLICATE_ROTORS    (7)
+#define ERR_BAD_PLUGBOARD       (8)
 
 /*----------ENIGMA----------*/
 #define ROTOR_ONE              "--rotor-one"

@@ -3,7 +3,6 @@
 
 #include "brute_force.h"
 #include "helper/helper.h"
-#include "gui/bomb_out_gui//bomb_out.h"
 #include "enigma/enigma.h"
 
 //
@@ -25,9 +24,9 @@
 #endif
 
 
-#define OUTPUT_STRING_SIZE 64
-#define NUM_ROTATORS 5
-#define NUM_ROTORS_PER_ENIGMA 3
+#define OUTPUT_STRING_SIZE      64
+#define NUM_ROTATORS            5
+#define NUM_ROTORS_PER_ENIGMA   3
 
 typedef struct Node Node;
 

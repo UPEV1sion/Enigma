@@ -12,6 +12,10 @@
 #define ALPHABET_SIZE 26
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#define ssize_t int64_t
+#endif
+
 /**
 * @brief assert function with an error message.
 * @note do-while for correct indentation
@@ -79,7 +83,6 @@
 #define ERR_NULL_POINTER        (-1)
 //Also empty uint8_t array
 #define ERR_EMPTY_STRING        (-2)
-
 #define ERR_INVALID_INPUT       (-3)
 #define ERR_OUT_OF_RANGE        (-4)
 #define ERR_PARTIAL_CONVERSION  (-5)

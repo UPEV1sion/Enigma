@@ -10,9 +10,9 @@
 #include "turing_bomb/turing_bomb.h"
 #include "gui/start_gui/start_gui.h"
 
-#define INPUT_BUFFER_SIZE  1024
-#define SEPARATOR_LENGTH   50
-#define NUM_MODES          6
+#define INPUT_BUFFER_SIZE  (1024)
+#define SEPARATOR_LENGTH   (50)
+#define NUM_MODES          (6)
 
 #if defined(_WIN32) || defined(_WIN64)
 #define strtok_r strtok_s
@@ -122,7 +122,6 @@ static void display_help_dialog(uint8_t cli_options)
                 break;
             case MODE_CYCLOMETER:
                 cli_options &= ~MODE_CYCLOMETER;
-                NULL;
                 //TODO cyclometer
                 break;
             case MODE_INTERACTIVE_ENIGMA:
