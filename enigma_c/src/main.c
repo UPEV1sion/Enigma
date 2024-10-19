@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
     // uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
 //      start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
-//    start_turing_bomb("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
-//    start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
+    start_turing_bomb("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
+    // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
 //      find_best_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_best_cycle_graph("BEACHHEAD", "EDBGEAHDB");
 //     find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     // return 0;
 
 //    test_permut_table_builder();
-    query_input(argc, argv);
+    // query_input(argc, argv);
 
     return EXIT_SUCCESS;
 }

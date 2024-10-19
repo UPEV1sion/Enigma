@@ -27,44 +27,9 @@
  *
  */
 
-#include "enigma/rotor/rotor.h"
-#include "diagonal_board.h"
-#include "cycle_finder/cycle_finder.h"
+// typedef struct TuringBomb TuringBomb;
 
-#define NUM_SCRAMBLERS_PER_COLUMN   3
-#define MAX_CONTACTS_PER_COMMON     5
-#define MAX_NUM_COMMONS             5
 
-typedef struct Contact Contact;
-typedef struct TuringBomb TuringBomb;
 
-// TODO last input char in rotor column
-// This has in and outputs, so leave it here.
-typedef struct ScramblerEnigma
-{
-    Contact *in, *out;
-    Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
-} ScramblerEnigma;
 
-struct Contact
-{
-    uint8_t active_cable_connections[ALPHABET_SIZE];
 
-//    Contact *commons;
-    uint8_t num_active_connections;
-//    uint8_t num_common_connections;
-    uint8_t contact_num;
-};
-
-typedef struct
-{
-    Contact *test_reg;
-    uint8_t terminal_num, wire_num;
-} TestRegister;
-
-typedef struct
-{
-    Contact *contacts[ALPHABET_SIZE];
-    TestRegister *test_register;
-    uint8_t num_commons;
-} Terminal;

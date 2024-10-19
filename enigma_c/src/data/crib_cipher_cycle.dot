@@ -1,20 +1,19 @@
 graph G {
 	layout=neato;
 	edge [fontsize=11];
-	"S" -- "W" [label="0"];
-	"N" -- "E" [label="1"];
-	"M" -- "T" [label="2"];
-	"K" -- "T" [label="3"];
-	"G" -- "E" [label="4"];
-	"G" -- "R" [label="5"];
-	"S" -- "V" [label="6"];
-	"T" -- "O" [label="7"];
-	"Z" -- "R" [label="8"];
-	"Z" -- "H" [label="9"];
-	"U" -- "E" [label="10"];
-	"G" -- "R" [label="11"];
-	"A" -- "S" [label="12"];
-	"R" -- "A" [label="13"];
-	"L" -- "G" [label="14"];
-	"V" -- "E" [label="15"];
+	"S" -- "K" [label="0"];
+	"S" -- "O" [label="1"];
+	"K" -- "M" [label="2"];
+	"K" -- "M" [label="3"];
+	"E" -- "A" [label="4"];
+	"Z" -- "N" [label="5"];
+	"Q" -- "D" [label="6"];
+	"R" -- "O" [label="7"];
+	"H" -- "D" [label="8"];
+	"O" -- "E" [label="9"];
+	"T" -- "R" [label="10"];
+	"J" -- "W" [label="11"];
+	"T" -- "E" [label="12"];
+	"D" -- "H" [label="13"];
+	"W" -- "R" [label="14"];
 }
