@@ -23,8 +23,7 @@
 
 /* This aims to be an "authentic" turing implementation.
  * The turing bomb back in the day, of course, used no software.
- * But this implementation aims to mimic the inner workings of the Turing-Welchman Bomb as close as possible.
- * I've always programmed with performance in mind and made this as fast as possible.
+ * But this implementation aims to mimic the inner workings of the Turing-Welchman Bomb.
  */
 
 #define NUM_ROTORS             5
@@ -80,6 +79,15 @@ typedef struct TuringBomb
     Reflector *reflector;
     uint8_t scrambler_columns_used;
 } TuringBomb;
+
+
+typedef struct ScramblerNode ScramblerNode;
+
+struct ScramblerNode
+{
+    ScramblerEnigma scrambler_enigma;
+};
+
 
 static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
@@ -343,6 +351,15 @@ static void free_scramblers(TuringBomb *turing_bomb)
     }
 }
 
+static void build_scrambler_graph(TuringBomb *restrict turing_bomb,
+                                  const CycleCribCipher *cycle,
+                                  const enum ROTOR_TYPE rotor_one_type,
+                                  const enum ROTOR_TYPE rotor_two_type,
+                                  const enum ROTOR_TYPE rotor_three_type)
+{
+//    cycle->
+}
+
 int32_t start_turing_bomb(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return ERR_INVALID_CRIB;
@@ -359,15 +376,15 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     Reflector *reflector   = create_reflector_by_type(UKW_B);
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
-    CycleCribCipher *cycle = find_best_cycle_graph(crib, ciphertext);
-
+//    CycleCribCipher *cycle = find_best_cycle_graph(crib, ciphertext);
+    CycleCribCipher *cycle = NULL;
     if (cycle == NULL)
     {
         fprintf(stderr, "No cycles found\n");
         return ERR_NO_CYCLES_FOUND;
     }
 
-    setup_test_register(&turing_bomb, cycle);
+//    setup_test_register(&turing_bomb, cycle);
     //TODO start traversing
 
     // Different rotor types
@@ -389,16 +406,15 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
                     continue;
                 }
                 //TODO reuse rotors?
-                setup_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
+//                setup_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
                 ret_val |= traverse_rotor_conf(&turing_bomb);
                 free_scramblers(&turing_bomb);
             }
         }
     }
 
-    free(cycle);
+//    free(cycle);
     free(turing_bomb.reflector);
-
 
     return ret_val;
 }

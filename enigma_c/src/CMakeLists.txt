@@ -41,6 +41,9 @@ add_library(enigma_lib
         turing_bomb/cycle_finder/cycle_finder_graph.h
         turing_bomb/cycle_finder/cycle_finder.c
         turing_bomb/cycle_finder/cycle_finder.h
+        helper/linkedlist.c
+        turing_bomb/cycle_finder/graph_builder.c
+        turing_bomb/cycle_finder/graph_builder.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

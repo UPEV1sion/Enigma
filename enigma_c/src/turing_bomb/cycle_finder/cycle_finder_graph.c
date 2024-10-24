@@ -57,7 +57,7 @@ typedef struct
 {
     // Fixed size for now. Since this only resides on the Stack, I don't see any reason to dynamically allocate this.
     Node *relations[ALPHABET_SIZE][MAX_CRIB_LEN];
-    uint8_t indexing[ALPHABET_SIZE];
+    uint8_t nodes_per_letter[ALPHABET_SIZE];
 } Graph;
 
 /**
@@ -106,7 +106,7 @@ static void print_graph(const Graph *graph)
     for (uint8_t i = 0; i < ALPHABET_SIZE; ++i)
     {
         printf("%c: ", i + 'A');
-        for (int j = 0; j < graph->indexing[i]; ++j)
+        for (int j = 0; j < graph->nodes_per_letter[i]; ++j)
         {
             const Node *current = graph->relations[i][j];
             printf("[%c : %c, (%02d)] ", current->data.crib_char, current->data.cipher_char, current->data.position);
@@ -154,7 +154,7 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     const char lookup_char      = (char) ((node->data.crib_char == last_char) ? node->data.cipher_char : node->data.crib_char);
     const uint8_t i_lookup_char = lookup_char - 'A';
 
-    for (uint8_t i = 0; i < graph->indexing[i_lookup_char]; ++i)
+    for (uint8_t i = 0; i < graph->nodes_per_letter[i_lookup_char]; ++i)
     {
         if (dfs_find_cycle(graph, graph->relations[i_lookup_char][i], node, lookup_char, cycle))
             return true;
@@ -227,7 +227,7 @@ void free_neighbours(const Node *node)
 }
 
 static void build_graph(Graph *restrict graph, const char *restrict crib, const char *restrict ciphertext, const size_t len,
-                 Node *nodes)
+                        Node *nodes)
 {
     for (uint8_t i = 0; i < (uint8_t) len; ++i)
     {
@@ -238,8 +238,8 @@ static void build_graph(Graph *restrict graph, const char *restrict crib, const 
         const uint8_t i_crib   = crib[i] - 'A';
         const uint8_t i_cipher = ciphertext[i] - 'A';
 
-        graph->relations[i_crib][graph->indexing[i_crib]++]     = nodes + i;
-        graph->relations[i_cipher][graph->indexing[i_cipher]++] = nodes + i;
+        graph->relations[i_crib][graph->nodes_per_letter[i_crib]++]     = nodes + i;
+        graph->relations[i_cipher][graph->nodes_per_letter[i_cipher]++] = nodes + i;
     }
 }
 
@@ -270,7 +270,7 @@ CycleCribCipher* find_best_cycle_graph(const char *restrict crib, const char *re
     print_graph(&graph);
 
     puts(find_cycle(&graph, nodes, len, cycle) ? "true" : "false");
-    find_cycle(&graph, nodes, len, cycle);
+//    find_cycle(&graph, nodes, len, cycle);
 
     if (cycle->len_w_stubs == 0)
     {

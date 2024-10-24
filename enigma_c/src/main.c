@@ -24,6 +24,7 @@
 #include "gui/bomb_out_gui/bomb_out.h"
 #include "helper/helper.h"
 #include "turing_bomb/turing_bomb.h"
+#include "turing_bomb/cycle_finder/graph_builder.h"
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
 
@@ -31,16 +32,18 @@ int main(int argc, char *argv[])
 {
     // uint8_t *arr_crib = get_int_array_from_string("WETTERVORHERSAGE");
     // uint8_t *arr_cipher = get_int_array_from_string("SNMKGGSTZZUGARLV");
-//      start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+      start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+//      Graph *graph = build_best_scrambler_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     start_turing_bomb("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
     // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
 //      find_best_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_best_cycle_graph("BEACHHEAD", "EDBGEAHDB");
-//     find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+     CycleCribCipher *cycle = find_best_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
     // return 0;
 
+    free(cycle);
 //    test_permut_table_builder();
     // query_input(argc, argv);
 

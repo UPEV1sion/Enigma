@@ -24,7 +24,6 @@
  * The commons typically had five contacts, so up to four branches per position where feasible.
  * One cable was needed for connecting the branches to the rotor itself.
  * We would simply plug all cables where the branches happen in the same common field.
- *
  */
 
 // typedef struct TuringBomb TuringBomb;
