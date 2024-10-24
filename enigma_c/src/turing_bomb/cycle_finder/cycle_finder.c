@@ -130,7 +130,7 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
  * @param ciphertext the enciphered text
  * @return Cycles*
  */
-DEPRECATED("This function is deprecated. Use find_best_cycle_graph() instead.")
+DEPRECATED("This function is deprecated. Use find_longest_cycle_graph() instead.")
 CyclesCribCipher* find_cycles(const char *restrict crib, const char *restrict ciphertext)
 {
     write_dot_format(crib, ciphertext);

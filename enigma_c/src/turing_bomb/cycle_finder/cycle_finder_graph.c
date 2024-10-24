@@ -128,22 +128,20 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     if (node == NULL) return false;
     if (node->data.crib_char == 0) return false;
     if (node == parent) return false;
+    //TODO connection counter to detect leafs
 
     if(is_matching_chars_tuple(node, parent)) return false;
+
 
     node->data.cycle_position = cycle->len_wo_stubs;
     // TODO continue cycle search after a tuple of tuples is found.
     // A tuple of tuples is a very powerful way to eliminate invalid plugboard settings
     // Turns out this is a well known compsci problem... maybe just denote it and continue?
+    printf("%c : %c\n", node->data.crib_char, node->data.cipher_char);
     cycle->chars_w_stubs[cycle->len_w_stubs]         = last_char;
     cycle->chars_wo_stubs[cycle->len_wo_stubs]       = last_char;
     cycle->positions_w_stubs[cycle->len_w_stubs++]   = node->data.position;
     cycle->positions_wo_stubs[cycle->len_wo_stubs++] = node->data.position;
-
-    if(is_matching_chars_tuple(node, parent))
-    {
-        return false;
-    }
 
     // printf("Visiting node: %c : %c, %u\n", node->data.crib_char, node->data.cipher_char, node->data.position);
     if (node->visited)
@@ -250,7 +248,7 @@ static void build_graph(Graph *restrict graph, const char *restrict crib, const 
  * @param ciphertext The Ciphertext
  * @return Cycle: cycle if cycles where found, NULL for errors and no cycles found.
  */
-CycleCribCipher* find_best_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
+CycleCribCipher* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
 {
     size_t len;
 

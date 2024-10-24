@@ -24,5 +24,5 @@ typedef struct
     uint32_t num_cycles;
 } CyclesCribCipher;
 
-DEPRECATED("This function is deprecated. Use find_best_cycle_graph() instead.")
+DEPRECATED("This function is deprecated. Use find_longest_cycle_graph() instead.")
 CyclesCribCipher* find_cycles(const char *crib, const char *ciphertext);

@@ -1,15 +1,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef _MSC_VER
-#include <intrin.h> //MSVC intrinsics again
-#endif
+//#ifdef _MSC_VER
+//#include <intrin.h> //MSVC intrinsics again
+//#endif
 
 #include "turing_bomb.h"
-#include "diagonal_board.h"
 #include "cycle_finder/cycle_finder.h"
-#include "cycle_finder/cycle_finder_graph.h"
-#include "enigma/rotor/rotor.h"
+#include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 
 //
 // Created by Emanuel on 07.09.2024.
@@ -32,61 +30,16 @@
 #define ERR_INVALID_CRIB       1
 #define ERR_NO_CYCLES_FOUND    2
 
-
-#define NUM_SCRAMBLERS_PER_COLUMN   3
+// TODO count these
 #define MAX_CONTACTS_PER_COMMON     5
 #define MAX_NUM_COMMONS             5
 
-typedef struct Contact Contact;
-
-//TODO really needed?
-typedef struct
-{
-    Contact *test_reg;
-    uint8_t terminal_num, wire_num;
-} TestRegister;
-
-typedef struct
-{
-    Contact *contacts[ALPHABET_SIZE];
-    TestRegister *test_register;
-    uint8_t num_commons;
-} Terminal;
-
-// TODO last input char in rotor column
-// This has in and outputs, so leave it here.
-typedef struct ScramblerEnigma
-{
-    Contact *in, *out;
-    Rotor *rotors[NUM_SCRAMBLERS_PER_COLUMN];
-} ScramblerEnigma;
-
-struct Contact
-{
-    uint8_t active_cable_connections[ALPHABET_SIZE];
-    uint32_t active_contacts;
-    //    Contact *commons;
-    uint8_t num_active_connections;
-    //    uint8_t num_common_connections;
-    uint8_t contact_num;
-};
-
-typedef struct TuringBomb
-{
-    // TODO pointer array?
-    ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
-    Terminal *terminal;
-    Reflector *reflector;
-    uint8_t scrambler_columns_used;
-} TuringBomb;
-
-
-typedef struct ScramblerNode ScramblerNode;
-
-struct ScramblerNode
-{
-    ScramblerEnigma scrambler_enigma;
-};
+////TODO really needed?
+//typedef struct
+//{
+//    Contact *test_reg;
+//    uint8_t terminal_num, wire_num;
+//} TestRegister;
 
 
 static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
@@ -135,7 +88,7 @@ static void print_contact_status(const Contact *contact, const char *contact_nam
 
 static void print_current_configuration(const TuringBomb *turing_bomb)
 {
-    for (int8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
+    for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
     {
         for (int row = 0; row < NUM_SCRAMBLERS_PER_COLUMN; ++row)
         {
@@ -228,7 +181,7 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
     const char *cycle_letters = cycle->chars_wo_stubs;
     const uint8_t *cycle_pos  = cycle->positions_wo_stubs;
 
-    ScramblerEnigma *current_column = turing_bomb->bomb_row;
+    ScramblerEnigma *current_column;
     uint8_t current_terminal        = cycle_letters[0] - 'A';
     uint8_t next_terminal;
     Contact *current_contact;
@@ -255,13 +208,12 @@ static void setup_scramblers(TuringBomb *restrict turing_bomb,
 
 static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 {
-    const TestRegister *test_reg    = turing_bomb->terminal->test_register;
-    const Contact *test_reg_contact = turing_bomb->terminal->test_register->test_reg;
+    const Contact *test_reg_contact = turing_bomb->terminal->test_register;
     // uint8_t input_letter       = test_reg->wire_num;
     const Reflector *reflector = turing_bomb->reflector;
     Contact **contacts         = turing_bomb->terminal->contacts;
 
-    uint8_t column_num = test_reg->terminal_num;
+    uint8_t column_num = test_reg_contact->contact_num;
 
 
     for (int i = 0; i < turing_bomb->scrambler_columns_used; ++i)
@@ -282,7 +234,7 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
 
             //FIXME traversal isn't connect
             traverse_rotor_column(reflector, current_column, contacts);
-        } while (column_num != test_reg->terminal_num &&
+        } while (column_num != test_reg_contact->contact_num &&
             test_reg_contact->num_active_connections != 26);
         // traverse_rotor_column(reflector, current_column, contacts);
         // print_all_active_contacts(turing_bomb);
@@ -292,7 +244,7 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
     } while (test_reg_contact->num_active_connections != 1 && test_reg_contact->num_active_connections != 26);
 
     print_current_configuration(turing_bomb);
-    exit(0);
+//    exit(0);
 
     printf("%d\n", test_reg_contact->num_active_connections);
 
@@ -322,11 +274,11 @@ static void setup_test_register(const TuringBomb *restrict turing_bomb, const Cy
     const uint8_t test_reg_wire_letter = cycle->chars_wo_stubs[most_freq_pos + 1] - 'A';
 
     Contact *test_reg_contact;
-    TestRegister *test_reg = turing_bomb->terminal->test_register;
+//    TestRegister *test_reg = turing_bomb->terminal->test_register;
     Contact **contacts     = turing_bomb->terminal->contacts;
 
     test_reg_contact = contacts[test_reg_letter];
-    test_reg->test_reg = test_reg_contact;
+    turing_bomb->terminal->test_register = test_reg_contact;
     test_reg_contact->active_cable_connections[test_reg_contact->num_active_connections] = test_reg_wire_letter;
     test_reg_contact->num_active_connections++;
     test_reg_contact->active_contacts |= (1 << test_reg_wire_letter);
@@ -334,8 +286,10 @@ static void setup_test_register(const TuringBomb *restrict turing_bomb, const Cy
     diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections] = test_reg_letter;
     diagonal_contact->num_active_connections++;
     diagonal_contact->active_contacts |= (1 << test_reg_wire_letter);
-    test_reg->terminal_num = most_freq_pos;
-    test_reg->wire_num = test_reg_wire_letter;
+    //TODO stack or at the corresponding position
+    test_reg_contact->active_cable_connections[test_reg_contact->active_contacts] = most_freq_pos;
+    test_reg_contact->active_contacts++;
+//    test_reg->wire_num = test_reg_wire_letter;
 }
 
 static void free_scramblers(TuringBomb *turing_bomb)
@@ -351,40 +305,30 @@ static void free_scramblers(TuringBomb *turing_bomb)
     }
 }
 
-static void build_scrambler_graph(TuringBomb *restrict turing_bomb,
-                                  const CycleCribCipher *cycle,
-                                  const enum ROTOR_TYPE rotor_one_type,
-                                  const enum ROTOR_TYPE rotor_two_type,
-                                  const enum ROTOR_TYPE rotor_three_type)
-{
-//    cycle->
-}
-
 int32_t start_turing_bomb(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return ERR_INVALID_CRIB;
 
     Contact contacts[ALPHABET_SIZE] = {0};
     Terminal terminal               = {0};
-    TestRegister test_reg           = {0};
     for (uint8_t contact = 0; contact < ALPHABET_SIZE; ++contact)
     {
         contacts[contact].contact_num = contact;
         terminal.contacts[contact]    = &contacts[contact];
     }
-    terminal.test_register = &test_reg;
+    //TODO set test reg in setup_test_register
+//    terminal.test_register = &test_reg;
     Reflector *reflector   = create_reflector_by_type(UKW_B);
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
-//    CycleCribCipher *cycle = find_best_cycle_graph(crib, ciphertext);
-    CycleCribCipher *cycle = NULL;
+    CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
     if (cycle == NULL)
     {
         fprintf(stderr, "No cycles found\n");
         return ERR_NO_CYCLES_FOUND;
     }
 
-//    setup_test_register(&turing_bomb, cycle);
+    setup_test_register(&turing_bomb, cycle);
     //TODO start traversing
 
     // Different rotor types

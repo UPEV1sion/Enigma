@@ -10,9 +10,9 @@
 #include "helper/helper.h"
 #include "turing_bomb/turing_bomb.h"
 
-typedef struct Node Node;
+typedef struct GraphNode GraphNode;
 
-struct Node
+struct GraphNode
 {
     char crib_char, cipher_char;
     uint8_t position;
@@ -21,9 +21,9 @@ struct Node
 
 typedef struct
 {
-    Node *relations[ALPHABET_SIZE][MAX_CRIB_LEN];
+    GraphNode *relations[ALPHABET_SIZE][MAX_CRIB_LEN];
     uint8_t nodes_per_letter[ALPHABET_SIZE];
-} Graph;
+} GraphOfLongestCycle;
 
 
-Graph* build_best_scrambler_graph(const char *crib, const char *ciphertext, TuringBomb *turing_bomb);
+GraphOfLongestCycle* build_best_scrambler_graph(const char *crib, const char *ciphertext, TuringBomb *turing_bomb);
