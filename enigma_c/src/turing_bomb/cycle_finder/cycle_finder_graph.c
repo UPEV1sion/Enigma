@@ -109,7 +109,7 @@ static void print_graph(const Graph *graph)
         for (int j = 0; j < graph->nodes_per_letter[i]; ++j)
         {
             const Node *current = graph->relations[i][j];
-            printf("[%c : %c, (%02d)] ", current->data.crib_char, current->data.cipher_char, current->data.position);
+            printf("[%c : %c, (%02d), v:%s] ", current->data.crib_char, current->data.cipher_char, current->data.position, current->visited ? "true" : "false");
         }
         puts("");
     }
@@ -128,10 +128,9 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     if (node == NULL) return false;
     if (node->data.crib_char == 0) return false;
     if (node == parent) return false;
-    //TODO connection counter to detect leafs
 
+    //TODO can be removed?
     if(is_matching_chars_tuple(node, parent)) return false;
-
 
     node->data.cycle_position = cycle->len_wo_stubs;
     // TODO continue cycle search after a tuple of tuples is found.
@@ -242,6 +241,41 @@ static void build_graph(Graph *restrict graph, const char *restrict crib, const 
 }
 
 /**
+ * @brief Recursively marking all adjacent nodes
+ * @param graph The graph containing all nodes
+ * @param character The current character in the cycle
+ */
+static void mark_stubs_rec(Graph *restrict graph, const uint8_t character)
+{
+    for (uint8_t i = 0; i < graph->nodes_per_letter[character]; ++i)
+    {
+        Node *current_node = graph->relations[character][i];
+        if (current_node->visited) continue;
+        current_node->visited = true;
+        const char lookup_char      = (char) ((current_node->data.crib_char == character) ?
+                                                current_node->data.cipher_char : current_node->data.crib_char);
+        const uint8_t i_lookup_char = lookup_char - 'A';
+        mark_stubs_rec(graph, i_lookup_char);
+    }
+}
+
+/**
+ * @brief Marks all stubs adjacent to the cycle
+ * @param graph The graph containing all nodes
+ * @param cycle The cycle without the stubs found
+ */
+static void mark_stubs(Graph *restrict graph, const CycleCribCipher *cycle)
+{
+    const char *cycle_chars = cycle->chars_wo_stubs;
+    uint8_t current_char;
+    while((current_char = *cycle_chars++) != 0)
+    {
+        mark_stubs_rec(graph, current_char - 'A');
+    }
+    puts("");
+}
+
+/**
  * @brief Find cycles between the crib and plain, using a graph and a modified DFS
  * @warning Uses restrict pointers: It must be assured that crib and ciphertext reside in different storage areas.
  * @param crib The crib
@@ -269,6 +303,8 @@ CycleCribCipher* find_longest_cycle_graph(const char *restrict crib, const char 
 
     puts(find_cycle(&graph, nodes, len, cycle) ? "true" : "false");
 //    find_cycle(&graph, nodes, len, cycle);
+    mark_stubs(&graph, cycle);
+    print_graph(&graph);
 
     if (cycle->len_w_stubs == 0)
     {
