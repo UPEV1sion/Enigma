@@ -38,12 +38,12 @@ GraphOfLongestCycle* build_best_scrambler_graph(const char *restrict crib,
                                                 TuringBomb *restrict turing_bomb)
 {
 
-    CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
-    if (cycle == NULL)
-    {
-        fprintf(stderr, "No cycles found\n");
-        return NULL;
-    }
+    // CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
+    // if (cycle == NULL)
+    // {
+    //     fprintf(stderr, "No cycles found\n");
+    //     return NULL;
+    // }
 
     return NULL;
 }

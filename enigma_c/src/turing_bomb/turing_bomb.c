@@ -321,14 +321,14 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     Reflector *reflector   = create_reflector_by_type(UKW_B);
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
-    CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
-    if (cycle == NULL)
-    {
-        fprintf(stderr, "No cycles found\n");
-        return ERR_NO_CYCLES_FOUND;
-    }
+    // CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
+    // if (cycle == NULL)
+    // {
+    //     fprintf(stderr, "No cycles found\n");
+    //     return ERR_NO_CYCLES_FOUND;
+    // }
 
-    setup_test_register(&turing_bomb, cycle);
+    // setup_test_register(&turing_bomb, cycle);
     //TODO start traversing
 
     // Different rotor types

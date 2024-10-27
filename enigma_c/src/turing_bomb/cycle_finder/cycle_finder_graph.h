@@ -7,5 +7,21 @@
 #include <stdint.h>
 
 #include "cycle_finder.h"
+#include "helper/helper.h"
+#include "turing_bomb/turing_bomb.h"
 
-CycleCribCipher* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext);
+typedef struct
+{
+    // TODO store them as uint8_t
+    char crib_char, cipher_char;
+    uint8_t position, cycle_position;
+    bool visited;
+} Node;
+
+typedef struct
+{
+    Node *relations[ALPHABET_SIZE][MAX_CRIB_LEN];
+    uint8_t nodes_per_letter[ALPHABET_SIZE];
+} Graph;
+
+Graph* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext);
