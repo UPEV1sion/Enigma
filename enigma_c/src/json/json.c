@@ -48,7 +48,7 @@ static void add_rotors_to_json(cJSON *json, const enum ROTOR_TYPE *rotors, const
     }
 }
 
-static void add_positions_to_json(cJSON *json, uint8_t *positions, const uint8_t num_rotors)
+static void add_positions_to_json(cJSON *json, const uint8_t *positions, const uint8_t num_rotors)
 {
     cJSON *positions_array = cJSON_AddArrayToObject(json, "positions");
     for (uint8_t i = 0; i < num_rotors; ++i)
@@ -81,7 +81,7 @@ static void add_output_to_json(cJSON *json, const char *text)
     cJSON_AddStringToObject(json, "output", text);
 }
 
-static void write_json_to_file(cJSON *json)
+static void write_json_to_file(const cJSON *json)
 {
     FILE *file;
     assertmsg((file = fopen(FILE_PATH_JSON, "w")) != NULL, "file == NULL");
@@ -158,7 +158,7 @@ char* read_json(void)
     return buffer;
 }
 
-static void save_model_to_conf(cJSON *json, EnigmaConfiguration *configuration)
+static void save_model_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *model_item = cJSON_GetObjectItem(json, "model");
     if (cJSON_IsNumber(model_item))
@@ -167,7 +167,7 @@ static void save_model_to_conf(cJSON *json, EnigmaConfiguration *configuration)
     }
 }
 
-static void save_reflector_to_conf(cJSON *json, EnigmaConfiguration *configuration)
+static void save_reflector_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *reflector_item = cJSON_GetObjectItem(json, "reflector");
     if (cJSON_IsString(reflector_item))
@@ -181,7 +181,7 @@ static void save_reflector_to_conf(cJSON *json, EnigmaConfiguration *configurati
     }
 }
 
-static void save_rotor_to_conf(cJSON *json,EnigmaConfiguration *configuration)
+static void save_rotor_to_conf(const cJSON *json,EnigmaConfiguration *configuration)
 {
     configuration->rotors          = malloc(configuration->type * sizeof(uint8_t));
     configuration->rotor_positions = malloc(configuration->type * sizeof(uint8_t));
@@ -213,7 +213,7 @@ static void save_rotor_to_conf(cJSON *json,EnigmaConfiguration *configuration)
     }
 }
 
-static void save_plugboard_to_conf(cJSON *json, EnigmaConfiguration *configuration)
+static void save_plugboard_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *plugboard_item = cJSON_GetObjectItem(json, "plugboard");
     if (cJSON_IsString(plugboard_item))
@@ -222,7 +222,7 @@ static void save_plugboard_to_conf(cJSON *json, EnigmaConfiguration *configurati
     }
 }
 
-static void save_input_to_conf(cJSON *json, EnigmaConfiguration *configuration)
+static void save_input_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *input_item = cJSON_GetObjectItem(json, "input");
     if (cJSON_IsString(input_item))

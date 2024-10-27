@@ -38,7 +38,6 @@
 #define ROTOR_GAMMA_WIRING      "FSOKANUERHMBTIYCWLQPZXVGJD"
 #define ROTOR_GAMMA_INV_WIRING  "ELPZHAXJNYDRKFCTSIBMGWQVOU"
 
-
 /**
  * @brief Makes sure a value is >= 0 and < 26
  * @param value The value to be processed

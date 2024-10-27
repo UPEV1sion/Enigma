@@ -8,7 +8,6 @@
 #include "cycle_generator.h"
 #include "enigma/enigma.h"
 
-
 //
 // Created by Emanuel on 09.10.24.
 //

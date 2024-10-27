@@ -9,11 +9,9 @@
 #include "turing_bomb/brute_force.h"
 #include "helper/helper.h"
 
-
 //
 // Created by Emanuel on 07.08.2024.
 //
-
 
 static GtkWidget *known_plaintext;
 static GtkTextBuffer *enc_buffer;

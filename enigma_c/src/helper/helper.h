@@ -13,7 +13,7 @@
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
-#define ssize_t int64_t
+typedef ssize_t int64_t;
 #endif
 
 /**

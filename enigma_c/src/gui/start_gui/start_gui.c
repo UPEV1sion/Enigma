@@ -15,7 +15,6 @@
 // Created by Emanuel on 07.08.2024.
 //
 
-
 static void action_listener_enigma_btn(void)
 {
     run_gui();
