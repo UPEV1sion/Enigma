@@ -1,6 +1,4 @@
-#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "graph_builder.h"
 #include "cycle_finder_graph.h"
@@ -38,7 +36,7 @@ GraphOfLongestCycle* build_best_scrambler_graph(const char *restrict crib,
                                                 TuringBomb *restrict turing_bomb)
 {
 
-    // CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
+    // CyclePositions *cycle = find_longest_cycle_graph(crib, ciphertext);
     // if (cycle == NULL)
     // {
     //     fprintf(stderr, "No cycles found\n");

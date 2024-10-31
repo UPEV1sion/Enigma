@@ -13,7 +13,7 @@
 
 /*
  * I named this a graph approach, although im not "linking" them together.
- * This is more of a "HashMap" approach, but with dfs traversal.
+ * This is more of a "Hash Map" approach, but with dfs traversal.
  *
  * Why not linking?
  * We have the problem that if we were to link the tuples together,
@@ -27,11 +27,11 @@
  * Runtime:
  * Building the lookup is Θ(n) (linear).
  * DFS traversal: Θ(V + E).
- * When a cycle is found, all nodes in the cycle are not visited again.
+ * When a cycle is found, all nodes in the cycle are not visited_cycle again.
  * But when no cycle is found, we iterate through the whole crib, performing a DFS at each position.
  * So the WC is O(n^2)
  *
- * A more realistic scenario is that a cycle is found, marking the visited nodes.
+ * A more realistic scenario is that a cycle is found, marking the visited_cycle nodes.
  * From testing, I can verify that the runtime is linear
  * for the case ciphertext and crib length is <= 26, which is always the case.
  */
@@ -71,7 +71,12 @@ static void print_graph(const Graph *graph)
         for (int j = 0; j < graph->nodes_per_letter[i]; ++j)
         {
             const Node *current = graph->relations[i][j];
-            printf("[%c : %c, (%02d), v:%s] ", current->crib_char, current->cipher_char, current->position, current->visited ? "true" : "false");
+            printf("[%c : %c, (%02d), v_c: %s, v_s: %s] ",
+                   current->crib_char,
+                   current->cipher_char,
+                   current->position,
+                   current->visited_cycle ? "true" : "false",
+                   current->visited_stub ? "true" : "false");
         }
         puts("");
     }
@@ -85,7 +90,7 @@ static inline bool is_matching_chars_tuple(const Node *first, const Node *second
 
 static bool dfs_find_cycle(Graph *graph, Node *node,
                            const Node *parent, const char last_char,
-                           CycleCribCipher *restrict cycle)
+                           CyclePositions *restrict cycle)
 {
     if (node == NULL) return false;
     if (node->crib_char == 0) return false;
@@ -105,10 +110,10 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     cycle->positions_wo_stubs[cycle->len_wo_stubs++] = node->position;
 
     // printf("Visiting node: %c : %c, %u\n", node->crib_char, node->cipher_char, node->position);
-    if (node->visited)
+    if (node->visited_cycle)
         return true;
 
-    node->visited = true;
+    node->visited_cycle = true;
 
     const char lookup_char      = (char) ((node->crib_char == last_char) ? node->cipher_char : node->crib_char);
     const uint8_t i_lookup_char = lookup_char - 'A';
@@ -120,26 +125,26 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     }
 
     cycle->len_wo_stubs--;
-    node->visited = false;
+    node->visited_cycle = false;
 
     return false;
 }
 
-static bool find_cycle(Graph *graph, Node *nodes, const uint8_t nodes_len, CycleCribCipher *restrict cycle)
+static bool find_cycle(Graph *graph, Node *nodes, const uint8_t nodes_len, CyclePositions *restrict cycle)
 {
     bool ret = false;
 
     for (uint8_t i = 0; i < nodes_len; ++i)
     {
-        if (!nodes[i].visited)
+        if (!nodes[i].visited_cycle)
         {
-            CycleCribCipher temp = {0};
+            CyclePositions temp = {0};
             Node *current        = nodes + i;
             if (dfs_find_cycle(graph, current, NULL, current->crib_char, &temp))
             {
                 if (temp.len_wo_stubs <= 1) continue;
                 if (temp.len_w_stubs > cycle->len_w_stubs && temp.len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
-                    memcpy(cycle, &temp, sizeof(CycleCribCipher));
+                    memcpy(cycle, &temp, sizeof(CyclePositions));
 
                 puts("\n\nCycle found");
                 puts("W Stubs:");
@@ -168,6 +173,7 @@ static bool find_cycle(Graph *graph, Node *nodes, const uint8_t nodes_len, Cycle
                 puts("\n");
 
                 ret = true;
+                if(temp.len_wo_stubs >= nodes_len / 2) return ret;
             }
         }
     }
@@ -202,8 +208,8 @@ static void mark_stubs_rec(Graph *restrict graph, const uint8_t character)
     for (uint8_t i = 0; i < graph->nodes_per_letter[character]; ++i)
     {
         Node *current_node = graph->relations[character][i];
-        if (current_node->visited) continue;
-        current_node->visited = true;
+        if (current_node->visited_cycle || current_node->visited_stub) continue;
+        current_node->visited_stub = true;
         const char lookup_char      = (char) ((current_node->crib_char == character) ?
                                                 current_node->cipher_char : current_node->crib_char);
         const uint8_t i_lookup_char = lookup_char - 'A';
@@ -216,7 +222,7 @@ static void mark_stubs_rec(Graph *restrict graph, const uint8_t character)
  * @param graph The graph containing all nodes
  * @param cycle The cycle without the stubs found
  */
-static void mark_stubs(Graph *restrict graph, const CycleCribCipher *cycle)
+static void mark_stubs(Graph *restrict graph, const CyclePositions *cycle)
 {
     const char *cycle_chars = cycle->chars_wo_stubs;
     uint8_t current_char;
@@ -227,6 +233,13 @@ static void mark_stubs(Graph *restrict graph, const CycleCribCipher *cycle)
     puts("");
 }
 
+void free_cycle(Cycle *cycle)
+{
+    free(cycle->positions);
+    free(cycle->graph);
+    free(cycle);
+}
+
 /**
  * @brief Find cycles between the crib and plain, using a graph and a modified DFS
  * @warning Uses restrict pointers: It must be assured that crib and ciphertext reside in different storage areas.
@@ -234,35 +247,43 @@ static void mark_stubs(Graph *restrict graph, const CycleCribCipher *cycle)
  * @param ciphertext The Ciphertext
  * @return Cycle: cycle if cycles where found, NULL for errors and no cycles found.
  */
-Graph* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
+Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
 {
     size_t len;
 
     if ((len = strlen(ciphertext)) != strlen(crib)) return NULL;
     assertmsg(len <= MAX_CRIB_LEN, "Try a shorter crib");
 
-    Node nodes[MAX_CRIB_LEN] = {0};
-    Graph graph              = {0};
-
-    build_graph(&graph, crib, ciphertext, len, nodes);
-
-    CycleCribCipher *cycle = malloc(sizeof(CycleCribCipher));
+    Cycle *cycle = malloc(sizeof(Cycle));
     assertmsg(cycle != NULL, "malloc failed");
-    memset(cycle, 0, sizeof(CycleCribCipher));
+
+    Node nodes[MAX_CRIB_LEN] = {0};
+    Graph *graph             = malloc(sizeof (Graph));
+    assertmsg(graph != NULL, "malloc failed");
+    cycle->graph = graph;
+
+    build_graph(graph, crib, ciphertext, len, nodes);
+
+    CyclePositions *cycle_pos = malloc(sizeof(CyclePositions));
+    assertmsg(cycle_pos != NULL, "malloc failed");
+    cycle->positions = cycle_pos;
+
 
     write_dot_format(crib, ciphertext);
-    print_graph(&graph);
+    print_graph(graph);
 
-    puts(find_cycle(&graph, nodes, len, cycle) ? "true" : "false");
+    puts(find_cycle(graph, nodes, len, cycle_pos) ? "true" : "false");
 //    find_cycle(&graph, nodes, len, cycle);
-    mark_stubs(&graph, cycle);
-    print_graph(&graph);
+    mark_stubs(graph, cycle_pos);
+    print_graph(graph);
 
-    if (cycle->len_w_stubs == 0)
+    //TODO remove unnecessary nodes or count the necessary ones...
+
+    if (cycle_pos->len_w_stubs == 0)
     {
-        free(cycle);
+        free(graph);
         return NULL;
     }
 
-    return NULL;
+    return cycle;
 }

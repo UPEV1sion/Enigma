@@ -161,7 +161,7 @@ static void traverse_rotor_column(const Reflector *reflector,
 }
 
 static void setup_scramblers(TuringBomb *restrict turing_bomb,
-                             const CycleCribCipher *cycle,
+                             const CyclePositions *cycle,
                              const enum ROTOR_TYPE rotor_one_type,
                              const enum ROTOR_TYPE rotor_two_type,
                              const enum ROTOR_TYPE rotor_three_type)
@@ -251,7 +251,7 @@ static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
     return 1;
 }
 
-static uint8_t find_test_register_pos(const CycleCribCipher *cycle)
+static uint8_t find_test_register_pos(const CyclePositions *cycle)
 {
     // A very present letter in the cycle, but not right next to the input
     //TODO support stubs
@@ -265,7 +265,7 @@ static uint8_t find_test_register_pos(const CycleCribCipher *cycle)
     return most_freq_pos;
 }
 
-static void setup_test_register(const TuringBomb *restrict turing_bomb, const CycleCribCipher *cycle)
+static void setup_test_register(const TuringBomb *restrict turing_bomb, const CyclePositions *cycle)
 {
     //    create_diagonal_board(turing_bomb);
     const uint8_t most_freq_pos = find_test_register_pos(cycle);
@@ -321,12 +321,14 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     Reflector *reflector   = create_reflector_by_type(UKW_B);
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
-    // CycleCribCipher *cycle = find_longest_cycle_graph(crib, ciphertext);
-    // if (cycle == NULL)
-    // {
-    //     fprintf(stderr, "No cycles found\n");
-    //     return ERR_NO_CYCLES_FOUND;
-    // }
+     Cycle *cycle = find_longest_cycle_graph(crib, ciphertext);
+     if (cycle == NULL)
+     {
+         fprintf(stderr, "No cycles found\n");
+         return ERR_NO_CYCLES_FOUND;
+     }
+
+
 
     // setup_test_register(&turing_bomb, cycle);
     //TODO start traversing

@@ -34,7 +34,7 @@ typedef struct
  * @param c the other letter from the tuple where a letter is matched
  * @param tuples array with all the letter tuples
  * @param tuples_len the array length
- * @param visited_mask the tuples already visited as a bitmask
+ * @param visited_mask the tuples already visited_cycle as a bitmask
  * @param cycle to note down the cycle path and positions
  * @return bool: true or falsehood for cycle or stub
  */
@@ -45,13 +45,13 @@ static bool find_cycle(const uint8_t start, const uint8_t c,
     // Bitmask instead of a bool array for speed and minimizing recursion overhead
 
     /*  Once again for the interested reader:
-     *  Instead of using a boolean array to track which Tuples are visited,
-     *  I used a bitmask where each bit corresponds to a Tuple visited.
+     *  Instead of using a boolean array to track which Tuples are visited_cycle,
+     *  I used a bitmask where each bit corresponds to a Tuple visited_cycle.
      *  Note: crib can't be longer than 26 chars.
      *  Before the function call, we mark the corresponding bit of the "entry point" as active using an OR operation.
      *  In the function, we annotate the path and traverse through the tuples,
-     *  retrieving the next letter which is not already visited.
-     *  For the visited check we bitshift the bit into the wanted position and using an AND operation to see if its toggled.
+     *  retrieving the next letter which is not already visited_cycle.
+     *  For the visited_cycle check we bitshift the bit into the wanted position and using an AND operation to see if its toggled.
      *  After we retrieved the next letter, we set the corresponding bit.
      *  If backtracking goes back, we disable the bit with a more complex bit manipulation:
      *  The bit gets shifted into the right place, and then the whole mask gets flipped with a NOT operation.
@@ -152,7 +152,7 @@ CyclesCribCipher* find_cycles(const char *restrict crib, const char *restrict ci
 
     for (size_t i = 0; i < crib_len; i++)
     {
-        //TODO marking the already visited ones, so that they dont get traversed again -> reference maybe
+        //TODO marking the already visited_cycle ones, so that they dont get traversed again -> reference maybe
         const uint32_t visited_mask = (1 << i);
 
         CycleCribCipher temp               = {0};

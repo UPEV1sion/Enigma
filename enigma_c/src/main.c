@@ -38,16 +38,13 @@ int main(int argc, char *argv[])
     // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
 //      find_longest_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_longest_cycle_graph("BEACHHEAD", "EDBGEAHDB");
-    find_longest_cycle_graph("ATTACKATDAWN", "WSNPNLKLSTCS");
-     // CycleCribCipher *cycle = find_longest_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+//    find_longest_cycle_graph("ATTACKATDAWN", "WSNPNLKLSTCS");
+     find_longest_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
     // return 0;
 
-    // puts("");
-    // free(cycle);
-//    test_permut_table_builder();
-    // query_input(argc, argv);
+    query_input(argc, argv);
 
     return EXIT_SUCCESS;
 }
