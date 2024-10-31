@@ -265,6 +265,7 @@ Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict 
     build_graph(graph, crib, ciphertext, len, nodes);
 
     CyclePositions *cycle_pos = malloc(sizeof(CyclePositions));
+    memset(cycle_pos, 0, sizeof (CyclePositions));
     assertmsg(cycle_pos != NULL, "malloc failed");
     cycle->positions = cycle_pos;
 
@@ -281,9 +282,17 @@ Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict 
 
     if (cycle_pos->len_w_stubs == 0)
     {
-        free(graph);
+        fprintf(stderr, "No cycles found. Try a different crib.\n");
+        free_cycle(cycle);
         return NULL;
     }
+    if(cycle_pos->len_w_stubs > NUM_SCRAMBLERS_PER_ROW)
+    {
+        fprintf(stderr, "Cycle too long. Try a different crib.\n");
+        free_cycle(cycle);
+        return NULL;
+    }
+
 
     return cycle;
 }

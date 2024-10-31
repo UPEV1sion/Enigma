@@ -9,7 +9,7 @@
 //
 
 
-#define ERR_NO_CYCLES_FOUND 1
+#define ERR_CYCLE 1
 
 
 //void create_diagonal_board(TuringBomb *restrict turing_bomb)
