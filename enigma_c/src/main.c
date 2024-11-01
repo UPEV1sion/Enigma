@@ -24,7 +24,7 @@
 #include "gui/bomb_out_gui/bomb_out.h"
 #include "helper/helper.h"
 #include "turing_bomb/turing_bomb.h"
-#include "turing_bomb/cycle_finder/graph_builder.h"
+#include "turing_bomb/cycle_finder/cycle_finder.h"
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 #include "turing_bomb/cycle_finder/cycle_finder.h"
 
@@ -39,8 +39,10 @@ int main(int argc, char *argv[])
 //      find_longest_cycle_graph("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_longest_cycle_graph("BEACHHEAD", "EDBGEAHDB");
 //    find_longest_cycle_graph("ATTACKATDAWN", "WSNPNLKLSTCS");
-     find_longest_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-    // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+     // find_longest_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    find_longest_cycle("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+
+     // // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
     // return 0;
 

@@ -336,13 +336,24 @@ static void free_scramblers(TuringBomb *turing_bomb)
     //TODO redo
 }
 
-static void setup_scrambler(Cycle *restrict cycle, TuringBomb *restrict turing_bomb)
+static void setup_scrambler(const Cycle *cycle, TuringBomb *restrict turing_bomb)
 {
-    //TODO stubs
     Contact *test_register = turing_bomb->terminal->test_register;
-//    test_register->contact_num
+    if(cycle->positions->len_w_stubs < NUM_SCRAMBLERS_PER_ROW)
+    {
+        for(uint8_t node = 0; node < cycle->graph->nodes_per_letter[test_register->contact_num]; ++node)
+        {
 
+        }
+    } else if(cycle->positions->len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
+    {
 
+    }
+    else
+    {
+        fprintf(stderr, "Invalid cycle. Try a different one");
+        exit(ERR_CYCLE);
+    }
 }
 
 static int32_t setup_turing_bomb(const char *restrict crib, const char *restrict ciphertext, TuringBomb *restrict turing_bomb)
@@ -380,7 +391,7 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     int32_t err_code = setup_turing_bomb(crib, ciphertext, &turing_bomb);
     if(err_code != 0) return err_code;
 
-
+    Cycle *cycle = find_longest_cycle_graph(crib, ciphertext);
     // setup_test_register(&turing_bomb, cycle);
     //TODO start traversing
 
@@ -412,6 +423,7 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     }
 
 //    free(cycle);
+    free_cycle(cycle);
     free(turing_bomb.reflector);
 
     return ret_val;

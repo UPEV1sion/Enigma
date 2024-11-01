@@ -236,6 +236,17 @@ static void mark_stubs(Graph *restrict graph, const CyclePositions *cycle)
 void free_cycle(Cycle *cycle)
 {
     free(cycle->positions);
+    for(uint8_t node = 0; node < cycle->len_nodes_wo_stubs; ++node)
+    {
+        free(cycle->nodes_wo_stubs[node]);
+    }
+    // for(uint8_t letter = 0; letter < ALPHABET_SIZE; ++letter)
+    // {
+    //     for (uint8_t node = 0; node < cycle->graph->nodes_per_letter[letter]; ++node)
+    //     {
+    //         free(cycle->graph->relations[letter][node]);
+    //     }
+    // }
     free(cycle->graph);
     free(cycle);
 }
@@ -257,8 +268,9 @@ Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict 
     Cycle *cycle = malloc(sizeof(Cycle));
     assertmsg(cycle != NULL, "malloc failed");
 
-    Node nodes[MAX_CRIB_LEN] = {0};
-    Graph *graph             = malloc(sizeof (Graph));
+    Node *nodes  = malloc(sizeof(Node) * len);
+    assertmsg(nodes != NULL, "malloc failed");
+    Graph *graph = malloc(sizeof (Graph));
     assertmsg(graph != NULL, "malloc failed");
     cycle->graph = graph;
 

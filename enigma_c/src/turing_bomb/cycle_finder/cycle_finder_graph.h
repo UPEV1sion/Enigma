@@ -37,9 +37,12 @@ typedef struct
 
 typedef struct
 {
+    Node **nodes_w_stubs;
+    Node **nodes_wo_stubs;
+    uint8_t len_nodes_w_stubs;
+    uint8_t len_nodes_wo_stubs;
     CyclePositions *positions;
     Graph *graph;
-
 } Cycle;
 
 Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext);
