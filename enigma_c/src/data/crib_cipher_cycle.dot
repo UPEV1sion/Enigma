@@ -1,0 +1,20 @@
+graph G {
+	layout=neato;
+	edge [fontsize=11];
+	"S" -- "W" [label="0"];
+	"N" -- "E" [label="1"];
+	"M" -- "T" [label="2"];
+	"K" -- "T" [label="3"];
+	"G" -- "E" [label="4"];
+	"G" -- "R" [label="5"];
+	"S" -- "V" [label="6"];
+	"T" -- "O" [label="7"];
+	"Z" -- "R" [label="8"];
+	"Z" -- "H" [label="9"];
+	"U" -- "E" [label="10"];
+	"G" -- "R" [label="11"];
+	"A" -- "S" [label="12"];
+	"R" -- "A" [label="13"];
+	"L" -- "G" [label="14"];
+	"V" -- "E" [label="15"];
+}
