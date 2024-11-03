@@ -25,7 +25,7 @@ Here is the wiring of the Rotor I:
 When current is applied to the letter 'A' at the rotor input, the internal wiring substitutes it to the letter 'E'.
 Because a substitution cipher is very unsafe, we permute the rotor postion by rotating it with each keypress.
 So next time we press an 'A'
-the input contact is still at the same place, but now the rotor has advanced forward one place. 
+the input cable is still at the same place, but now the rotor has advanced forward one place. 
 The current of the letter 'A' now takes the path of the rotor letter 'B'. 
 The rotation takes place before each keypress.
 So if the starting position of the rotor was to be 'A',

@@ -24,7 +24,9 @@ enum ROTOR_TYPE
     ROTOR_5,
     ROTOR_6,
     ROTOR_7,
-    ROTOR_8
+    ROTOR_8,
+    ROTOR_BETA,
+    ROTOR_GAMMA
 };
 
 Rotor* create_rotor_by_type(enum ROTOR_TYPE type, uint8_t position, uint8_t offset);

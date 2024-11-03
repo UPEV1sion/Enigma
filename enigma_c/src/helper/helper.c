@@ -1,10 +1,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include <limits.h>
+#include <stdio.h>
 
 #include "helper.h"
-
 
 // I don't know why, but on my Linux WSL this is undefined
 #ifndef ERANGE
@@ -17,7 +16,7 @@
  * @param number the number to be extracted
  * @return int32_t: error code
  */
-int32_t get_number_from_string(const char *str, int32_t *number)
+int32_t get_number_from_string(const char *restrict str, int32_t *restrict number)
 {
     if (str == NULL) return ERR_NULL_POINTER;
     if (strlen(str) == 0) return ERR_EMPTY_STRING;
@@ -56,14 +55,14 @@ int32_t get_number_from_string(const char *str, int32_t *number)
  * @param input the string to be capitalized
  * @return int32_t: error code
  */
-int32_t to_uppercase(char *input)
+int32_t to_uppercase(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
-    const size_t length = strlen(input);
-    if (length == 0) return ERR_EMPTY_STRING;
+    size_t len;
+    if ((len = strlen(input)) == 0) return ERR_EMPTY_STRING;
 
 
-    for (size_t i = 0; i < length; ++i)
+    for (size_t i = 0; i < len; ++i)
     {
         input[i] = (char) toupper(input[i]);
     }
@@ -73,22 +72,20 @@ int32_t to_uppercase(char *input)
 
 /**
  * @brief Removes all non-alphabetic and numeric chars from a string
- * @param input the string where the alnums chars should be removed
+ * @param input the string where the non-alnum chars should be removed
  * @return int32_t: error code
  */
-int32_t remove_non_alnum(char *input)
+int32_t remove_non_alnum(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     if (strlen(input) == 0) return ERR_EMPTY_STRING;
-    int32_t i = 0;
-    int32_t j = 0;
+    int32_t i = 0, j = 0;
 
     while (input[i] != 0)
     {
         if (isalnum(input[i]))
         {
-            input[j] = input[i];
-            j++;
+            input[j++] = input[i];
         }
         i++;
     }
@@ -99,25 +96,50 @@ int32_t remove_non_alnum(char *input)
 
 /**
  * @brief Removes all non-alphabetic chars
- * @param input the string where the none alphabetic chars should be removed
+ * @param input the string where the non-alphabetic chars should be removed
  * @return int32_t: error code
  */
-int32_t remove_non_alpha(char *input)
+int32_t remove_non_alpha(char *restrict input)
 {
     if (input == NULL) return ERR_NULL_POINTER;
     if (strlen(input) == 0) return ERR_EMPTY_STRING;
-    int32_t i = 0;
-    int32_t j = 0;
+
+    int32_t i = 0, j = 0;
 
     while (input[i] != 0)
     {
         if (isalpha(input[i]))
         {
-            input[j] = input[i];
-            j++;
+            input[j++] = input[i];
         }
         i++;
     }
+    input[j] = 0;
+
+    return 0;
+}
+
+/**
+ * Removes all non-ascii chars
+ * @param input the string where the non-ascii chars should be removed
+ * @return int32_t: error code
+ */
+int32_t remove_non_ascii(char *restrict input)
+{
+    if (input == NULL) return ERR_NULL_POINTER;
+    if (strlen(input) == 0) return ERR_EMPTY_STRING;
+
+    int32_t i = 0, j = 0;
+
+    while (input[i] != 0)
+    {
+        if (isascii(input[i]))
+        {
+            input[j++] = input[i];
+        }
+        i++;
+    }
+
     input[j] = 0;
 
     return 0;
@@ -135,7 +157,7 @@ bool is_permutation(const char *first, const char *second)
     /*  I'll leave this here for the interested reader:
      *  Instead of using a boolean or int array to toggle or count the letters,
      *  I used a bitmask where each bit corresponds to an uppercase letter.
-     *  After the subtraction of 'A' we leftshift the one by n places, which is equivalent to multiplying it by 2^n
+     *  After the subtraction of 'A' we leftshift the one by n places, which is equivalent to multiplying it by 2^n.
      *  We XOR this bit with the mask, which is effectively toggling it.
      *  If first and second contain the same chars, the number must be 0 again,
      *  so the final check is a straightforward == 0.
@@ -164,13 +186,14 @@ bool is_permutation(const char *first, const char *second)
  * @param str the original string
  * @return uint8_t*: to the processed array, NULL for error
  */
-uint8_t* get_int_array_from_string(const char *str)
+uint8_t* get_int_array_from_string(const char *restrict str)
 {
     if (str == NULL) return NULL;
-    const size_t len = strlen(str);
-    if (len == 0) return NULL;
+    size_t len;
+    if ((len = strlen(str)) == 0) return NULL;
+
     uint8_t *array = malloc(len * sizeof(uint8_t));
-    assertmsg(array != NULL, "array == NULL");
+    assertmsg(array != NULL, "malloc failed");
 
     for (size_t i = 0; i < len; i++)
     {
@@ -186,12 +209,12 @@ uint8_t* get_int_array_from_string(const char *str)
  * @param size the array size
  * @return char*: to the processed string, NULL for error
  */
-char* get_string_from_int_array(const uint8_t *array, const size_t size)
+char* get_string_from_int_array(const uint8_t *restrict array, const size_t size)
 {
     if (array == NULL) return NULL;
     if (size == 0) return NULL;
     char *str = malloc(size + 1);
-    assertmsg(str != NULL, "str == NULL");
+    assertmsg(str != NULL, "malloc failed");
 
     for (size_t i = 0; i < size; i++)
     {
@@ -206,20 +229,22 @@ char* get_string_from_int_array(const uint8_t *array, const size_t size)
  * @brief Checks if a string has duplicate chars
  * @note Ignores spaces
  * @param str the string to be checked
- * @return bool: true of falsehood
+ * @return bool: true or falsehood
  */
-bool has_duplicates(const char *str)
+bool has_duplicates(const char *restrict str)
 {
     if (str == NULL) return false;
-    const size_t len = strlen(str);
-    if (len == 0) return false;
+    size_t len;
+    if ((len = strlen(str)) == 0) return false;
 
-    bool seen[ASCII_SIZE] = {false};
+    bool visited[ASCII_SIZE] = {false};
+
     for (size_t i = 0; i < len; ++i)
     {
-        const unsigned char c = str[i];
-        if (seen[c]) return true;
-        if (!isspace(c)) seen[c] = true;
+        const char c = str[i];
+        if(c == ' ') continue;
+        if(visited[(uint8_t) c]) return true;
+        visited[(uint8_t) c] = true;
     }
 
     return false;
@@ -228,13 +253,13 @@ bool has_duplicates(const char *str)
 /**
  * @brief Checks if a string contains spaces
  * @param str the string to be checked
- * @return bool: true of falsehood
+ * @return bool: true or falsehood
  */
-bool contains_spaces(const char *str)
+bool contains_spaces(const char *restrict str)
 {
     if (str == NULL) return false;
-    const size_t len = strlen(str);
-    if (len == 0) return false;
+    size_t len;
+    if ((len = strlen(str)) == 0) return false;
 
     for (size_t i = 0; i < len; ++i)
     {
@@ -246,13 +271,15 @@ bool contains_spaces(const char *str)
 /**
  * @brief Counts alphabetic characters in a string
  * @param str the string where the alphas should be counted
- * @return int32_t: num of alphas, SIZE_MAX for errors
+ * @return size_t: num of alphas
  */
-size_t count_alphas(const char *str)
+ssize_t count_alphas(const char *restrict str)
 {
-    if (str == NULL) return SIZE_MAX;
-    const size_t len = strlen(str);
-    size_t counter   = 0;
+    if (str == NULL) return ERR_NULL_POINTER;
+    size_t len;
+    if ((len = strlen(str)) == 0) return ERR_EMPTY_STRING;
+
+    ssize_t counter   = 0;
     for (size_t i = 0; i < len; ++i)
     {
         if (isalpha(str[i])) counter++;
@@ -262,23 +289,23 @@ size_t count_alphas(const char *str)
 }
 
 /**
- * @brief Tests if str2 is a substring of str1
+ * @brief Counts the number of occurrences of c in str
  * @param str string where the chars should be counted
  * @param c the char which is to be counted
- * @return size_t: the number of chars, SIZE_MAX for error
+ * @return ssize_t: the number of chars
  */
-size_t count_c(const char *str, const char c)
+ssize_t count_c(const char *restrict str, const char c)
 {
-    if (str == NULL) return SIZE_MAX;
-    const size_t len = strlen(str);
-    if (len == 0) return SIZE_MAX;
+    if (str == NULL) return ERR_NULL_POINTER;
+    size_t len;
+    if ((len = strlen(str)) == 0) return ERR_EMPTY_STRING;
 
-    size_t occ = 0;
+    ssize_t counter = 0;
     for (size_t i = 0; i < len; ++i)
     {
-        if (str[i] == c) occ++;
+        if (str[i] == c) counter++;
     }
-    return occ;
+    return counter;
 }
 
 /**
@@ -298,7 +325,7 @@ bool is_substring(const char *str1, const char *str2)
  * @param len size of the array
  * @return double: the IC, NaN for error
  */
-double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
+double calc_index_of_coincidence(const uint8_t *restrict arr, const size_t len)
 {
     if (arr == NULL) return NaN;
     if (len == 0) return 0;
@@ -334,15 +361,18 @@ double calc_index_of_coincidence(const uint8_t *arr, const size_t len)
  * @param lim upper limit of how much characters are to be read
  * @return size_t: number of characters read
  */
-size_t my_getline(char *str, size_t lim)
+size_t my_getline(char *restrict str, const int32_t lim)
 {
     if (str == NULL) return 0;
 
-    int32_t c;
-    const char *temp = str;
-    while (--lim > 0 && (c = getchar()) != EOF && c != '\n')
-        *str++ = (char) c;
+    if(fgets(str, lim, stdin) == NULL) return 0;
 
-    *str = 0;
-    return str - temp;
+    size_t len = strlen(str);
+
+    if (len > 0 && str[len - 1] == '\n')
+    {
+        str[--len] = 0;
+    }
+
+    return len;
 }

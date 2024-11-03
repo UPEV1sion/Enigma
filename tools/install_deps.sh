@@ -1,17 +1,17 @@
 install_arch() {
 	echo "Arch Linux detected. Installing dependencies..."
-	sudo pacman -Sy --noconfirm cjson gtk3 pkg-config
+	sudo pacman -Sy --noconfirm gtk3 pkg-config
 }
 
 install_debian() {
 	echo "Debian-based Linux detected. Installing dependencies..."
 	sudo apt update
-	sudo apt install -y libcjson-dev libgtk-3-dev pkg-config
+	sudo apt install -y libgtk-3-dev pkg-config
 }
 
 install_msys2() {
 	echo "MSYS2 environment detected. Installing dependencies..."
-	pacman -Sy --noconfirm mingw-w64-x86_64-cjson mingw-w64-x86_64-gtk3 mingw-w64-x86_64-pkg-config
+	pacman -Sy --noconfirm mingw-w64-x86_64-gtk3 mingw-w64-x86_64-pkg-config
 	pacman -S --noconfirm mingw-w64-ucrt-x86_64-toolchain base-devel
 }
 
@@ -22,7 +22,7 @@ install_macos() {
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
     brew update
-    brew install cjson gtk+3 pkg-config
+    brew install gtk+3 pkg-config
 }
 
 detect_os() {

@@ -25,7 +25,7 @@ typedef struct
 
 typedef struct
 {
-    char plugboard[26];
+    char plugboard[ALPHABET_SIZE];
     char *message;
     uint8_t *rotor_positions;
     uint8_t *ring_settings;
@@ -36,6 +36,4 @@ typedef struct
 
 Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_configuration);
 uint8_t* traverse_enigma(const Enigma *enigma);
-uint8_t* traverse_m3_enigma(const Enigma *enigma, uint8_t *text_in_integer, size_t array_size);
-uint8_t* traverse_m4_enigma(const Enigma *enigma, uint8_t *text_in_integer, size_t array_size);
 void free_enigma(Enigma *enigma);

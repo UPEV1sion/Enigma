@@ -3,7 +3,6 @@
 
 #include "brute_force.h"
 #include "helper/helper.h"
-#include "gui/bomb_out.h"
 #include "enigma/enigma.h"
 
 //
@@ -25,12 +24,9 @@
 #endif
 
 
-#define OUTPUT_STRING_SIZE 64
-#ifndef ALPHABET_SIZE
-#define ALPHABET_SIZE 26
-#endif
-#define NUM_ROTATORS 5
-#define NUM_ROTORS_PER_ENIGMA 3
+#define OUTPUT_STRING_SIZE      64
+#define NUM_ROTATORS            5
+#define NUM_ROTORS_PER_ENIGMA   3
 
 typedef struct Node Node;
 
@@ -308,7 +304,6 @@ static void print_conf(const char *rotor_string, const char *position_string, co
     fwrite("\n", sizeof(char), 1, file);
 }
 
-//TODO refactor
 static void test_config(register const char *known_plaintext,
                         register const EnigmaConfiguration *conf,
                         FILE *file)
@@ -372,8 +367,6 @@ static void test_configs_sorted(const char *known_plaintext)
     for (uint16_t i = 0; i < 1 && conf != NULL; ++i)
     {
         printf("%d %d %d\n", conf->rotors[0], conf->rotors[1], conf->rotors[2]);
-        //TODO: faster solution than a copy of conf?
-        //TODO: may look into cuda computing
         #ifdef _OPENMP
         OMP_PARALLEL_PRAGMA
         #endif
@@ -432,7 +425,7 @@ static void test_configs_sorted(const char *known_plaintext)
     fclose(file);
 }
 
-void crack_enigma(const char *known_plaintext, char *encrypted_text)
+void brute_force_enigma(const char *known_plaintext, char *encrypted_text)
 {
     int32_t combinations = 0;
     FILE *file;
