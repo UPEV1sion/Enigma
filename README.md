@@ -1,7 +1,6 @@
-[//]: # (<div style="width: 1000px; height: 1000px; overflow: hidden;">)
-<img src="graphics/Logos-Enigma-2.png" alt="Enigma Logo">
-
-[//]: # (</div>)
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<img src="graphics/Logos-Enigma-2.png" alt="Enigma Logo" width="70%">
+</div>
 
 # Enigma Simulator
 > [!NOTE]
