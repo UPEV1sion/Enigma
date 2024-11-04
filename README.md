@@ -1,3 +1,5 @@
+<img src="graphics/Logos-Enigma.png">
+
 # Enigma Simulator
 > [!NOTE]
 > This is a project work at my university. This work took place as part of an "Enigma Rebuild Project". 

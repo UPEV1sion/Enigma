@@ -268,9 +268,6 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     int32_t err_code = setup_turing_bomb(crib, ciphertext, &turing_bomb, nodes);
     if(err_code != 0) return err_code;
 
-//    Cycle *cycle = find_longest_cycle_graph(crib, ciphertext);
-    // setup_test_register(&turing_bomb, cycle);
-
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
     int32_t ret_val = 1;
