@@ -11,7 +11,7 @@
 
 /**
 * @brief Platform independent implementation of an omp parallel for loop,
-* as linux requires stderr as a shared resource. TODO MAC?
+* as linux requires stderr as a shared resource. TODO MAC
 */
 #ifdef _OPENMP
 #if defined(_WIN32) || defined(_WIN64)

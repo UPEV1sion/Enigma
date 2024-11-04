@@ -1,10 +1,6 @@
 #include <stdint.h>
 #include <string.h>
 
-//#ifdef _MSC_VER
-//#include <intrin.h> //MSVC intrinsics again
-//#endif
-
 #include "turing_bomb.h"
 #include "cycle_finder/cycle_finder.h"
 #include "turing_bomb/cycle_finder/cycle_finder_graph.h"
@@ -61,10 +57,9 @@ typedef struct ScramblerEnigma
 
 typedef struct TuringBomb
 {
-    // TODO pointer array?
 //    ScramblerEnigma bomb_row[NUM_SCRAMBLERS_PER_ROW];
     // This doesn't represent the scrambler order but the scramblers connected to the test register and so forth.
-    // As i needed a way to efficiently traverse the bombe and simulate current.
+    // As I needed a way to efficiently traverse the bombe and simulate current.
     BombeNode *starting_node;
     Terminal *terminal;
     Reflector *reflector;
@@ -78,6 +73,12 @@ struct BombeNode
   uint8_t neighbour_count;
   Contact *contact;
 };
+
+static void free_bomb(TuringBomb *turing_bomb)
+{
+    free(turing_bomb->reflector);
+    //TODO
+}
 
 static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
 {
@@ -160,8 +161,6 @@ static void traverse_rotor_column(const Reflector *reflector,
         }
     }
 
-   //TODO turing bomb rotation
-
     uint8_t letter_num;
     for (letter_num = 0; letter_num < input_contact->num_active_connections; ++letter_num)
     {
@@ -176,7 +175,7 @@ static void traverse_rotor_column(const Reflector *reflector,
 
         if((output_contact->active_contacts & (1 << character)) == 0)
         {
-            output_contact->active_cable_connections[output_contact->num_active_connections]     = character;
+            output_contact->active_cable_connections[output_contact->num_active_connections] = character;
             output_contact->num_active_connections++;
             if(output_contact->num_active_connections == 26) return;
             output_contact->active_contacts |= (1 << character);
@@ -199,178 +198,56 @@ static void traverse_rotor_column(const Reflector *reflector,
     // output_contact->num_active_connections = letter_num;
 }
 
-//static void setup_scramblers(TuringBomb *restrict turing_bomb,
-//                             const CyclePositions *cycle,
-//                             const enum ROTOR_TYPE rotor_one_type,
-//                             const enum ROTOR_TYPE rotor_two_type,
-//                             const enum ROTOR_TYPE rotor_three_type)
-//{
-//    // const uint8_t bound = cycle->len_w_stubs < NUM_SCRAMBLERS_PER_ROW
-//    //                           ?  cycle->len_w_stubs
-//    //                           : cycle->len_wo_stubs;
-//
-//    // const uint8_t *cycle_pos = cycle->len_w_stubs < NUM_SCRAMBLERS_PER_ROW
-//    //                                ? cycle->positions_w_stubs
-//    //                                : cycle->positions_wo_stubs;
-//
-//    // I haven't found a good way yet to denote that a position is part of a stub. Maybe a bitmask will do the trick
-//    const uint8_t bound                 = cycle->len_wo_stubs - 1;
-//    turing_bomb->scrambler_columns_used = bound;
-//    //    const uint8_t *cycle_pos            = cycle->positions_wo_stubs;
-//    const char *cycle_letters = cycle->chars_wo_stubs;
-//    const uint8_t *cycle_pos  = cycle->positions_wo_stubs;
-//
-//    ScramblerEnigma *current_column;
-//    uint8_t current_terminal        = cycle_letters[0] - 'A';
-//    uint8_t next_terminal;
-//    Contact *current_contact;
-//    Contact *next_contact;
-//
-//    for (uint8_t column = 0; column < bound; ++column)
-//    {
-//        // Rotors work with 1 off.
-//        // The bottom rotor at the turing bomb, although rotating the slowest,
-//        // corresponded to the rightmost right enigma rotor
-//        current_column            = turing_bomb->bomb_row + column;
-//        current_column->rotors[0] = create_rotor_by_type(rotor_one_type, 1, 1);
-//        current_column->rotors[1] = create_rotor_by_type(rotor_two_type, 1, 1);
-//        current_column->rotors[2] = create_rotor_by_type(rotor_three_type, cycle_pos[column] + 1, 1);
-//        next_terminal             = cycle_letters[column + 1] - 'A';
-//        current_contact           = turing_bomb->terminal->contacts[current_terminal];
-//        next_contact              = turing_bomb->terminal->contacts[next_terminal];
-//        current_column->in        = current_contact;
-//        current_column->out       = next_contact;
-//
-//        current_terminal = next_terminal;
-//    }
-//}
-
-//static int32_t traverse_rotor_conf(TuringBomb *turing_bomb)
-//{
-//    const Contact *test_reg_contact = turing_bomb->terminal->test_register;
-//    // uint8_t input_letter       = test_reg->wire_num;
-//    const Reflector *reflector = turing_bomb->reflector;
-//    Contact **contacts         = turing_bomb->terminal->contacts;
-//
-//    uint8_t column_num = test_reg_contact->contact_num;
-//
-//
-//    for (int i = 0; i < turing_bomb->scrambler_columns_used; ++i)
-//    {
-//        const ScramblerEnigma *current_column = turing_bomb->bomb_row + i;
-//        printf("%d -> %d\n", current_column->in->contact_num, current_column->out->contact_num);
-//    }
-//
-//    // In of first contact is already set
-//    do
-//    {
-//        ScramblerEnigma *current_column;
-//        do
-//        {
-//            //FIXME test_reg postion in the contacts isn't the postion in the scramblers.
-//            current_column = turing_bomb->bomb_row + column_num;
-//            column_num     = ((column_num + 1) % turing_bomb->scrambler_columns_used);
-//
-//            //FIXME traversal isn't connect
-//            traverse_rotor_column(reflector, current_column, contacts);
-//        } while (column_num != test_reg_contact->contact_num &&
-//            test_reg_contact->num_active_connections != 26);
-//        // traverse_rotor_column(reflector, current_column, contacts);
-//        // print_all_active_contacts(turing_bomb);
-//        // exit(0);
-//
-//        printf("Test Reg: %d\n", test_reg_contact->num_active_connections);
-//    } while (test_reg_contact->num_active_connections != 1 && test_reg_contact->num_active_connections != 26);
-//
-//    print_current_configuration(turing_bomb);
-////    exit(0);
-//
-//    printf("%d\n", test_reg_contact->num_active_connections);
-//
-//    return 1;
-//}
-
-static uint8_t find_test_register_pos(const Cycle *cycle)
+static uint8_t find_most_frequent_menu_pos(Menu *menu)
 {
-    // A very present letter in the cycle, but not right next to the input
+    CribCipherTuple *most_freq_tuple = menu->cycle;
     uint8_t most_freq_pos = 0;
-    for (uint8_t cycle_pos = 1; cycle_pos < cycle->positions->len_wo_stubs - 2; ++cycle_pos)
+
+    for(uint8_t tuple = 1; tuple < menu->len_cycle; ++tuple)
     {
-        uint8_t lookup_char = cycle->positions->chars_wo_stubs[cycle_pos] - 'A';
-        if (cycle->graph->nodes_per_letter[lookup_char] > most_freq_pos)
-            most_freq_pos = cycle_pos;
+        CribCipherTuple *current_tuple = menu->cycle + tuple;
+
+        if(current_tuple->first.num_stubs > most_freq_tuple->first.num_stubs)
+        {
+            most_freq_tuple = current_tuple;
+            most_freq_pos   = tuple;
+        }
     }
 
     return most_freq_pos;
 }
 
-static void setup_test_register(const TuringBomb *restrict turing_bomb, const Cycle *cycle)
+static void setup_test_register(Menu *menu, CribCipherTuple *most_freq_pos, TuringBomb *restrict turing_bomb)
 {
-    //    create_diagonal_board(turing_bomb);
-    const uint8_t most_freq_pos = find_test_register_pos(cycle);
+    const uint8_t terminal_i = most_freq_pos->first.letter - 'A';
+    turing_bomb->terminal->test_register = turing_bomb->terminal->contacts[terminal_i];
+    Contact *test_reg = turing_bomb->terminal->test_register;
 
-    const uint8_t test_reg_letter      = cycle->positions->chars_wo_stubs[most_freq_pos] - 'A';
-    const uint8_t test_reg_wire_letter = cycle->positions->chars_wo_stubs[most_freq_pos + 1] - 'A';
-
-    Contact *test_reg_contact;
-//    TestRegister *test_reg = turing_bomb->terminal->test_register;
-    Contact **contacts     = turing_bomb->terminal->contacts;
-
-    test_reg_contact = contacts[test_reg_letter];
-    turing_bomb->terminal->test_register = test_reg_contact;
-    test_reg_contact->active_cable_connections[test_reg_contact->num_active_connections] = test_reg_wire_letter;
-    test_reg_contact->num_active_connections++;
-    test_reg_contact->active_contacts |= (1 << test_reg_wire_letter);
-    Contact *diagonal_contact = contacts[test_reg_wire_letter];
-    diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections] = test_reg_letter;
-    diagonal_contact->num_active_connections++;
-    diagonal_contact->active_contacts |= (1 << test_reg_wire_letter);
-    //TODO stack or at the corresponding position
-    test_reg_contact->active_cable_connections[test_reg_contact->active_contacts] = most_freq_pos;
-    test_reg_contact->active_contacts++;
-//    test_reg->wire_num = test_reg_wire_letter;
+    test_reg->active_cable_connections[0] = 0; //Test the letter "A"
+    turing_bomb->terminal->contacts[0]->active_cable_connections[0] = test_reg->contact_num; //Contact connected through the diag. board
+    //TODO ringspeicher node setup
 }
 
-static void free_scramblers(TuringBomb *turing_bomb)
+static int32_t setup_turing_bomb(const char *restrict crib,
+                                 const char *restrict ciphertext,
+                                 TuringBomb *restrict turing_bomb,
+                                 BombeNode *bomb_nodes)
 {
-    //TODO redo
-}
-
-static void setup_scrambler(const Cycle *cycle, TuringBomb *restrict turing_bomb)
-{
-    Contact *test_register = turing_bomb->terminal->test_register;
-    if(cycle->positions->len_w_stubs < NUM_SCRAMBLERS_PER_ROW)
+    Menu *menu = find_longest_menu(crib, ciphertext);
+    if (menu == NULL)
     {
-        for(uint8_t node = 0; node < cycle->graph->nodes_per_letter[test_register->contact_num]; ++node)
-        {
-
-        }
-    } else if(cycle->positions->len_wo_stubs < NUM_SCRAMBLERS_PER_ROW)
-    {
-
-    }
-    else
-    {
-        fprintf(stderr, "Invalid cycle. Try a different one");
-        exit(ERR_CYCLE);
-    }
-}
-
-static int32_t setup_turing_bomb(const char *restrict crib, const char *restrict ciphertext, TuringBomb *restrict turing_bomb)
-{
-    Cycle *cycle = find_longest_cycle_graph(crib, ciphertext);
-    if (cycle == NULL)
-    {
+        free_bomb(turing_bomb);
         return ERR_CYCLE;
     }
+    const uint8_t most_freq_pos = find_most_frequent_menu_pos(menu);
 
-    setup_test_register(turing_bomb, cycle);
+    setup_test_register(menu, menu->cycle + most_freq_pos, turing_bomb);
 
-    free_cycle(cycle);
 
+
+    free_menu(menu);
     return 0;
 }
-
 
 int32_t start_turing_bomb(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
@@ -383,17 +260,16 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
         contacts[contact].contact_num = contact;
         terminal.contacts[contact]    = &contacts[contact];
     }
-    //TODO set test reg in setup_test_register
 //    terminal.test_register = &test_reg;
     Reflector *reflector   = create_reflector_by_type(UKW_B);
+    BombeNode nodes[MAX_CRIB_LEN];
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
-    int32_t err_code = setup_turing_bomb(crib, ciphertext, &turing_bomb);
+    int32_t err_code = setup_turing_bomb(crib, ciphertext, &turing_bomb, nodes);
     if(err_code != 0) return err_code;
 
-    Cycle *cycle = find_longest_cycle_graph(crib, ciphertext);
+//    Cycle *cycle = find_longest_cycle_graph(crib, ciphertext);
     // setup_test_register(&turing_bomb, cycle);
-    //TODO start traversing
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
@@ -417,13 +293,10 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
                 //TODO rewrite
 //                setup_scramblers(&turing_bomb, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
 //                ret_val |= traverse_rotor_conf(&turing_bomb);
-                free_scramblers(&turing_bomb);
             }
         }
     }
 
-//    free(cycle);
-    free_cycle(cycle);
     free(turing_bomb.reflector);
 
     return ret_val;

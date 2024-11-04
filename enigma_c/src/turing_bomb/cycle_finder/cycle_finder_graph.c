@@ -9,8 +9,6 @@
 // Created by Emanuel on 29.09.2024.
 //
 
-//TODO bitmask for denoting stubs and cycles?
-
 /*
  * I named this a graph approach, although im not "linking" them together.
  * This is more of a "Hash Map" approach, but with dfs traversal.
@@ -96,13 +94,9 @@ static bool dfs_find_cycle(Graph *graph, Node *node,
     if (node->crib_char == 0) return false;
     if (node == parent) return false;
 
-    //TODO can be removed?
     if(is_matching_chars_tuple(node, parent)) return false;
 
     node->cycle_position = cycle->len_wo_stubs;
-    // TODO continue cycle search after a tuple of tuples is found.
-    // A tuple of tuples is a very powerful way to eliminate invalid plugboard settings
-    // Turns out this is a well known compsci problem... maybe just denote it and continue?
     printf("%c : %c\n", node->crib_char, node->cipher_char);
     cycle->chars_w_stubs[cycle->len_w_stubs]         = last_char;
     cycle->chars_wo_stubs[cycle->len_wo_stubs]       = last_char;
@@ -289,8 +283,6 @@ Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict 
 //    find_cycle(&graph, nodes, len, cycle);
     mark_stubs(graph, cycle_pos);
     print_graph(graph);
-
-    //TODO remove unnecessary nodes or count the necessary ones...
 
     if (cycle_pos->len_w_stubs == 0)
     {

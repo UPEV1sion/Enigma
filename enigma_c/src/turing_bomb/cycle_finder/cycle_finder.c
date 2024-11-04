@@ -143,7 +143,6 @@ static void free_node(MenuNode *node)
         free(node->stubs[stub]);
     }
     free(node->stubs);
-//    free(node);
 }
 
 void free_menu(Menu *menu)
@@ -155,7 +154,6 @@ void free_menu(Menu *menu)
     {
         tuple = menu->cycle + node;
         free_node(&tuple->second);
-        free(tuple);
     }
 
     free(menu->cycle);
@@ -170,7 +168,7 @@ static void set_stubs(MenuNode *node,
     const uint8_t current_i = node->letter - 'A';
     uint8_t num_stubs = tuples_per_letter[current_i] - 1; //ignoring the own one
 
-    node->stubs = malloc(sizeof(CribCipherTuple) * num_stubs); //TODO fix the wasteful allocation of unnecessary nodes...
+    node->stubs = malloc(sizeof(CribCipherTuple) * num_stubs); //TODO fix the wasteful allocation of unnecessary nodes... maybe realloc?
     assertmsg(node->stubs != NULL, "malloc failed");
 
     uint8_t stubs_count = 0;

@@ -22,7 +22,6 @@ typedef struct
 
 typedef struct
 {
-    // TODO store them as uint8_t
     char crib_char, cipher_char;
     uint8_t position, cycle_position;
     bool visited_cycle;
@@ -45,5 +44,6 @@ typedef struct
     Graph *graph;
 } Cycle;
 
+DEPRECATED("find_longest_cycle_graph is deprecated. Use find_longest_menu instead")
 Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext);
 void free_cycle(Cycle *cycle);
