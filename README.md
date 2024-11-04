@@ -1,4 +1,7 @@
-<img src="graphics/Logos-Enigma.png">
+[//]: # (<div style="width: 1000px; height: 1000px; overflow: hidden;">)
+<img src="graphics/Logos-Enigma-2.png" alt="Enigma Logo">
+
+[//]: # (</div>)
 
 # Enigma Simulator
 > [!NOTE]
