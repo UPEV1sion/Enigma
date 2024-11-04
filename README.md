@@ -1,5 +1,5 @@
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-<img src="graphics/Logos-Enigma-2.png" alt="Enigma Logo" width="70%">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; margin: 0;">
+<img src="graphics/Logos-Enigma-2.png" alt="Enigma Logo" style="width: 70%; max-width: 100%; height: auto;">
 </div>
 
 # Enigma Simulator
@@ -59,7 +59,7 @@ cmake ../enigma_c
 cmake --build .
 ```
 > [!NOTE]
-> I've done my best to make this project cross-platform and even ditched the C23 standard because its no fully supported yet.
-> Sadly I don't have access to a macOS system like my predecessor. So I can't fully guarantee macOS support. But im working on it.  
+> I've done my best to make this project cross-platform and even ditched the C23 standard because it's not fully supported yet.
+> Sadly, I don't have access to a macOS system like my predecessor. So I can't fully guarantee macOS support. But I'm working on it.  
 
 This will create a binary called `enigma` and `enigma_test` in the `build/bin` directory. Running `enigma -h` will show you how to use the program. If you never used CMake before, an explanation of the commands is given [here](docs/CMakeLists.md).
