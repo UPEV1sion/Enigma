@@ -40,13 +40,15 @@ int main(int argc, char *argv[])
 //     find_longest_cycle_graph("BEACHHEAD", "EDBGEAHDB");
 //    find_longest_cycle_graph("ATTACKATDAWN", "WSNPNLKLSTCS");
      // find_longest_cycle_graph("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-    find_longest_cycle("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
+    Menu *menu = find_longest_menu("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
 
      // // CyclesCribCipher *cycles = find_cycles("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // free(cycles);
     // return 0;
 
-    query_input(argc, argv);
+    free_menu(menu);
+
+//    query_input(argc, argv);
 
     return EXIT_SUCCESS;
 }
