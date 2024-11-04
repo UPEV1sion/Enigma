@@ -62,10 +62,12 @@ static bool find_cycle_dfs(CribCipherTuple *tuple,
 
     node->first.letter  = last_char;
     node->second.letter = lookup_char;
-    node->position = menu->len_cycle;
+    node->position      = tuple->position;
+    node->visited       = true;
     menu->len_cycle++;
 
-    if(tuple->visited) return true;
+    if(tuple->visited)
+        return true;
     tuple->visited = true;
 
     const uint8_t i_lookup_char = lookup_char - 'A';
@@ -234,12 +236,6 @@ Menu* find_longest_menu(const char *restrict crib, const char *restrict cipherte
     }
 
     find_stubs(relations, tuples_per_letter, menu);
-    for(uint8_t tuple = 0; tuple < menu->len_cycle; ++tuple)
-    {
-        CribCipherTuple *cur = menu->cycle + tuple;
-        puts("");
-    }
-
 
     return menu;
 }
