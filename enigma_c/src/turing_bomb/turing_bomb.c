@@ -3,7 +3,6 @@
 
 #include "turing_bomb.h"
 #include "cycle_finder/cycle_finder.h"
-#include "turing_bomb/cycle_finder/cycle_finder_graph.h"
 
 //
 // Created by Emanuel on 07.09.2024.
@@ -32,13 +31,12 @@
 
 typedef struct BombeNode BombeNode;
 
+//TODO extract all connections for memset 0?
 typedef struct
 {
     uint8_t active_cable_connections[ALPHABET_SIZE];
-    uint32_t active_contacts;
-    //    Contact *commons;
+//    uint32_t active_contacts;
     uint8_t num_active_connections;
-    //    uint8_t num_common_connections;
     uint8_t contact_num;
 } Contact;
 
@@ -68,10 +66,10 @@ typedef struct TuringBomb
 
 struct BombeNode
 {
-  ScramblerEnigma *scrambler_enigma;
+  ScramblerEnigma scrambler_enigma;
   BombeNode *neighbours;
   uint8_t neighbour_count;
-  Contact *contact;
+//  Contact *contact;
 };
 
 static void free_bomb(TuringBomb *turing_bomb)
@@ -136,67 +134,67 @@ static void print_contact_status(const Contact *contact, const char *contact_nam
 //    }
 //}
 
-static void traverse_rotor_column(const Reflector *reflector,
-                                  const ScramblerEnigma *current_column,
-                                  Contact **restrict contacts)
-{
-
-    //TODO clear contacts that are not active anymore
-    Rotor *rotor_one   = current_column->rotors[0];
-    Rotor *rotor_two   = current_column->rotors[1];
-    Rotor *rotor_three = current_column->rotors[2];
-
-    const Contact *input_contact = current_column->in;
-    Contact *output_contact      = current_column->out;
-
-    rotor_one->position++;
-    if(rotor_one->position >= 26)
-    {
-        rotor_one->position = rotor_one->position % 26;
-        rotor_two->position++;
-        if(rotor_two->position >= 26)
-        {
-            rotor_two->position = rotor_two->position % 26;
-            rotor_three->position = (rotor_three->position + 1) % 26;
-        }
-    }
-
-    uint8_t letter_num;
-    for (letter_num = 0; letter_num < input_contact->num_active_connections; ++letter_num)
-    {
-        uint8_t character = input_contact->active_cable_connections[letter_num];
-        character         = traverse_rotor(rotor_one, character);
-        character         = traverse_rotor(rotor_two, character);
-        character         = traverse_rotor(rotor_three, character);
-        character         = reflector->wiring[character];
-        character         = traverse_rotor_inverse(rotor_three, character);
-        character         = traverse_rotor_inverse(rotor_two, character);
-        character         = traverse_rotor_inverse(rotor_one, character);
-
-        if((output_contact->active_contacts & (1 << character)) == 0)
-        {
-            output_contact->active_cable_connections[output_contact->num_active_connections] = character;
-            output_contact->num_active_connections++;
-            if(output_contact->num_active_connections == 26) return;
-            output_contact->active_contacts |= (1 << character);
-        }
-        Contact *diagonal_contact = contacts[character];
-        if((diagonal_contact->active_contacts & (1 << letter_num)) == 0)
-        {
-            diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections] = letter_num;
-            diagonal_contact->num_active_connections++;
-            if(diagonal_contact->num_active_connections == 26) return;
-            diagonal_contact->active_contacts |= (1 << letter_num);
-        }
-        print_contact_status(input_contact, "in cont");
-        print_contact_status(output_contact, "out cont");
-        print_contact_status(diagonal_contact, "diag. cont");
-        puts("");
-    }
-    // puts("");
-
-    // output_contact->num_active_connections = letter_num;
-}
+//static void traverse_rotor_column(const Reflector *reflector,
+//                                  const ScramblerEnigma *current_column,
+//                                  Contact **restrict contacts)
+//{
+//
+//    //TODO clear contacts that are not active anymore
+//    Rotor *rotor_one   = current_column->rotors[0];
+//    Rotor *rotor_two   = current_column->rotors[1];
+//    Rotor *rotor_three = current_column->rotors[2];
+//
+//    const Contact *input_contact = current_column->in;
+//    Contact *output_contact      = current_column->out;
+//
+//    rotor_one->position++;
+//    if(rotor_one->position >= 26)
+//    {
+//        rotor_one->position = rotor_one->position % 26;
+//        rotor_two->position++;
+//        if(rotor_two->position >= 26)
+//        {
+//            rotor_two->position = rotor_two->position % 26;
+//            rotor_three->position = (rotor_three->position + 1) % 26;
+//        }
+//    }
+//
+//    uint8_t letter_num;
+//    for (letter_num = 0; letter_num < input_contact->num_active_connections; ++letter_num)
+//    {
+//        uint8_t character = input_contact->active_cable_connections[letter_num];
+//        character         = traverse_rotor(rotor_one, character);
+//        character         = traverse_rotor(rotor_two, character);
+//        character         = traverse_rotor(rotor_three, character);
+//        character         = reflector->wiring[character];
+//        character         = traverse_rotor_inverse(rotor_three, character);
+//        character         = traverse_rotor_inverse(rotor_two, character);
+//        character         = traverse_rotor_inverse(rotor_one, character);
+//
+//        if((output_contact->active_contacts & (1 << character)) == 0)
+//        {
+//            output_contact->active_cable_connections[output_contact->num_active_connections] = character;
+//            output_contact->num_active_connections++;
+//            if(output_contact->num_active_connections == 26) return;
+//            output_contact->active_contacts |= (1 << character);
+//        }
+//        Contact *diagonal_contact = contacts[character];
+//        if((diagonal_contact->active_contacts & (1 << letter_num)) == 0)
+//        {
+//            diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections] = letter_num;
+//            diagonal_contact->num_active_connections++;
+//            if(diagonal_contact->num_active_connections == 26) return;
+//            diagonal_contact->active_contacts |= (1 << letter_num);
+//        }
+//        print_contact_status(input_contact, "in cont");
+//        print_contact_status(output_contact, "out cont");
+//        print_contact_status(diagonal_contact, "diag. out cont");
+//        puts("");
+//    }
+//    // puts("");
+//
+//    // output_contact->num_active_connections = letter_num;
+//}
 
 static uint8_t find_most_frequent_menu_pos(Menu *menu)
 {
@@ -217,21 +215,46 @@ static uint8_t find_most_frequent_menu_pos(Menu *menu)
     return most_freq_pos;
 }
 
-static void setup_test_register(Menu *menu, CribCipherTuple *most_freq_pos, TuringBomb *restrict turing_bomb)
+static void setup_test_register(CribCipherTuple *most_freq_pos, TuringBomb *turing_bomb)
 {
     const uint8_t terminal_i = most_freq_pos->first.letter - 'A';
     turing_bomb->terminal->test_register = turing_bomb->terminal->contacts[terminal_i];
     Contact *test_reg = turing_bomb->terminal->test_register;
 
     test_reg->active_cable_connections[0] = 0; //Test the letter "A"
+    test_reg->num_active_connections++;
     turing_bomb->terminal->contacts[0]->active_cable_connections[0] = test_reg->contact_num; //Contact connected through the diag. board
+    turing_bomb->terminal->contacts[0]->num_active_connections++;
     //TODO ringspeicher node setup
+}
+
+static void setup_contact_connections(Menu *menu,
+                                      const uint8_t most_freq_menu_pos,
+                                      TuringBomb *restrict turing_bomb,
+                                      BombeNode *bombe_nodes)
+{
+    uint8_t menu_pos = most_freq_menu_pos;
+
+    do
+    {
+        CribCipherTuple *current_tuple = menu->cycle + menu_pos;
+        BombeNode *current_node = bombe_nodes + menu_pos;
+        const uint8_t i_first = current_tuple->first.letter - 'A';
+        const uint8_t i_second = current_tuple->second.letter - 'A';
+
+        current_node->scrambler_enigma.in = turing_bomb->terminal->contacts[i_first];
+        current_node->scrambler_enigma.out = turing_bomb->terminal->contacts[i_second];
+
+        menu_pos = (menu_pos + 1) % menu->len_cycle;
+    } while(menu_pos != most_freq_menu_pos);
+
+    turing_bomb->starting_node  = bombe_nodes + most_freq_menu_pos;
 }
 
 static int32_t setup_turing_bomb(const char *restrict crib,
                                  const char *restrict ciphertext,
                                  TuringBomb *restrict turing_bomb,
-                                 BombeNode *bomb_nodes)
+                                 BombeNode *bombe_nodes)
 {
     Menu *menu = find_longest_menu(crib, ciphertext);
     if (menu == NULL)
@@ -241,9 +264,9 @@ static int32_t setup_turing_bomb(const char *restrict crib,
     }
     const uint8_t most_freq_pos = find_most_frequent_menu_pos(menu);
 
-    setup_test_register(menu, menu->cycle + most_freq_pos, turing_bomb);
+    setup_test_register(menu->cycle + most_freq_pos, turing_bomb);
 
-
+    setup_contact_connections(menu, most_freq_pos, turing_bomb, bombe_nodes);
 
     free_menu(menu);
     return 0;
@@ -262,7 +285,7 @@ int32_t start_turing_bomb(const char *restrict crib, const char *restrict cipher
     }
 //    terminal.test_register = &test_reg;
     Reflector *reflector   = create_reflector_by_type(UKW_B);
-    BombeNode nodes[MAX_CRIB_LEN];
+    BombeNode nodes[MAX_CRIB_LEN] = {0};
     TuringBomb turing_bomb = {.terminal = &terminal, .reflector = reflector};
 
     int32_t err_code = setup_turing_bomb(crib, ciphertext, &turing_bomb, nodes);

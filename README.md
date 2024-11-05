@@ -1,5 +1,5 @@
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; margin: 0;">
-<img src="graphics/Logos-Enigma-2.png" alt="Enigma Logo" style="width: 70%; max-width: 100%; height: auto;">
+<img src="graphics/Logos-Enigma-3.png" alt="Enigma Logo" style="width: 50%; height: auto; max-width: 100%;">
 </div>
 
 # Enigma Simulator
@@ -9,6 +9,8 @@
 
 > [!IMPORTANT]  
 > Many thanks to Arif Hasanic for entrusting me with this project. Link to his GitHub Repository: https://github.com/murderbaer/enigma
+> 
+> Many thanks to Paul Köster, the designer of the logo shown above
 
 ## Third-Party Libraries
 
