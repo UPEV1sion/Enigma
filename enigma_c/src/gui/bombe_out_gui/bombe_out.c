@@ -3,7 +3,7 @@
 * Die vollständige Lizenz finden Sie hier: https://github.com/GNOME/gtk/blob/main/COPYING.
 */
 
-#include "bomb_out.h"
+#include "bombe_out.h"
 
 //
 // Created by Emanuel on 07.08.2024.

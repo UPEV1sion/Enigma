@@ -22,14 +22,14 @@
 
 #include "cli/cli.h"
 #include "helper/helper.h"
-#include "turing_bomb/turing_bomb.h"
-#include "turing_bomb/cycle_finder/cycle_finder.h"
+#include "turing_bombe/turing_bombe.h"
+#include "turing_bombe/cycle_finder/cycle_finder.h"
 
 int main(int argc, char *argv[])
 {
 //      start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
 //    start_turing_bomb("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
-    start_turing_bomb("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+    start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
     // start_turing_bomb("BEACHHEAD", "EDBGEAHDB", 0);
 //      find_longest_menu("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_longest_menu("BEACHHEAD", "EDBGEAHDB");

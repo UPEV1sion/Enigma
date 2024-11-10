@@ -332,9 +332,30 @@ static void generate_output_with_enigma(char *restrict input_text)
     free(plaintext);
 }
 
+static void show_input_text_dialog(void)
+{
+    GtkWidget *dialog;
+
+    dialog = gtk_message_dialog_new(
+            GTK_WINDOW(window),
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_OK,
+            "Please enter a input text!"
+    );
+    gtk_widget_show_all(dialog);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
 static void action_listener_start_btn(void)
 {
     char *input_text = get_input_text_from_gui();
+    if(input_text == NULL)
+    {
+        show_input_text_dialog();
+        return;
+    }
     const size_t len = strlen(input_text);
     const ssize_t space_count = count_c(input_text, ' ');
     to_uppercase(input_text);

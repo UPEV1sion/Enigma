@@ -6,7 +6,29 @@
 // Created by Emanuel on 01.11.2024.
 //
 
-//TODO more layer of stubs than 1 needed?
+/*
+ * This is a "graph" approach, but instead of linking them directly, I stored them in a Lookup Table".
+ *
+ * Why not linking?
+ * We have the problem that if we were to link the tuples together,
+ * we need to link tuples with the matching char in crib and ciphertext.
+ * This results in an incorrect traversal,
+ * because a char from the crib must be substituted to the one in ciphertext at the same place and vice versa.
+ * If were link them together, a traversal like A-B → A-C → A-D is feasible.
+ * A correct traversal could look like this: A-B → C-B → D-C.
+ * So we build a "Lookup Table" where the corresponding char is looked up.
+ *
+ * Runtime:
+ * Building the lookup is Θ(n) (linear).
+ * DFS traversal: Θ(V + E).
+ * When a cycle is found, all nodes in the cycle are not visited_cycle again.
+ * But when no cycle is found, we iterate through the whole crib, performing a DFS at each position.
+ * So the WC is O(n^2)
+ *
+ * A more realistic scenario is that a cycle is found, marking the visited_cycle nodes.
+ * From testing, I can verify that the runtime is linear
+ * for the case ciphertext and crib length is <= 26, which is always the case.
+ */
 
 static void build_frequency_table(const char *restrict crib,
                                   const char *restrict ciphertext,
@@ -40,7 +62,7 @@ static inline bool is_matching_chars_tuple(const CribCipherTuple *first, const C
 }
 
 static bool find_cycle_dfs(CribCipherTuple *tuple,
-                           CribCipherTuple *parent,
+                           const CribCipherTuple *parent,
                            const char last_char,
                            bool *matching_char_tuple,
                            CribCipherTuple *relations[ALPHABET_SIZE][MAX_CRIB_LEN],
@@ -56,7 +78,7 @@ static bool find_cycle_dfs(CribCipherTuple *tuple,
         return false;
     }
 
-    CribCipherTuple *node = menu->cycle + menu->len_cycle;
+    CribCipherTuple *node = menu->menu + menu->len_menu;
 
     const char lookup_char = (char) ((tuple->first.letter == last_char) ? tuple->second.letter : tuple->first.letter);
 
@@ -64,7 +86,7 @@ static bool find_cycle_dfs(CribCipherTuple *tuple,
     node->second.letter = lookup_char;
     node->position      = tuple->position;
     node->visited       = true;
-    menu->len_cycle++;
+    menu->len_menu++;
 
     if(tuple->visited)
         return true;
@@ -86,7 +108,7 @@ static bool find_cycle_dfs(CribCipherTuple *tuple,
         }
     }
 
-    menu->len_cycle--;
+    menu->len_menu--;
     tuple->visited = false;
 
     return false;
@@ -100,43 +122,49 @@ static bool find_cycle(const size_t len,
 {
     bool ret = false;
     CribCipherTuple longest_menu_nodes[MAX_CRIB_LEN];
-    Menu longest_menu = {.cycle = longest_menu_nodes, .len_cycle = 0};
+    Menu longest_menu = {.menu = longest_menu_nodes, .len_menu = 0};
 
     for(uint8_t position = 0; position < (uint8_t) len; ++position)
     {
         CribCipherTuple temp_nodes[MAX_CRIB_LEN];
-        Menu temp_menu = {.cycle = temp_nodes, .len_cycle = 0};
+        Menu temp_menu = {.menu = temp_nodes, .len_menu = 0};
 
         CribCipherTuple *current_tuple = tuples + position;
         bool matching_chars_tuple = false;
 
-        if(find_cycle_dfs(current_tuple,NULL,current_tuple->first.letter,
+        const char starting_char = current_tuple->first.letter;
+        const uint8_t i_starting_char = starting_char - 'A';
+
+        if(tuples_per_letter[i_starting_char] <= 1) continue; //tuple is a stub
+
+        if(find_cycle_dfs(current_tuple, NULL, starting_char,
                           &matching_chars_tuple, relations, tuples_per_letter,&temp_menu)
                           || matching_chars_tuple)
         {
-            if(temp_menu.len_cycle <= 2) continue;
-            if(temp_menu.len_cycle > longest_menu.len_cycle)
+            if(temp_menu.len_menu <= 2 || temp_menu.len_menu > NUM_SCRAMBLERS_PER_ROW) continue;
+            if(temp_menu.len_menu > longest_menu.len_menu)
             {
-                memcpy(longest_menu_nodes, temp_nodes, sizeof(CribCipherTuple) * temp_menu.len_cycle);
-                longest_menu.len_cycle = temp_menu.len_cycle;
+                memcpy(longest_menu_nodes, temp_nodes, sizeof(CribCipherTuple) * temp_menu.len_menu);
+                longest_menu.len_menu = temp_menu.len_menu;
             }
             ret = true;
-            if(temp_menu.len_cycle >= len / 2) break;
+            if(temp_menu.len_menu >= len / 2) break;
         }
     }
 
     if(ret == true)
     {
-        menu->cycle = malloc(sizeof(CribCipherTuple) * longest_menu.len_cycle);
-        assertmsg(menu->cycle != NULL, "malloc failed");
-        memcpy(menu->cycle, longest_menu_nodes, sizeof(CribCipherTuple) * longest_menu.len_cycle);
-        menu->len_cycle = longest_menu.len_cycle;
+        menu->menu = malloc(sizeof(CribCipherTuple) * longest_menu.len_menu);
+        assertmsg(menu->menu != NULL, "malloc failed");
+        memcpy(menu->menu, longest_menu_nodes, sizeof(CribCipherTuple) * longest_menu.len_menu);
+        menu->len_menu = longest_menu.len_menu;
     }
 
     return ret;
 }
 
-static void free_node(MenuNode *node)
+//FIXME
+static void free_node(const MenuNode *node)
 {
     for(uint8_t stub = 0; stub < node->num_stubs; ++stub)
     {
@@ -147,26 +175,27 @@ static void free_node(MenuNode *node)
 
 void free_menu(Menu *menu)
 {
-    CribCipherTuple *tuple = menu->cycle;
+    CribCipherTuple *tuple = menu->menu;
     free_node(&tuple->first);
 
-    for(uint8_t node = 0; node < menu->len_cycle; ++node)
+    for(uint8_t node = 0; node < menu->len_menu; ++node)
     {
-        tuple = menu->cycle + node;
+        tuple = menu->menu + node;
         free_node(&tuple->second);
     }
 
-    free(menu->cycle);
+    free(menu->menu);
     free(menu);
 }
 
-static void set_stubs(MenuNode *node,
+static bool set_stubs(MenuNode *node,
                       const CribCipherTuple *current_tuple,
                       CribCipherTuple *relations[ALPHABET_SIZE][MAX_CRIB_LEN],
-                      const uint8_t *tuples_per_letter)
+                      const uint8_t *tuples_per_letter,
+                      Menu *menu)
 {
     const uint8_t current_i = node->letter - 'A';
-    uint8_t num_stubs = tuples_per_letter[current_i] - 1; //ignoring the own one
+    const uint8_t num_stubs = tuples_per_letter[current_i] - 1; //ignoring the own one
 
     node->stubs = malloc(sizeof(CribCipherTuple) * num_stubs); //TODO fix the wasteful allocation of unnecessary nodes... maybe realloc?
     assertmsg(node->stubs != NULL, "malloc failed");
@@ -174,7 +203,9 @@ static void set_stubs(MenuNode *node,
     uint8_t stubs_count = 0;
     for(uint8_t stub = 0; stub < tuples_per_letter[current_i]; ++stub)
     {
-        CribCipherTuple *current_stub = relations[current_i][stub];
+        if(stub >= NUM_CONTACTS_PER_COMMON - 1) break;
+        if(menu->len_menu >= NUM_SCRAMBLERS_PER_ROW - 1) break;
+        const CribCipherTuple *current_stub = relations[current_i][stub];
         if (current_tuple == current_stub) continue;
         if(current_stub->visited)
         {
@@ -184,24 +215,33 @@ static void set_stubs(MenuNode *node,
         assertmsg(node->stubs[stubs_count] != NULL, "malloc failed");
         memcpy(node->stubs[stubs_count], current_stub, sizeof(CribCipherTuple));
         stubs_count++;
+        menu->len_menu++;
     }
     node->num_stubs = stubs_count;
+
+    return stubs_count > 0;
 }
 
 static void find_stubs(CribCipherTuple *relations[ALPHABET_SIZE][MAX_CRIB_LEN],
                        const uint8_t *tuples_per_letter,
                        Menu *menu)
 {
-    CribCipherTuple *last_tuple = menu->cycle;
+    CribCipherTuple *last_tuple = menu->menu;
 
-    set_stubs(&last_tuple->first, last_tuple, relations, tuples_per_letter);
-    set_stubs(&last_tuple->second, last_tuple, relations, tuples_per_letter);
+    set_stubs(&last_tuple->first, last_tuple, relations, tuples_per_letter, menu);
+    set_stubs(&last_tuple->second, last_tuple, relations, tuples_per_letter, menu);
 
-    for(uint8_t position = 1; position < menu->len_cycle; ++position)
+    uint8_t common_counter = 0;
+
+    for(uint8_t position = 1; position < menu->len_menu; ++position)
     {
-        CribCipherTuple *current_tuple = menu->cycle + position;
+        if(common_counter >= NUM_COMMONS - 1) break;
+        CribCipherTuple *current_tuple = menu->menu + position;
 
-        set_stubs(&current_tuple->second, current_tuple, relations, tuples_per_letter);
+        if(set_stubs(&current_tuple->second, current_tuple, relations, tuples_per_letter, menu))
+        {
+            common_counter++;
+        }
         current_tuple->first.stubs = last_tuple->second.stubs;
         current_tuple->first.num_stubs = last_tuple->second.num_stubs;
         last_tuple = current_tuple;
@@ -218,7 +258,7 @@ Menu* find_longest_menu(const char *restrict crib, const char *restrict cipherte
 
     Menu *menu = malloc(sizeof(Menu));
     assertmsg(menu != NULL, "malloc failed");
-    menu->len_cycle = 0;
+    menu->len_menu = 0;
 
     CribCipherTuple *relations[ALPHABET_SIZE][MAX_CRIB_LEN];
     uint8_t tuples_per_letter[ALPHABET_SIZE] = {0};

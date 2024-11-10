@@ -9,7 +9,7 @@
 #include "gui/enigma_gui/enigma_gui.h"
 #include "helper/helper.h"
 #include "cyclometer/cycle_generator.h"
-#include "gui/bomb_gui/bomb_gui.h"
+#include "gui/bombe_gui/bombe_gui.h"
 
 //
 // Created by Emanuel on 07.08.2024.

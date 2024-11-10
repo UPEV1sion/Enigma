@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "turing_bomb/turing_bomb.h"
+#include "turing_bombe/turing_bombe.h"
 
 typedef struct MenuNode MenuNode;
 typedef struct CribCipherTuple CribCipherTuple;
@@ -29,8 +29,8 @@ struct CribCipherTuple
 
 typedef struct
 {
-    CribCipherTuple *cycle;
-    uint8_t len_cycle;
+    CribCipherTuple *menu;
+    uint8_t len_menu;
 } Menu;
 
 Menu* find_longest_menu(const char *crib, const char *ciphertext);

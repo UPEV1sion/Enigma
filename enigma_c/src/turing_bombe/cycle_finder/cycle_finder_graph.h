@@ -8,7 +8,7 @@
 
 #include "cycle_finder.h"
 #include "helper/helper.h"
-#include "turing_bomb/turing_bomb.h"
+#include "turing_bombe/turing_bombe.h"
 
 typedef struct
 {

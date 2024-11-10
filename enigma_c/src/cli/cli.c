@@ -7,7 +7,7 @@
 #include "cli_enigma.h"
 #include "helper/helper.h"
 #include "cyclometer/cycle_generator.h"
-#include "turing_bomb/turing_bomb.h"
+#include "turing_bombe/turing_bombe.h"
 #include "gui/start_gui/start_gui.h"
 
 #define INPUT_BUFFER_SIZE  (1024)
@@ -330,7 +330,7 @@ static void select_run_mode(CliOptions *options, const int argc, char *argv[])
                 save_bomb_input(options, argc, ++argv);
                 validate_bomb_input(options);
                 normalize_bomb_options(options);
-                start_turing_bomb(options->crib, options->ciphertext, options->crib_offset);
+                start_turing_bombe(options->crib, options->ciphertext, options->crib_offset);
                 break;
             default:
                 NULL;

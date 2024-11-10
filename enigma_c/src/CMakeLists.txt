@@ -25,21 +25,21 @@ add_library(enigma_lib
         json/cJSON.h
         gui/enigma_gui/enigma_gui.c
         gui/enigma_gui/enigma_gui.h
-        gui/bomb_out_gui/bomb_out.c
-        gui/bomb_out_gui/bomb_out.h
+        gui/bombe_out_gui/bombe_out.c
+        gui/bombe_out_gui/bombe_out.h
         gui/start_gui/start_gui.c
         gui/start_gui/start_gui.h
-        gui/bomb_gui/bomb_gui.c
-        gui/bomb_gui/bomb_gui.h
-        turing_bomb/brute_force.h
-        turing_bomb/brute_force.c
-        turing_bomb/turing_bomb.c
-        turing_bomb/turing_bomb.h
-        turing_bomb/cycle_finder/cycle_finder_graph.c
-        turing_bomb/cycle_finder/cycle_finder_graph.h
+        gui/bombe_gui/bombe_gui.c
+        gui/bombe_gui/bombe_gui.h
+        turing_bombe/brute_force.h
+        turing_bombe/brute_force.c
+        turing_bombe/turing_bombe.c
+        turing_bombe/turing_bombe.h
+        turing_bombe/cycle_finder/cycle_finder_graph.c
+        turing_bombe/cycle_finder/cycle_finder_graph.h
         helper/linkedlist.c
-        turing_bomb/cycle_finder/cycle_finder.c
-        turing_bomb/cycle_finder/cycle_finder.h
+        turing_bombe/cycle_finder/cycle_finder.c
+        turing_bombe/cycle_finder/cycle_finder.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

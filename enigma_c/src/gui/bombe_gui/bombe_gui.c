@@ -5,8 +5,8 @@
 
 #include <gtk/gtk.h>
 
-#include "bomb_gui.h"
-#include "turing_bomb/brute_force.h"
+#include "bombe_gui.h"
+#include "turing_bombe/brute_force.h"
 #include "helper/helper.h"
 
 //

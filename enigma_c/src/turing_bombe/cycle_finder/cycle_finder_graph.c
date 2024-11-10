@@ -252,6 +252,7 @@ void free_cycle(Cycle *cycle)
  * @param ciphertext The Ciphertext
  * @return Cycle: cycle if cycles where found, NULL for errors and no cycles found.
  */
+DEPRECATED("find_longest_cycle_graph is deprecated. Use find_longest_menu instead")
 Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
 {
     size_t len;
