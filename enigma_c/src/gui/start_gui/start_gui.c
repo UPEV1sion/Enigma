@@ -31,6 +31,11 @@ static void activate(GtkApplication *app, char *args[])
     GtkBuilder *builder;
     GtkWidget *window, *enigma_btn, *cyclo_btn, *bomb_btn;
 
+//    gchar *path = g_build_path(G_DIR_SEPARATOR_S, g_get_current_dir(),
+//                                                 "..", "..", "graphics",
+//                                                 "Logos-Enigma-3.png", NULL);
+//    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, NULL);
+
     builder = gtk_builder_new_from_file(FILE_PATH_START);
 
     window = GTK_WIDGET(gtk_builder_get_object(builder, "start_window"));
@@ -50,6 +55,15 @@ static void activate(GtkApplication *app, char *args[])
     g_signal_connect(cyclo_btn, "clicked", G_CALLBACK(create_cycles), NULL);
 
     g_signal_connect(bomb_btn, "clicked", G_CALLBACK(action_listener_bomb_btn), args);
+
+//    if (pixbuf != NULL) {
+//        GdkPixbuf *scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, 64, 16, GDK_INTERP_HYPER);
+//
+//        gtk_window_set_icon(GTK_WINDOW(window), scaled_pixbuf);
+//
+//        g_object_unref(pixbuf);
+//        g_object_unref(scaled_pixbuf);
+//    }
 
     gtk_window_set_application(GTK_WINDOW(window), app);
     gtk_widget_show_all(window);

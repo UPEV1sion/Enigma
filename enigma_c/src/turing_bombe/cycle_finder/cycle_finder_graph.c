@@ -45,15 +45,6 @@ static void write_dot_format(const char *restrict crib, const char *restrict cip
     const size_t len = strlen(crib);
     for (size_t i = 0; i < len; ++i)
     {
-        // const char rotor1_char = i + 'A';
-        // const char rotor2_char = i / 26 + 'A';
-        // const char rotor3_char = i / 26 * 26 + 'A';
-        // fprintf(file, "\t\"%c\" -- \"%c\" [label=\"%c%c%c\"];\n",
-        //         ciphertext[i],
-        //         crib[i],
-        //         rotor3_char,
-        //         rotor2_char,
-        //         rotor1_char);
         fprintf(file, "\t\"%c\" -- \"%c\" [label=\"%zu\"];\n", ciphertext[i], crib[i], i);
     }
     fputs("}\n", file);

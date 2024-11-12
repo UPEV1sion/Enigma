@@ -31,11 +31,10 @@
 
 typedef struct BombeNode BombeNode;
 
-//TODO extract all connections for memset 0?
 typedef struct
 {
     uint8_t active_cable_connections[ALPHABET_SIZE];
-    //    uint32_t active_contacts;
+    uint32_t active_bit_vector;
     uint8_t num_active_connections;
     uint8_t contact_num;
 } Contact;
@@ -69,14 +68,26 @@ struct BombeNode
     ScramblerEnigma scrambler_enigma;
     BombeNode **outgoing_commons;
     uint8_t outgoing_commons_count;
-    BombeNode *next_node;
+    BombeNode *next_node; //TODO this may need to be a neighbour pointer, pointing back
     //  Contact *contact;
 };
+
+static void free_nodes(BombeNode *bombe_node)
+{
+    if(bombe_node == NULL) return;
+
+//    free(bombe_node->scrambler_enigma.rotors[0]);
+//    free(bombe_node->scrambler_enigma.rotors[1]);
+//    free(bombe_node->scrambler_enigma.rotors[2]);
+    free(bombe_node->outgoing_commons);
+
+    free_nodes(bombe_node->next_node);
+}
 
 static void free_bombe(TuringBombe *turing_bombe)
 {
     free(turing_bombe->reflector);
-    //TODO
+    free_nodes(turing_bombe->starting_node);
 }
 
 static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
@@ -123,80 +134,6 @@ static void print_contact_status(const Contact *contact, const char *contact_nam
     puts("");
 }
 
-//static void print_current_configuration(const TuringBomb *turing_bomb)
-//{
-//    for (uint8_t column = 0; column < turing_bomb->scrambler_columns_used; ++column)
-//    {
-//        for (int row = 0; row < NUM_SCRAMBLERS_PER_COLUMN; ++row)
-//        {
-//            const Rotor *rotor = turing_bomb->bomb_row[column].rotors[row];
-//            printf("Rotor %d. %2d\n", row + 1, rotor->position);
-//        }
-//    }
-//}
-
-//static void traverse_rotor_column(const Reflector *reflector,
-//                                  const ScramblerEnigma *current_column,
-//                                  Contact **restrict contacts)
-//{
-//
-//    //TODO clear contacts that are not active anymore
-//    Rotor *rotor_one   = current_column->rotors[0];
-//    Rotor *rotor_two   = current_column->rotors[1];
-//    Rotor *rotor_three = current_column->rotors[2];
-//
-//    const Contact *input_contact = current_column->in;
-//    Contact *output_contact      = current_column->out;
-//
-//    rotor_one->position++;
-//    if(rotor_one->position >= 26)
-//    {
-//        rotor_one->position = rotor_one->position % 26;
-//        rotor_two->position++;
-//        if(rotor_two->position >= 26)
-//        {
-//            rotor_two->position = rotor_two->position % 26;
-//            rotor_three->position = (rotor_three->position + 1) % 26;
-//        }
-//    }
-//
-//    uint8_t letter_num;
-//    for (letter_num = 0; letter_num < input_contact->num_active_connections; ++letter_num)
-//    {
-//        uint8_t character = input_contact->active_cable_connections[letter_num];
-//        character         = traverse_rotor(rotor_one, character);
-//        character         = traverse_rotor(rotor_two, character);
-//        character         = traverse_rotor(rotor_three, character);
-//        character         = reflector->wiring[character];
-//        character         = traverse_rotor_inverse(rotor_three, character);
-//        character         = traverse_rotor_inverse(rotor_two, character);
-//        character         = traverse_rotor_inverse(rotor_one, character);
-//
-//        if((output_contact->active_contacts & (1 << character)) == 0)
-//        {
-//            output_contact->active_cable_connections[output_contact->num_active_connections] = character;
-//            output_contact->num_active_connections++;
-//            if(output_contact->num_active_connections == 26) return;
-//            output_contact->active_contacts |= (1 << character);
-//        }
-//        Contact *diagonal_contact = contacts[character];
-//        if((diagonal_contact->active_contacts & (1 << letter_num)) == 0)
-//        {
-//            diagonal_contact->active_cable_connections[diagonal_contact->num_active_connections] = letter_num;
-//            diagonal_contact->num_active_connections++;
-//            if(diagonal_contact->num_active_connections == 26) return;
-//            diagonal_contact->active_contacts |= (1 << letter_num);
-//        }
-//        print_contact_status(input_contact, "in cont");
-//        print_contact_status(output_contact, "out cont");
-//        print_contact_status(diagonal_contact, "diag. out cont");
-//        puts("");
-//    }
-//    // puts("");
-//
-//    // output_contact->num_active_connections = letter_num;
-//}
-
 static uint8_t find_most_frequent_menu_pos(const Menu *menu)
 {
     const CribCipherTuple *most_freq_tuple = menu->menu;
@@ -216,21 +153,35 @@ static uint8_t find_most_frequent_menu_pos(const Menu *menu)
     return most_freq_pos;
 }
 
+static void activate_contact(TuringBombe *restrict turing_bombe, const uint8_t first_contact, const uint8_t second_contact)
+{
+    Contact *primary_contact = turing_bombe->terminal->contacts[first_contact];
+    Contact *secondary_contact = turing_bombe->terminal->contacts[second_contact];
+
+    primary_contact->active_cable_connections[primary_contact->num_active_connections] = second_contact;
+    secondary_contact->active_cable_connections[secondary_contact->num_active_connections] = first_contact;
+
+    primary_contact->active_bit_vector |= second_contact;
+    secondary_contact->active_bit_vector |= first_contact;
+
+    primary_contact->num_active_connections++;
+    secondary_contact->num_active_connections++;
+}
+
 static void setup_test_register(const CribCipherTuple *most_freq_pos, TuringBombe *restrict turing_bombe)
 {
     const uint8_t terminal_i              = most_freq_pos->first.letter - 'A';
     turing_bombe->terminal->test_register = turing_bombe->terminal->contacts[terminal_i];
-    Contact *test_reg                     = turing_bombe->terminal->test_register;
+    activate_contact(turing_bombe, terminal_i, 0); //Test the letter "A"
 
-    test_reg->active_cable_connections[0] = 0; //Test the letter "A"
-    test_reg->num_active_connections++;
-    turing_bombe->terminal->contacts[0]->active_cable_connections[0] = test_reg->contact_num;
-    //Contact connected through the diag. board
-    turing_bombe->terminal->contacts[0]->num_active_connections++;
+//    Contact *test_reg                     = turing_bombe->terminal->test_register;
+//    test_reg->active_cable_connections[0] = 0;
+//    test_reg->num_active_connections++;
+//    turing_bombe->terminal->contacts[0]->active_cable_connections[0] = test_reg->contact_num;
+//    //Contact connected through the diag. board
+//    turing_bombe->terminal->contacts[0]->num_active_connections++;
     //TODO ringspeicher node setup
 }
-
-//TODO extract diagonal board logic
 
 static void setup_stub_contact_connection_for_node(const MenuNode *node,
                                                    BombeNode *bombe_node,
@@ -251,7 +202,7 @@ static void setup_stub_contact_connection_for_node(const MenuNode *node,
         turing_bombe->scrambler_columns_used++;
         current_node->outgoing_commons[stub] = stub_bombe_node;
 
-        const CribCipherTuple *stub_crib_cipher_tuple = node->stubs[stub];
+        const CribCipherTuple *stub_crib_cipher_tuple = node->stubs + stub;
 
         const char stub_char = (char) ((stub_crib_cipher_tuple->first.letter == node->letter)
                                            ? stub_crib_cipher_tuple->second.letter
@@ -295,10 +246,10 @@ static void setup_contact_connections(const Menu *menu,
         turing_bombe->scrambler_columns_used++;
     } while (menu_pos != most_freq_menu_pos);
 
-    //TODO last or current?
     last_node->next_node = bombe_nodes;
 
     turing_bombe->starting_node = bombe_nodes;
+    puts("");
 }
 
 static int32_t setup_turing_bombe(const char *restrict crib,
@@ -318,7 +269,7 @@ static int32_t setup_turing_bombe(const char *restrict crib,
 
     setup_contact_connections(menu, most_freq_pos, turing_bombe, bombe_nodes);
 
-    // free_menu(menu);
+    free_menu(menu);
     return 0;
 }
 
@@ -333,7 +284,6 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
         contacts[contact].contact_num = contact;
         terminal.contacts[contact]    = &contacts[contact];
     }
-    //    terminal.test_register = &test_reg;
     Reflector *reflector          = create_reflector_by_type(UKW_B);
     BombeNode nodes[MAX_CRIB_LEN] = {0};
     TuringBombe turing_bombe      = {.terminal = &terminal, .reflector = reflector};
@@ -359,7 +309,6 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                 {
                     continue;
                 }
-                //TODO reuse rotors?
                 //TODO rewrite
                 //                setup_scramblers(&turing_bombe, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
                 //                ret_val |= traverse_rotor_conf(&turing_bombe);
@@ -367,7 +316,8 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
         }
     }
 
-    free(turing_bombe.reflector);
+    free_bombe(&turing_bombe);
+//    free(turing_bombe.reflector);
 
     return ret_val;
 }

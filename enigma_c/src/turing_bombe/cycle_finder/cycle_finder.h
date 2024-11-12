@@ -14,7 +14,7 @@ typedef struct CribCipherTuple CribCipherTuple;
 
 struct MenuNode
 {
-    CribCipherTuple **stubs;
+    CribCipherTuple *stubs;
     uint8_t num_stubs;
     char letter;
 };
@@ -31,6 +31,7 @@ typedef struct
 {
     CribCipherTuple *menu;
     uint8_t len_menu;
+    uint8_t num_stubs;
 } Menu;
 
 Menu* find_longest_menu(const char *crib, const char *ciphertext);

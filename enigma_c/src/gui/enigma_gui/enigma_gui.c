@@ -402,10 +402,6 @@ static void activate(void)
 
     builder = gtk_builder_new_from_file(FILE_PATH_ENIGMA);
 
-    //    gchar *path = g_build_path(G_DIR_SEPARATOR_S, g_get_current_dir(),
-    //                                     "..", "src", "gui", "icon",
-    //                                     "Enigma-logo.svg", NULL);
-    //    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, NULL);
     window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
     assertmsg(GTK_IS_WIDGET(window), "Error: window not found in the Glade file");
 
@@ -480,8 +476,6 @@ static void activate(void)
 
     g_signal_connect(start, "clicked", G_CALLBACK(action_listener_start_btn),
                      NULL);
-
-    //    gtk_window_set_icon(GTK_WINDOW(window), pixbuf);
 
     gtk_widget_show_all(window);
     gtk_combo_box_set_active(GTK_COMBO_BOX(model), 0);
