@@ -2,10 +2,6 @@
 #include <string.h>
 
 #include "turing_bombe.h"
-
-#include <assert.h>
-#include <cairo.h>
-
 #include "cycle_finder/cycle_finder.h"
 
 //
@@ -69,7 +65,6 @@ struct BombeNode
     BombeNode **outgoing_commons;
     uint8_t outgoing_commons_count;
     BombeNode *next_node; //TODO this may need to be a neighbour pointer, pointing back
-    //  Contact *contact;
 };
 
 static void free_nodes(BombeNode *bombe_node)
@@ -80,14 +75,14 @@ static void free_nodes(BombeNode *bombe_node)
 //    free(bombe_node->scrambler_enigma.rotors[1]);
 //    free(bombe_node->scrambler_enigma.rotors[2]);
     free(bombe_node->outgoing_commons);
-
     free_nodes(bombe_node->next_node);
+
 }
 
 static void free_bombe(TuringBombe *turing_bombe)
 {
     free(turing_bombe->reflector);
-    free_nodes(turing_bombe->starting_node);
+//    free_nodes(turing_bombe->starting_node);
 }
 
 static bool is_valid_crip_position(const char *crib, const char *ciphertext, const uint32_t crib_pos)
@@ -109,20 +104,6 @@ static bool is_valid_crip_position(const char *crib, const char *ciphertext, con
 
     return true;
 }
-
-//static void print_all_active_contacts(const TuringBomb *turing_bomb)
-//{
-//    for (uint8_t i = 0; i < turing_bomb->scrambler_columns_used; ++i)
-//    {
-//        const Contact *contact =  turing_bomb->bomb_row[i].in;
-//        printf("Contact No. %d : %d\n", contact->contact_num, contact->num_active_connections);
-//        for (int j = 0; j < contact->num_active_connections; ++j)
-//        {
-//            printf("%d ", contact->active_cable_connections[j]);
-//        }
-//        puts("");
-//    }
-//}
 
 static void print_contact_status(const Contact *contact, const char *contact_name)
 {
@@ -161,8 +142,8 @@ static void activate_contact(TuringBombe *restrict turing_bombe, const uint8_t f
     primary_contact->active_cable_connections[primary_contact->num_active_connections] = second_contact;
     secondary_contact->active_cable_connections[secondary_contact->num_active_connections] = first_contact;
 
-    primary_contact->active_bit_vector |= second_contact;
-    secondary_contact->active_bit_vector |= first_contact;
+    primary_contact->active_bit_vector |= (1 << second_contact);
+    secondary_contact->active_bit_vector |= (1 << first_contact);
 
     primary_contact->num_active_connections++;
     secondary_contact->num_active_connections++;
@@ -173,14 +154,6 @@ static void setup_test_register(const CribCipherTuple *most_freq_pos, TuringBomb
     const uint8_t terminal_i              = most_freq_pos->first.letter - 'A';
     turing_bombe->terminal->test_register = turing_bombe->terminal->contacts[terminal_i];
     activate_contact(turing_bombe, terminal_i, 0); //Test the letter "A"
-
-//    Contact *test_reg                     = turing_bombe->terminal->test_register;
-//    test_reg->active_cable_connections[0] = 0;
-//    test_reg->num_active_connections++;
-//    turing_bombe->terminal->contacts[0]->active_cable_connections[0] = test_reg->contact_num;
-//    //Contact connected through the diag. board
-//    turing_bombe->terminal->contacts[0]->num_active_connections++;
-    //TODO ringspeicher node setup
 }
 
 static void setup_stub_contact_connection_for_node(const MenuNode *node,
@@ -219,36 +192,33 @@ static void setup_contact_connections(const Menu *menu,
                                       TuringBombe *restrict turing_bombe,
                                       BombeNode *bombe_nodes)
 {
-    uint8_t menu_pos               = most_freq_menu_pos;
-    CribCipherTuple *current_tuple = menu->menu + menu_pos;
+//    uint8_t menu_pos               = most_freq_menu_pos;
+    CribCipherTuple *current_tuple = menu->menu;
     BombeNode *current_node        = bombe_nodes;
     BombeNode dummy;
     BombeNode *last_node = &dummy;
     setup_stub_contact_connection_for_node(&current_tuple->first, bombe_nodes, turing_bombe);
     setup_stub_contact_connection_for_node(&current_tuple->second, bombe_nodes, turing_bombe);
+    //TODO address nodes based on their letters...
 
-    do
+    for(uint8_t tuple_num = 1; tuple_num < menu->len_menu; ++tuple_num)
     {
-        last_node->next_node = current_node;
+        last_node->next_node   = current_node;
         const uint8_t i_first  = current_tuple->first.letter - 'A';
         const uint8_t i_second = current_tuple->second.letter - 'A';
-
         current_node->scrambler_enigma.in  = turing_bombe->terminal->contacts[i_first];
         current_node->scrambler_enigma.out = turing_bombe->terminal->contacts[i_second];
 
-        menu_pos      = (menu_pos + 1) % menu->len_menu;
-        current_tuple = menu->menu + menu_pos;
-
+        current_tuple = menu->menu + tuple_num;
         setup_stub_contact_connection_for_node(&current_tuple->second, bombe_nodes, turing_bombe);
 
-        last_node = current_node;
-        current_node = bombe_nodes + turing_bombe->scrambler_columns_used;
-        turing_bombe->scrambler_columns_used++;
-    } while (menu_pos != most_freq_menu_pos);
+        last_node    = current_node;
+        current_node = bombe_nodes + tuple_num;
+    }
 
     last_node->next_node = bombe_nodes;
 
-    turing_bombe->starting_node = bombe_nodes;
+    turing_bombe->starting_node = bombe_nodes + most_freq_menu_pos;
     puts("");
 }
 
@@ -286,7 +256,7 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
     }
     Reflector *reflector          = create_reflector_by_type(UKW_B);
     BombeNode nodes[MAX_CRIB_LEN] = {0};
-    TuringBombe turing_bombe      = {.terminal = &terminal, .reflector = reflector};
+    TuringBombe turing_bombe      = {.terminal = &terminal, .reflector = reflector, .scrambler_columns_used = 0};
 
     int32_t err_code = setup_turing_bombe(crib, ciphertext, &turing_bombe, nodes);
     if (err_code != 0) return err_code;
