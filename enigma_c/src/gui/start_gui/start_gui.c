@@ -33,7 +33,7 @@ static void activate(GtkApplication *app, char *args[])
 
 //    gchar *path = g_build_path(G_DIR_SEPARATOR_S, g_get_current_dir(),
 //                                                 "..", "..", "graphics",
-//                                                 "Logos-Enigma-3.png", NULL);
+//                                                 "ENIGMA_FETT_WEB_EXP1.png", NULL);
 //    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, NULL);
 
     builder = gtk_builder_new_from_file(FILE_PATH_START);
@@ -57,12 +57,12 @@ static void activate(GtkApplication *app, char *args[])
     g_signal_connect(bomb_btn, "clicked", G_CALLBACK(action_listener_bomb_btn), args);
 
 //    if (pixbuf != NULL) {
-//        GdkPixbuf *scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, 64, 16, GDK_INTERP_HYPER);
+//        GdkPixbuf *scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, 400, 400, GDK_INTERP_BILINEAR);
 //
 //        gtk_window_set_icon(GTK_WINDOW(window), scaled_pixbuf);
 //
-//        g_object_unref(pixbuf);
 //        g_object_unref(scaled_pixbuf);
+//        g_object_unref(pixbuf);
 //    }
 
     gtk_window_set_application(GTK_WINDOW(window), app);

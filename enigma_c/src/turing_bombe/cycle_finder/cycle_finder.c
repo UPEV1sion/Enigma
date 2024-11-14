@@ -8,6 +8,31 @@
 
 //TODO more layer of stubs than 1 needed?
 
+/*
+ * I named this a graph approach, although im not "linking" them together.
+ * This is more of a "Hash Map" approach, but with dfs traversal.
+ *
+ * Why not linking?
+ * We have the problem that if we were to link the tuples together,
+ * we need to link tuples with the matching char in crib and ciphertext.
+ * This results in an incorrect traversal,
+ * because a char from the crib must be substituted to the one in ciphertext at the same place and vice versa.
+ * If were link them together, a traversal like A-B → A-C → A-D is feasible.
+ * A correct traversal could look like this: A-B → C-B → D-C.
+ * So we build a "Lookup Table" where the corresponding char is looked up.
+ *
+ * Runtime:
+ * Building the lookup is Θ(n) (linear).
+ * DFS traversal: Θ(V + E).
+ * When a cycle is found, all nodes in the cycle are not visited_cycle again.
+ * But when no cycle is found, we iterate through the whole crib, performing a DFS at each position.
+ * So the WC is O(n^2)
+ *
+ * A more realistic scenario is that a cycle is found, marking the nodes.
+ * From testing, I can verify that the runtime is linear
+ * for the case ciphertext and crib length is <= 26, which is always the case.
+ */
+
 static void build_frequency_table(const char *restrict crib,
                                   const char *restrict ciphertext,
                                   const size_t len,
@@ -171,7 +196,7 @@ static bool set_stubs(MenuNode *node,
         if (current_tuple == current_stub) continue;
         if(current_stub->visited) continue;
         if(menu->len_menu + menu->num_stubs < NUM_SCRAMBLERS_PER_ROW - 1 ||
-        is_matching_chars_tuple(current_tuple, current_stub)) //A tuple of tuple doesnt require an extra rotor
+        is_matching_chars_tuple(current_tuple, current_stub)) //TODO again make this not greedy. Loop through and only check for tuple of tuples?
         {
             menu->num_stubs++;
             memcpy(node->stubs + stubs_count, current_stub, sizeof(CribCipherTuple));
