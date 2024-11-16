@@ -87,6 +87,7 @@ static bool find_cycle_dfs(CribCipherTuple *tuple,
 
     node->first.letter  = last_char;
     node->second.letter = lookup_char;
+    node->position      = tuple->position;
     menu->len_menu++;
 
     if(tuple->visited) return true;
@@ -270,9 +271,9 @@ Menu* find_longest_menu(const char *restrict crib, const char *restrict cipherte
 
     write_dot_format(crib, ciphertext);
 
-    CribCipherTuple *relations[ALPHABET_SIZE][MAX_CRIB_LEN];
+    CribCipherTuple *relations[ALPHABET_SIZE][MAX_CRIB_LEN] = {0};
     uint8_t tuples_per_letter[ALPHABET_SIZE] = {0};
-    CribCipherTuple tuples[MAX_CRIB_LEN];
+    CribCipherTuple tuples[MAX_CRIB_LEN] = {0};
 
     build_frequency_table(crib, ciphertext, len, relations, tuples_per_letter, tuples);
 

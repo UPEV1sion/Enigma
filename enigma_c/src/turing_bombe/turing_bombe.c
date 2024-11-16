@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <string.h>
+#include <helper/linkedlist.h>
 
 #include "turing_bombe.h"
 #include "cycle_finder/cycle_finder.h"
@@ -67,22 +68,29 @@ struct BombeNode
     BombeNode *next_node; //TODO this may need to be a neighbour pointer, pointing back
 };
 
-static void free_node(BombeNode *bombe_node)
+static void free_scrambler(BombeNode *bombe_node)
 {
+    free(bombe_node->scrambler_enigma.rotors[0]);
+    free(bombe_node->scrambler_enigma.rotors[1]);
+    free(bombe_node->scrambler_enigma.rotors[2]);
+}
 
-//    free(bombe_node->scrambler_enigma.rotors[0]);
-//    free(bombe_node->scrambler_enigma.rotors[1]);
-//    free(bombe_node->scrambler_enigma.rotors[2]);
-    free(bombe_node->outgoing_commons);
-
+static void free_scramblers(TuringBombe *turing_bombe, BombeNode *bombes_nodes)
+{
+    for (uint8_t scrambler = 0; scrambler < turing_bombe->scrambler_columns_used; ++scrambler)
+    {
+        free_scrambler(bombes_nodes + scrambler);
+    }
 }
 
 static void free_bombe(TuringBombe *turing_bombe, BombeNode *bombe_nodes)
 {
     free(turing_bombe->reflector);
-    for(uint8_t node = 0; node < turing_bombe->scrambler_columns_used; ++node)
+    free_scramblers(turing_bombe, bombe_nodes);
+    for (uint8_t scrambler = 0; scrambler < turing_bombe->scrambler_columns_used; ++scrambler)
     {
-        free_node(bombe_nodes + node);
+        BombeNode *current_node = bombe_nodes + scrambler;
+        free(current_node->outgoing_commons);
     }
 }
 
@@ -184,6 +192,7 @@ static void setup_stub_contact_connection_for_node(const MenuNode *node,
 
     current_node->outgoing_commons = malloc(sizeof(BombeNode *) * node->num_stubs);
     assertmsg(current_node->outgoing_commons != NULL, "malloc failed");
+
     current_node->outgoing_commons_count = node->num_stubs;
 
     const uint8_t i_current = node->letter - 'A';
@@ -211,7 +220,6 @@ static void setup_contact_connections(const Menu *menu,
                                       TuringBombe *restrict turing_bombe,
                                       BombeNode *bombe_nodes)
 {
-//    uint8_t menu_pos               = most_freq_menu_pos;
     CribCipherTuple *current_tuple = menu->menu;
     BombeNode *current_node        = bombe_nodes;
     BombeNode dummy;
@@ -237,27 +245,96 @@ static void setup_contact_connections(const Menu *menu,
     last_node->next_node = bombe_nodes;
 
     turing_bombe->starting_node = bombe_nodes + most_freq_menu_pos;
-    puts("");
 }
 
-static int32_t setup_turing_bombe(const char *restrict crib,
-                                  const char *restrict ciphertext,
-                                  TuringBombe *restrict turing_bombe,
-                                  BombeNode *bombe_nodes)
+static int32_t setup_turing_bombe(TuringBombe *turing_bombe, Menu *menu, BombeNode *bombe_nodes)
 {
-    Menu *menu = find_longest_menu(crib, ciphertext);
-    if (menu == NULL)
-    {
-        return ERR_CYCLE;
-    }
     const uint8_t most_freq_pos = find_most_frequent_menu_pos(menu);
 
     setup_test_register(menu->menu + most_freq_pos, turing_bombe);
 
     setup_contact_connections(menu, most_freq_pos, turing_bombe, bombe_nodes);
 
-    free_menu(menu);
     return 0;
+}
+
+static void setup_scramblers(BombeNode *bombe_nodes,
+                             Menu *menu,
+                             const enum ROTOR_TYPE rotor_one_type,
+                             const enum ROTOR_TYPE rotor_two_type,
+                             const enum ROTOR_TYPE rotor_three_type)
+{
+    //TODO reuse rotors if they dont differ...
+    //TODO free_scrambler...
+    for(uint8_t tuple = 0; tuple < menu->len_menu; ++tuple)
+    {
+        BombeNode *current_node = bombe_nodes + tuple;
+        CribCipherTuple *current_tuple = menu->menu + tuple;
+        // The upper (first) rotor of the Turing Bombe resembled the rightmost (third) rotor of the Enigma.
+        // In contrast to the Enigma the Turing Bombe rotated the "third" Enigma rotor the fastest.
+        // The Scramblers rotated after one complete turn, independent of the notch, and they checked a menu.
+        current_node->scrambler_enigma.rotors[0] = create_rotor_by_type(rotor_three_type, 0, 0);
+        current_node->scrambler_enigma.rotors[1] = create_rotor_by_type(rotor_two_type, 0, 0);
+        current_node->scrambler_enigma.rotors[2] = create_rotor_by_type(rotor_one_type, current_tuple->position, 0);
+    }
+}
+
+static void permutate_all_scramblers(TuringBombe *restrict turing_bombe, LinkedList bombe_stack)
+{
+    BombeNode *current_node = turing_bombe->starting_node;
+    //TODO working copy?
+
+}
+
+static void advance_all_scramblers(TuringBombe *restrict turing_bombe, BombeNode *bombe_nodes)
+{
+    for(uint8_t scrambler = 0; scrambler < turing_bombe->scrambler_columns_used; ++scrambler)
+    {
+        BombeNode *current_node = bombe_nodes + scrambler;
+
+        Rotor *first_rotor = current_node->scrambler_enigma.rotors[0];
+        Rotor *second_rotor = current_node->scrambler_enigma.rotors[1];
+        Rotor *third_rotor = current_node->scrambler_enigma.rotors[2];
+
+        first_rotor->position++;
+        if(first_rotor->position % ALPHABET_SIZE == 0)
+        {
+            second_rotor->position++;
+            if(second_rotor->position % ALPHABET_SIZE == 0)
+            {
+                third_rotor->position++;
+            }
+        }
+    }
+}
+
+static bool should_halt(TuringBombe *restrict turing_bombe)
+{
+    const uint8_t active_connections = turing_bombe->terminal->test_register->num_active_connections;
+    return active_connections == 1 || active_connections == 25;
+}
+
+//TODO i dont like to pass the bombe_nodes separately but speed...
+static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe, BombeNode *bombe_nodes)
+{
+    LinkedList nodes_stack = ll_create(sizeof(BombeNode));
+
+    for (uint8_t rotor1_pos = 0; rotor1_pos < ALPHABET_SIZE; ++rotor1_pos)
+    {
+        for (uint8_t rotor2_pos = 0; rotor2_pos < ALPHABET_SIZE; ++rotor2_pos)
+        {
+            for (uint8_t rotor3_pos = 0; rotor3_pos < ALPHABET_SIZE; ++rotor3_pos)
+            {
+                permutate_all_scramblers(turing_bombe, nodes_stack);
+                if(should_halt(turing_bombe)) return true;
+                advance_all_scramblers(turing_bombe, bombe_nodes);
+            }
+        }
+    }
+
+    ll_destroy(nodes_stack);
+
+    return false;
 }
 
 int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
@@ -275,12 +352,14 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
     BombeNode nodes[MAX_CRIB_LEN] = {0};
     TuringBombe turing_bombe      = {.terminal = &terminal, .reflector = reflector, .scrambler_columns_used = 0};
 
-    int32_t err_code = setup_turing_bombe(crib, ciphertext, &turing_bombe, nodes);
-    if (err_code != 0)
+    Menu *menu = find_longest_menu(crib, ciphertext);
+    if (menu == NULL)
     {
-        free_bombe(&turing_bombe, nodes);
-        return err_code;
+        free(reflector);
+        return ERR_CYCLE;
     }
+
+    setup_turing_bombe(&turing_bombe, menu, nodes);
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
@@ -300,14 +379,18 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                 {
                     continue;
                 }
-                //TODO rewrite
-                //                setup_scramblers(&turing_bombe, cycle, rotor_one_type, rotor_two_type, rotor_three_type);
-                //                ret_val |= traverse_rotor_conf(&turing_bombe);
+                setup_scramblers(nodes, menu, rotor_one_type, rotor_two_type, rotor_three_type);
+                if(traverse_rotor_conf(&turing_bombe))
+                {
+                    //TODO report position
+                }
+                free_scramblers(&turing_bombe, nodes);
             }
         }
     }
 
     free_bombe(&turing_bombe, nodes);
+    free_menu(menu);
 
     return ret_val;
 }
