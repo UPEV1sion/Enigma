@@ -299,9 +299,11 @@ static void advance_all_scramblers(TuringBombe *restrict turing_bombe, BombeNode
         first_rotor->position++;
         if(first_rotor->position % ALPHABET_SIZE == 0)
         {
+            first_rotor->position = 0;
             second_rotor->position++;
             if(second_rotor->position % ALPHABET_SIZE == 0)
             {
+                second_rotor->position = 0;
                 third_rotor->position++;
             }
         }
@@ -380,7 +382,7 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                     continue;
                 }
                 setup_scramblers(nodes, menu, rotor_one_type, rotor_two_type, rotor_three_type);
-                if(traverse_rotor_conf(&turing_bombe))
+                if(traverse_rotor_conf(&turing_bombe, nodes))
                 {
                     //TODO report position
                 }
