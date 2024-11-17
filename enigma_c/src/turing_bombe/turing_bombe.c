@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <helper/linkedlist.h>
+#include <bits/stdint-uintn.h>
 
 #include "turing_bombe.h"
 #include "cycle_finder/cycle_finder.h"
@@ -40,7 +41,7 @@ typedef struct
 {
     Contact *contacts[ALPHABET_SIZE];
     Contact *test_register;
-    uint8_t num_commons;
+    uint8_t num_commons; //TODO remove?
 } Terminal;
 
 typedef struct ScramblerEnigma
@@ -65,7 +66,7 @@ struct BombeNode
     ScramblerEnigma scrambler_enigma;
     BombeNode **outgoing_commons;
     uint8_t outgoing_commons_count;
-    BombeNode *next_node; //TODO this may need to be a neighbour pointer, pointing back
+//    BombeNode *next_node; //TODO this may need to be a neighbour pointer, pointing back
 };
 
 static void free_scrambler(BombeNode *bombe_node)
@@ -183,33 +184,30 @@ static void setup_test_register(const CribCipherTuple *most_freq_pos, TuringBomb
     activate_contact(turing_bombe, terminal_i, 0); //Test the letter "A"
 }
 
-static void setup_stub_contact_connection_for_node(const MenuNode *node,
-                                                   BombeNode *bombe_node,
-                                                   TuringBombe *restrict turing_bombe)
+static void set_stubs(TuringBombe *restrict turing_bombe,
+                      BombeNode *bombe_nodes,
+                      const CribCipherTuple *current_tuple,
+                      BombeNode *current_node)
 {
-    BombeNode *current_node = bombe_node + turing_bombe->scrambler_columns_used;
-    turing_bombe->scrambler_columns_used++;
-
-    current_node->outgoing_commons = malloc(sizeof(BombeNode *) * node->num_stubs);
+    const uint8_t num_stubs = current_tuple->first.num_stubs;
+    current_node->outgoing_commons = malloc(sizeof(BombeNode *) * num_stubs);
     assertmsg(current_node->outgoing_commons != NULL, "malloc failed");
+    current_node->outgoing_commons_count = num_stubs;
 
-    current_node->outgoing_commons_count = node->num_stubs;
+    const uint8_t i_current = current_tuple->first.letter - 'A';
 
-    const uint8_t i_current = node->letter - 'A';
-
-    for (uint8_t stub = 0; stub < node->num_stubs; ++stub)
+    for(uint8_t stub = 0; stub < num_stubs; ++stub)
     {
-        BombeNode *stub_bombe_node = bombe_node + turing_bombe->scrambler_columns_used;
+        BombeNode *stub_bombe_node = bombe_nodes + turing_bombe->scrambler_columns_used;
         turing_bombe->scrambler_columns_used++;
         current_node->outgoing_commons[stub] = stub_bombe_node;
 
-        const CribCipherTuple *stub_crib_cipher_tuple = node->stubs + stub;
+        CribCipherTuple *current_stub_tuple = current_tuple->first.stubs + stub;
+        const char stub_char = (char) ((current_stub_tuple->first.letter == current_tuple->first.letter)
+                                       ? current_stub_tuple->second.letter
+                                       : current_stub_tuple->first.letter);
 
-        const char stub_char = (char) ((stub_crib_cipher_tuple->first.letter == node->letter)
-                                           ? stub_crib_cipher_tuple->second.letter
-                                           : stub_crib_cipher_tuple->first.letter);
         const uint8_t i_stub = stub_char - 'A';
-
         stub_bombe_node->scrambler_enigma.in  = turing_bombe->terminal->contacts[i_current];
         stub_bombe_node->scrambler_enigma.out = turing_bombe->terminal->contacts[i_stub];
     }
@@ -220,31 +218,37 @@ static void setup_contact_connections(const Menu *menu,
                                       TuringBombe *restrict turing_bombe,
                                       BombeNode *bombe_nodes)
 {
-    CribCipherTuple *current_tuple = menu->menu;
-    BombeNode *current_node        = bombe_nodes;
-    BombeNode dummy;
-    BombeNode *last_node = &dummy;
-    setup_stub_contact_connection_for_node(&current_tuple->first, bombe_nodes, turing_bombe);
-    setup_stub_contact_connection_for_node(&current_tuple->second, bombe_nodes, turing_bombe);
+    CribCipherTuple *most_freq_tuple = menu->menu + most_freq_menu_pos;
+    CribCipherTuple *current_tuple   = menu->menu;
+    BombeNode *current_node = bombe_nodes;
 
     for(uint8_t tuple_num = 1; tuple_num < menu->len_menu; ++tuple_num)
     {
-        last_node->next_node   = current_node;
+        if(current_tuple == most_freq_tuple)
+        {
+            turing_bombe->starting_node = current_node;
+        }
+
         const uint8_t i_first  = current_tuple->first.letter - 'A';
         const uint8_t i_second = current_tuple->second.letter - 'A';
         current_node->scrambler_enigma.in  = turing_bombe->terminal->contacts[i_first];
         current_node->scrambler_enigma.out = turing_bombe->terminal->contacts[i_second];
 
-        current_tuple = menu->menu + tuple_num;
-        setup_stub_contact_connection_for_node(&current_tuple->second, bombe_nodes, turing_bombe);
+        set_stubs(turing_bombe, bombe_nodes, current_tuple, current_node);
 
-        last_node    = current_node;
-        current_node = bombe_nodes + tuple_num;
+        current_tuple = menu->menu + tuple_num;
+
+        current_node = bombe_nodes + turing_bombe->scrambler_columns_used;
+        turing_bombe->scrambler_columns_used++;
     }
 
-    last_node->next_node = bombe_nodes;
+//    turing_bombe->scrambler_columns_used--;
+    const uint8_t i_first  = current_tuple->first.letter - 'A';
+    const uint8_t i_second = current_tuple->second.letter - 'A';
+    current_node->scrambler_enigma.in  = turing_bombe->terminal->contacts[i_first];
+    current_node->scrambler_enigma.out = turing_bombe->terminal->contacts[i_second];
 
-    turing_bombe->starting_node = bombe_nodes + most_freq_menu_pos;
+    puts("");
 }
 
 static int32_t setup_turing_bombe(TuringBombe *turing_bombe, Menu *menu, BombeNode *bombe_nodes)
@@ -339,6 +343,19 @@ static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe, BombeNode *b
     return false;
 }
 
+static void build_node_lookup_table(BombeNode *terminal_in_relations[NUM_SCRAMBLERS_PER_ROW][NUM_CONTACTS_PER_COMMON],
+                                    uint8_t num_nodes_per_terminal[NUM_SCRAMBLERS_PER_ROW],
+                                    BombeNode *bombe_nodes,
+                                    const uint8_t scrambler_used)
+{
+    for(uint8_t i = 0; i < scrambler_used; ++i)
+    {
+        BombeNode *current_node = bombe_nodes + i;
+        const uint8_t contact_num = current_node->scrambler_enigma.in->contact_num;
+        terminal_in_relations[contact_num][num_nodes_per_terminal[contact_num]++] = current_node;
+    }
+}
+
 int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
     if (!is_valid_crip_position(crib, ciphertext, crib_offset)) return ERR_INVALID_CRIB;
@@ -350,9 +367,9 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
         contacts[contact].contact_num = contact;
         terminal.contacts[contact]    = &contacts[contact];
     }
-    Reflector *reflector          = create_reflector_by_type(UKW_B);
-    BombeNode nodes[MAX_CRIB_LEN] = {0};
-    TuringBombe turing_bombe      = {.terminal = &terminal, .reflector = reflector, .scrambler_columns_used = 0};
+    Reflector *reflector                    = create_reflector_by_type(UKW_B);
+    BombeNode nodes[NUM_SCRAMBLERS_PER_ROW] = {0};
+    TuringBombe turing_bombe                = {.terminal = &terminal, .reflector = reflector, .scrambler_columns_used = 0};
 
     Menu *menu = find_longest_menu(crib, ciphertext);
     if (menu == NULL)
@@ -361,7 +378,14 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
         return ERR_CYCLE;
     }
 
+    //FIXME some in scrambler contacts are NULL?
+    //TODO robustness checks...
     setup_turing_bombe(&turing_bombe, menu, nodes);
+
+    BombeNode *terminal_in_relations[ALPHABET_SIZE][NUM_CONTACTS_PER_COMMON] = {0};
+    uint8_t num_nodes_per_terminal[ALPHABET_SIZE] = {0};
+
+    build_node_lookup_table(terminal_in_relations, num_nodes_per_terminal, nodes, turing_bombe.scrambler_columns_used);
 
     // Different rotor types
     // 60 * 26 * 26 * 26 = 1054560 Permutations
@@ -391,7 +415,7 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
         }
     }
 
-    free_bombe(&turing_bombe, nodes);
+//    free_bombe(&turing_bombe, nodes);
     free_menu(menu);
 
     return ret_val;

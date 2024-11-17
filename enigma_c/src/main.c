@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 {
 //      start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
 //    start_turing_bombe("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
-//    start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+    start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
 //     start_turing_bombe("BEACHHEAD", "EDBGEAHDB", 0);
 //      find_longest_menu("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
 //     find_longest_menu("BEACHHEAD", "EDBGEAHDB");
