@@ -12,7 +12,6 @@ typedef struct
     uint8_t *notch;
     uint8_t position;
     uint8_t notch_count;
-    uint8_t offset;
 } Rotor;
 
 enum ROTOR_TYPE

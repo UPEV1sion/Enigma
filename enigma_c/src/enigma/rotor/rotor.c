@@ -88,7 +88,7 @@ static Rotor* create_one_notch_rotor(const char *wiring, const char *inverse_wir
     rotor->position    = MOD26(position - offset);
     rotor->notch_count = 1;
 
-    rotor->notch       = malloc(sizeof(uint8_t));
+    rotor->notch = malloc(sizeof(uint8_t));
     assertmsg(rotor->notch != NULL, "malloc failed");
 
     rotor->notch[0] = MOD26(notch - 'A' - offset);
@@ -122,7 +122,7 @@ static Rotor* create_two_notch_rotor(const char *wiring, const char *inverse_wir
     rotor->position    = MOD26(position - offset);
     rotor->notch_count = 2;
 
-    rotor->notch       = malloc(2 * sizeof(uint8_t));
+    rotor->notch = malloc(2 * sizeof(uint8_t));
     assertmsg(rotor->notch != NULL, "malloc failed");
 
     rotor->notch[0] = MOD26(notch1 - 'A' - offset);

@@ -281,7 +281,7 @@ static void action_listener_plugboard(GtkEntry *entry,
     }
 }
 
-static Enigma *create_enigma_from_input(char *restrict input_text)
+static char* create_output_with_enigma(char *restrict input_text)
 {
     enum ROTOR_TYPE *rotor_arr               = get_rotors_from_gui();
     const enum ENIGMA_TYPE enigma_type       = get_enigma_type_from_gui();
@@ -289,7 +289,6 @@ static Enigma *create_enigma_from_input(char *restrict input_text)
     uint8_t *rotor_position_arr              = get_rotor_positions_from_gui();
     uint8_t *rotor_ring_position_arr         = get_rotor_ring_positions_from_gui();
     char *plugboard_text                     = get_plugboard_from_gui();
-
     EnigmaConfiguration configuration = {
             .rotors = rotor_arr, .rotor_positions = rotor_position_arr, .ring_settings = rotor_ring_position_arr,
             .type = enigma_type, .reflector = reflector_type, .message = input_text
@@ -297,38 +296,28 @@ static Enigma *create_enigma_from_input(char *restrict input_text)
     memcpy(configuration.plugboard, plugboard_text, strlen(plugboard_text));
 
     Enigma *enigma = create_enigma_from_configuration(&configuration);
+    uint8_t *enigma_output = traverse_enigma(enigma);
+    char *plaintext = get_string_from_int_array(enigma_output, strlen(input_text));
+    assertmsg(plaintext != NULL, "int[] to string conversion failed");
 
-    //TODO rewrite this!
-    uint8_t *output_text_as_ints = traverse_enigma(enigma);
-    char *output_text = get_string_from_int_array(output_text_as_ints, strlen(input_text));
-    enigma_config_to_json(&configuration, output_text);
+    enigma_config_to_json(&configuration, plaintext);
 
     free(rotor_arr);
     free(rotor_position_arr);
     free(rotor_ring_position_arr);
     free(plugboard_text);
-    free(input_text);
-    free(output_text_as_ints);
-    free(output_text);
+    free(enigma_output);
 
-    return enigma;
+    return plaintext;
 }
 
 static void generate_output_with_enigma(char *restrict input_text)
 {
-    Enigma *enigma = create_enigma_from_input(input_text);
-    uint8_t *text = traverse_enigma(enigma);
-    char *plaintext = get_string_from_int_array(text, strlen(enigma->plaintext));
-    assertmsg(plaintext != NULL, "int[] to string conversion failed");
+    char *plaintext = create_output_with_enigma(input_text);
 
-    // enigma_to_json(enigma);
     update_output(plaintext);
-    // char *json_text = read_json();
-    // puts(json_text);
 
-    // free(json_text);
-    free_enigma(enigma);
-    free(text);
+    free(input_text);
     free(plaintext);
 }
 
@@ -366,7 +355,6 @@ static void action_listener_start_btn(void)
         fprintf(stderr, "The invalid chars have been truncated\n");
     }
 
-    if (input_text == NULL) return;
     const gchar *plugboard_text = gtk_entry_get_text(GTK_ENTRY(plugboard));
     const ssize_t alpha_count_plugboard = count_alphas(plugboard_text);
 //    assertmsg(alpha_count_plugboard >= 0, "count alphas failed");
