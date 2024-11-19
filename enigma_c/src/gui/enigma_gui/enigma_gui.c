@@ -317,7 +317,6 @@ static void generate_output_with_enigma(char *restrict input_text)
 
     update_output(plaintext);
 
-    free(input_text);
     free(plaintext);
 }
 
@@ -381,6 +380,7 @@ static void action_listener_start_btn(void)
         rotor_mask |= active_rotor;
     }
     generate_output_with_enigma(input_text);
+    free(input_text);
 }
 
 //TODO refactor
