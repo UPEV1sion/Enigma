@@ -15,4 +15,6 @@
 #define NUM_CONTACTS_PER_COMMON     5
 #define NUM_COMMONS                 6
 
+typedef struct BombeNode BombeNode;
+
 int32_t start_turing_bombe(const char *crib, const char *ciphertext, uint32_t crib_offset);

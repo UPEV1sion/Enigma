@@ -8,6 +8,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "turing_bombe/turing_bombe.h"
+
 
 typedef struct LinkedList *LinkedList;
 
@@ -17,7 +19,7 @@ typedef struct LinkedList *LinkedList;
  * @param value_size The sizeof value of the value
  * @return LinkedList
  */
-LinkedList ll_create(size_t value_size);
+LinkedList ll_create(void);
 
 /**
  * @brief Pushes a new value on the Stack.
@@ -26,7 +28,7 @@ LinkedList ll_create(size_t value_size);
  * @param data The data to be pushed
  * @return Success code
  */
-int ll_push(LinkedList ll, const void *data);
+int ll_push(LinkedList ll, BombeNode *data);
 
 /**
  * @brief Adds a new value to the LinkedList.
@@ -35,7 +37,7 @@ int ll_push(LinkedList ll, const void *data);
  * @param data The data to be added
  * @return Success code
  */
-int ll_add(LinkedList ll, const void *data);
+int ll_add(LinkedList ll, BombeNode *data);
 
 /**
  * @brief Offers a new value to the LinkedList.
@@ -44,7 +46,7 @@ int ll_add(LinkedList ll, const void *data);
  * @param data The data to be added
  * @return Success code
  */
-int ll_offer(LinkedList ll, const void *data);
+int ll_offer(LinkedList ll, BombeNode *data);
 
 /**
  * @brief Pops the first value from the Stack. Asserts that the Stack is not empty.
@@ -52,7 +54,7 @@ int ll_offer(LinkedList ll, const void *data);
  * @param ll The LinkedList
  * @return The popped value
  */
-void *ll_pop(LinkedList ll);
+BombeNode* ll_pop(LinkedList ll);
 
 /**
  * @brief Polls the first value from the Stack. If the Stack is empty NULL is returned.
@@ -60,7 +62,7 @@ void *ll_pop(LinkedList ll);
  * @param ll The LinkedList
  * @return The polled value
  */
-void *ll_poll(LinkedList ll);
+BombeNode* ll_poll(LinkedList ll);
 
 /**
  * @brief Removes the item from the LinkedList at the specified index.
@@ -77,7 +79,7 @@ int ll_remove(LinkedList ll, size_t index);
  * @param ll The LinkedList
  * @return The first value
  */
-void *ll_peek(LinkedList ll);
+BombeNode* ll_peek(LinkedList ll);
 
 /**
  * @brief Returns the last item on the Stack.
@@ -85,7 +87,7 @@ void *ll_peek(LinkedList ll);
  * @param ll The LinkedList
  * @return The last value
  */
-void *ll_peek_last(LinkedList ll);
+BombeNode* ll_peek_last(LinkedList ll);
 
 /**
  * @brief Gets the item at the index.
@@ -94,7 +96,7 @@ void *ll_peek_last(LinkedList ll);
  * @param index index of the value
  * @return The item
  */
-void *ll_get(LinkedList ll, size_t index);
+BombeNode* ll_get(LinkedList ll, size_t index);
 
 /**
  * @brief Returns the length of the LinkedList.
@@ -118,7 +120,7 @@ bool ll_is_empty(LinkedList ll);
  * @param ll The LinkedList
  * @return True or falsehood
  */
-bool ll_contains(LinkedList ll, const void *data);
+bool ll_contains(LinkedList ll, const BombeNode *data);
 
 /**
  * @brief Destroys the LinkedList.

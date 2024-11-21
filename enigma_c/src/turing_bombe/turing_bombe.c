@@ -27,8 +27,6 @@
 #define ERR_INVALID_CRIB       1
 #define ERR_CYCLE              2
 
-typedef struct BombeNode BombeNode;
-
 typedef struct
 {
     uint8_t active_cable_connections[ALPHABET_SIZE];
@@ -54,7 +52,7 @@ struct BombeNode
 {
     ScramblerEnigma scrambler_enigma;
     BombeNode **outgoing_commons;
-    uint8_t outgoing_commons_count;
+    uint8_t outgoing_commons_count; //TODO visited after the the permutation yields no new active connection
 };
 
 typedef struct TuringBomb
@@ -125,7 +123,9 @@ static void print_contact_status(const Contact *contact, const char *contact_nam
 
 static void print_node(BombeNode *bombe_node)
 {
-    printf("%c -- %c [", bombe_node->scrambler_enigma.in->contact_num + 'A', bombe_node->scrambler_enigma.out->contact_num + 'A');
+    printf("%c -- %c [",
+           bombe_node->scrambler_enigma.in->contact_num + 'A',
+           bombe_node->scrambler_enigma.out->contact_num + 'A');
     for(uint8_t common = 0; common < bombe_node->outgoing_commons_count; ++common)
     {
         ScramblerEnigma current_scrambler = bombe_node->outgoing_commons[common]->scrambler_enigma;
@@ -177,7 +177,7 @@ static void activate_contact(TuringBombe *restrict turing_bombe, const uint8_t f
 
 static void setup_test_register(const CribCipherTuple *most_freq_pos, TuringBombe *restrict turing_bombe)
 {
-    const uint8_t terminal_i              = most_freq_pos->first.letter - 'A';
+    const uint8_t terminal_i             = most_freq_pos->first.letter - 'A';
     turing_bombe->terminal.test_register = turing_bombe->terminal.contacts + terminal_i;
     activate_contact(turing_bombe, terminal_i, 0); //Test the letter "A"
 }
@@ -252,7 +252,8 @@ static void build_node_lookup_table(TuringBombe *restrict turing_bombe)
     {
         BombeNode *current_node = turing_bombe->nodes + i;
         const uint8_t contact_num = current_node->scrambler_enigma.in->contact_num;
-        turing_bombe->terminal_in_relations[contact_num][num_nodes_per_terminal[contact_num]++] = current_node;
+        turing_bombe->terminal_in_relations[contact_num][num_nodes_per_terminal[contact_num]] = current_node;
+        num_nodes_per_terminal[contact_num]++;
     }
 }
 
@@ -287,7 +288,7 @@ static void setup_scramblers(TuringBombe *restrict turing_bombe,
 {
     //TODO reuse rotors if they dont differ...
     //TODO free_scrambler...
-    for(uint8_t tuple = 0; tuple < menu->len_menu; ++tuple)
+    for(uint8_t tuple = 0; tuple < turing_bombe->scrambler_columns_used; ++tuple)
     {
         BombeNode *current_node = turing_bombe->nodes + tuple;
         CribCipherTuple *current_tuple = menu->menu + tuple;
@@ -306,7 +307,8 @@ static void populate_stack_at_terminal(TuringBombe *restrict turing_bombe, Linke
 
     for(uint8_t node_num = 0; node_num < num_nodes; ++node_num)
     {
-        ll_push(bombe_stack, turing_bombe->terminal_in_relations[terminal_num][node_num]);
+        BombeNode *current_node = turing_bombe->terminal_in_relations[terminal_num][node_num];
+        ll_push(bombe_stack, current_node);
     }
 }
 
@@ -329,9 +331,9 @@ static void permutate_ins(TuringBombe *restrict turing_bombe, BombeNode *bombe_n
         character = traverse_rotor(rotor_two, character);
         character = traverse_rotor(rotor_three, character);
         character = reflector->wiring[character];
-        character = traverse_rotor(rotor_three, character);
-        character = traverse_rotor(rotor_two, character);
-        character = traverse_rotor(rotor_one, character);
+        character = traverse_rotor_inverse(rotor_three, character);
+        character = traverse_rotor_inverse(rotor_two, character);
+        character = traverse_rotor_inverse(rotor_one, character);
 
         activate_contact(turing_bombe, out->contact_num, character);
     }
@@ -391,12 +393,10 @@ static void copy_terminal(Terminal *destination, Terminal *source)
 //TODO i dont like to pass the bombe_nodes separately but speed...
 static bool traverse_rotor_conf(TuringBombe *turing_bombe)
 {
-    LinkedList nodes_stack = ll_create(sizeof(BombeNode *));
+    LinkedList nodes_stack = ll_create();
 
-    Terminal working_copy;
-    copy_terminal(&working_copy, &turing_bombe->terminal);
-
-    copy_terminal(&turing_bombe->terminal, &working_copy);
+    Terminal terminal_template;
+    copy_terminal(&terminal_template, &turing_bombe->terminal);
 
     for (uint8_t rotor1_pos = 0; rotor1_pos < ALPHABET_SIZE; ++rotor1_pos)
     {
@@ -407,7 +407,7 @@ static bool traverse_rotor_conf(TuringBombe *turing_bombe)
                 permutate_all_scramblers(turing_bombe, nodes_stack);
                 if(should_halt(turing_bombe)) return true;
                 advance_all_scramblers(turing_bombe);
-                copy_terminal(&turing_bombe->terminal, &working_copy); //Reset all active connections
+                copy_terminal(&turing_bombe->terminal, &terminal_template); //Reset all active connections
             }
         }
     }
