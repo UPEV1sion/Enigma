@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <helper/linkedlist.h>
-#include <bits/stdint-uintn.h>
 
 #include "turing_bombe.h"
 #include "cycle_finder/cycle_finder.h"
@@ -53,6 +52,7 @@ struct BombeNode
     ScramblerEnigma scrambler_enigma;
     BombeNode **outgoing_commons;
     uint8_t outgoing_commons_count; //TODO visited after the the permutation yields no new active connection
+    bool visited;
 };
 
 typedef struct TuringBomb
@@ -65,14 +65,14 @@ typedef struct TuringBomb
     uint8_t scrambler_columns_used;
 } TuringBombe;
 
-static void free_scrambler(BombeNode *bombe_node)
+static void free_scrambler(const BombeNode *bombe_node)
 {
     free(bombe_node->scrambler_enigma.rotors[0]);
     free(bombe_node->scrambler_enigma.rotors[1]);
     free(bombe_node->scrambler_enigma.rotors[2]);
 }
 
-static void free_scramblers(TuringBombe *turing_bombe)
+static void free_scramblers(const TuringBombe *turing_bombe)
 {
     for (uint8_t scrambler = 0; scrambler < turing_bombe->scrambler_columns_used; ++scrambler)
     {
@@ -80,7 +80,7 @@ static void free_scramblers(TuringBombe *turing_bombe)
     }
 }
 
-static void free_bombe(TuringBombe *turing_bombe, BombeNode *bombe_nodes)
+static void free_bombe(const TuringBombe *turing_bombe, BombeNode *bombe_nodes)
 {
     free(turing_bombe->reflector);
     free_scramblers(turing_bombe);
@@ -121,7 +121,7 @@ static void print_contact_status(const Contact *contact, const char *contact_nam
     puts("");
 }
 
-static void print_node(BombeNode *bombe_node)
+static void print_node(const BombeNode *bombe_node)
 {
     printf("%c -- %c [",
            bombe_node->scrambler_enigma.in->contact_num + 'A',
@@ -199,7 +199,7 @@ static void set_stubs(TuringBombe *restrict turing_bombe,
         turing_bombe->scrambler_columns_used++;
         current_node->outgoing_commons[stub] = stub_bombe_node;
 
-        CribCipherTuple *current_stub_tuple = current_tuple->first.stubs + stub;
+        const CribCipherTuple *current_stub_tuple = current_tuple->first.stubs + stub;
         const char stub_char = (char) ((current_stub_tuple->first.letter == current_tuple->first.letter)
                                        ? current_stub_tuple->second.letter
                                        : current_stub_tuple->first.letter);
@@ -265,7 +265,7 @@ static void setup_terminals(TuringBombe *restrict turing_bombe)
     }
 }
 
-static int32_t setup_turing_bombe(TuringBombe *restrict turing_bombe, Menu *menu)
+static int32_t setup_turing_bombe(TuringBombe *restrict turing_bombe, const Menu *menu)
 {
     setup_terminals(turing_bombe);
 
@@ -281,7 +281,7 @@ static int32_t setup_turing_bombe(TuringBombe *restrict turing_bombe, Menu *menu
 }
 
 static void setup_scramblers(TuringBombe *restrict turing_bombe,
-                             Menu *menu,
+                             const Menu *menu,
                              const enum ROTOR_TYPE rotor_one_type,
                              const enum ROTOR_TYPE rotor_two_type,
                              const enum ROTOR_TYPE rotor_three_type)
@@ -291,7 +291,7 @@ static void setup_scramblers(TuringBombe *restrict turing_bombe,
     for(uint8_t tuple = 0; tuple < turing_bombe->scrambler_columns_used; ++tuple)
     {
         BombeNode *current_node = turing_bombe->nodes + tuple;
-        CribCipherTuple *current_tuple = menu->menu + tuple;
+        const CribCipherTuple *current_tuple = menu->menu + tuple;
         // The upper (first) rotor of the Turing Bombe resembled the rightmost (third) rotor of the Enigma.
         // In contrast to the Enigma the Turing Bombe rotated the "third" Enigma rotor the fastest.
         // The Scramblers rotated after one complete turn, independent of the notch, and checked a menu.
@@ -301,14 +301,19 @@ static void setup_scramblers(TuringBombe *restrict turing_bombe,
     }
 }
 
-static void populate_stack_at_terminal(TuringBombe *restrict turing_bombe, LinkedList bombe_stack, const uint8_t terminal_num)
+static void populate_stack_at_terminal(const TuringBombe *restrict turing_bombe,
+                                       LinkedList bombe_stack,
+                                       const uint8_t terminal_num)
 {
     const uint8_t num_nodes = turing_bombe->num_nodes_per_terminal[terminal_num];
 
     for(uint8_t node_num = 0; node_num < num_nodes; ++node_num)
     {
         BombeNode *current_node = turing_bombe->terminal_in_relations[terminal_num][node_num];
-        ll_push(bombe_stack, current_node);
+        if (current_node->visited == false)
+        {
+            ll_push(bombe_stack, current_node);
+        }
     }
 }
 
@@ -316,7 +321,8 @@ static void permutate_ins(TuringBombe *restrict turing_bombe, BombeNode *bombe_n
 {
     const Contact *in = bombe_node->scrambler_enigma.in;
     const Contact *out = bombe_node->scrambler_enigma.out;
-    const uint8_t num_active_contacts = bombe_node->scrambler_enigma.in->num_active_connections;
+    const uint8_t num_active_contacts = in->num_active_connections;
+    const uint8_t num_outgoing_connection = out->num_active_connections;
 
     const Rotor *rotor_one = bombe_node->scrambler_enigma.rotors[0];
     const Rotor *rotor_two = bombe_node->scrambler_enigma.rotors[1];
@@ -335,7 +341,15 @@ static void permutate_ins(TuringBombe *restrict turing_bombe, BombeNode *bombe_n
         character = traverse_rotor_inverse(rotor_two, character);
         character = traverse_rotor_inverse(rotor_one, character);
 
-        activate_contact(turing_bombe, out->contact_num, character);
+        if ((out->active_bit_vector & (1 << character)) == 0)
+        {
+            activate_contact(turing_bombe, out->contact_num, character);
+        }
+    }
+
+    if (out->num_active_connections == num_outgoing_connection)
+    {
+        bombe_node->visited = true;
     }
 }
 
@@ -351,6 +365,10 @@ static void permutate_all_scramblers(TuringBombe *restrict turing_bombe, LinkedL
     {
         permutate_ins(turing_bombe, current_node);
         populate_stack_at_terminal(turing_bombe, bombe_stack, current_node->scrambler_enigma.out->contact_num);
+        for (uint8_t diag_contact = 0; diag_contact < current_node->scrambler_enigma.out->num_active_connections; ++diag_contact)
+        {
+            populate_stack_at_terminal(turing_bombe, bombe_stack, current_node->scrambler_enigma.out->active_cable_connections[diag_contact]);
+        }
     }
 }
 
@@ -378,21 +396,21 @@ static void advance_all_scramblers(TuringBombe *restrict turing_bombe)
     }
 }
 
-static bool should_halt(TuringBombe *restrict turing_bombe)
+static bool should_halt(const TuringBombe *restrict turing_bombe)
 {
     const uint8_t active_connections = turing_bombe->terminal.test_register->num_active_connections;
     return active_connections == 1 || active_connections == 25;
 }
 
-static void copy_terminal(Terminal *destination, Terminal *source)
+static void copy_terminal(Terminal *destination, const Terminal *source)
 {
     memcpy(destination, source, sizeof (Terminal));
     destination->test_register = destination->contacts + source->test_register->contact_num;
 }
 
-//TODO i dont like to pass the bombe_nodes separately but speed...
 static bool traverse_rotor_conf(TuringBombe *turing_bombe)
 {
+    puts("New conf");
     LinkedList nodes_stack = ll_create();
 
     Terminal terminal_template;
@@ -453,7 +471,13 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                 setup_scramblers(&turing_bombe, menu, rotor_one_type, rotor_two_type, rotor_three_type);
                 if(traverse_rotor_conf(&turing_bombe))
                 {
-                    //TODO report position
+                    printf("Found conf: (%d : %d : %d) at (%d : %d : %d)",
+                        rotor_one_type,
+                        rotor_two_type,
+                        rotor_three_type,
+                        turing_bombe.nodes[0].scrambler_enigma.rotors[0]->position,
+                        turing_bombe.nodes[0].scrambler_enigma.rotors[1]->position,
+                        turing_bombe.nodes[0].scrambler_enigma.rotors[2]->position);
                 }
                 free_scramblers(&turing_bombe);
             }
