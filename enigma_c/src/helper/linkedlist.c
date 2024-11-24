@@ -37,7 +37,7 @@ LinkedList ll_create(void)
 {
     LinkedList ll = malloc(sizeof(*ll));
     assertmsg(ll != NULL, "malloc failed");
-    ll->length     = 0;
+    ll->length = 0;
     ll->head = ll->tail = NULL;
 
     return ll;
@@ -87,28 +87,32 @@ BombeNode* ll_pop(LinkedList ll)
 {
     assertmsg(ll->head != NULL, "ll head == NULL");
     LLNode *old_head = ll->head;
+    BombeNode *node = old_head->bombe_node;
     ll->head = old_head->next;
     if (ll->head != NULL)
         ll->head->prev = NULL;
     else
         ll->tail = NULL;
     ll->length--;
+    free(old_head);
 
-    return old_head->bombe_node;
+    return node;
 }
 
 BombeNode* ll_poll(LinkedList ll)
 {
     if(ll->head == NULL) return NULL;
     LLNode *old_head = ll->head;
+    BombeNode *node = old_head->bombe_node;
     ll->head = old_head->next;
     if (ll->head != NULL)
         ll->head->prev = NULL;
     else
         ll->tail = NULL;
     ll->length--;
+    free(old_head);
 
-    return old_head->bombe_node;
+    return node;
 }
 
 BombeNode* ll_poll_last(LinkedList ll)
@@ -116,23 +120,25 @@ BombeNode* ll_poll_last(LinkedList ll)
     if(ll->tail == NULL) return NULL;
     LLNode *old_tail = ll->tail;
     ll->tail = old_tail->prev;
+    BombeNode *node = old_tail->bombe_node;
     if (ll->tail != NULL)
         ll->tail->next = NULL;
     else
         ll->head = NULL;
     ll->length--;
+    free(old_tail);
 
-    return old_tail->bombe_node;
+    return node;
 }
 
-int ll_remove(LinkedList ll, size_t index)
+int32_t ll_remove(LinkedList ll, size_t index)
 {
     if (index >= ll->length) return 1;
     LLNode *node = ll->head;
     while (node && index--)
         node = node->next;
 
-    if (!node) return 1;
+    if (node == NULL) return 1;
 
     if (node->prev)
         node->prev->next = node->next;
@@ -145,6 +151,8 @@ int ll_remove(LinkedList ll, size_t index)
         ll->tail = node->prev;
 
     ll->length--;
+    free(node);
+
     return 0;
 }
 

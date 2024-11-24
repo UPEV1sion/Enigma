@@ -38,7 +38,6 @@ typedef struct
 {
     Contact contacts[ALPHABET_SIZE];
     Contact *test_register;
-    uint8_t num_commons; //TODO remove?
 } Terminal;
 
 typedef struct ScramblerEnigma
@@ -51,7 +50,7 @@ struct BombeNode
 {
     ScramblerEnigma scrambler_enigma;
     BombeNode **outgoing_commons;
-    uint8_t outgoing_commons_count; //TODO visited after the the permutation yields no new active connection
+    uint8_t outgoing_commons_count;
     bool visited;
 };
 
@@ -67,9 +66,15 @@ typedef struct TuringBomb
 
 static void free_scrambler(const BombeNode *bombe_node)
 {
-    free(bombe_node->scrambler_enigma.rotors[0]);
-    free(bombe_node->scrambler_enigma.rotors[1]);
-    free(bombe_node->scrambler_enigma.rotors[2]);
+    Rotor *rotor_one   = bombe_node->scrambler_enigma.rotors[0];
+    Rotor *rotor_two   = bombe_node->scrambler_enigma.rotors[1];
+    Rotor *rotor_three = bombe_node->scrambler_enigma.rotors[2];
+    free(rotor_one->notch);
+    free(rotor_one);
+    free(rotor_two->notch);
+    free(rotor_two);
+    free(rotor_three->notch);
+    free(rotor_three);
 }
 
 static void free_scramblers(const TuringBombe *turing_bombe)
@@ -80,13 +85,13 @@ static void free_scramblers(const TuringBombe *turing_bombe)
     }
 }
 
-static void free_bombe(const TuringBombe *turing_bombe, BombeNode *bombe_nodes)
+static void free_bombe(const TuringBombe *turing_bombe)
 {
     free(turing_bombe->reflector);
-    free_scramblers(turing_bombe);
+//    free_scramblers(turing_bombe);
     for (uint8_t scrambler = 0; scrambler < turing_bombe->scrambler_columns_used; ++scrambler)
     {
-        BombeNode *current_node = bombe_nodes + scrambler;
+        const BombeNode *current_node = turing_bombe->nodes + scrambler;
         free(current_node->outgoing_commons);
     }
 }
@@ -136,11 +141,6 @@ static void print_node(const BombeNode *bombe_node)
     puts("]");
 }
 
-static void print_wiring(TuringBombe *restrict turing_bombe)
-{
-
-}
-
 static uint8_t find_most_frequent_menu_pos(const Menu *menu)
 {
     const CribCipherTuple *most_freq_tuple = menu->menu;
@@ -160,8 +160,9 @@ static uint8_t find_most_frequent_menu_pos(const Menu *menu)
     return most_freq_pos;
 }
 
-static void
-activate_contact(TuringBombe *restrict turing_bombe, const uint8_t first_contact, const uint8_t second_contact)
+static void activate_contact(TuringBombe *restrict turing_bombe,
+                             const uint8_t first_contact,
+                             const uint8_t second_contact)
 {
     Contact *primary_contact   = turing_bombe->terminal.contacts + first_contact;
     Contact *secondary_contact = turing_bombe->terminal.contacts + second_contact;
@@ -213,19 +214,13 @@ static void set_stubs(TuringBombe *restrict turing_bombe,
 }
 
 static void setup_contact_connections(const Menu *menu,
-                                      const uint8_t most_freq_menu_pos,
                                       TuringBombe *restrict turing_bombe)
 {
-    CribCipherTuple *most_freq_tuple = menu->menu + most_freq_menu_pos;
     CribCipherTuple *current_tuple = menu->menu;
     BombeNode *current_node = turing_bombe->nodes;
 
     for (uint8_t tuple_num = 1; tuple_num < menu->len_menu; ++tuple_num)
     {
-//        if(current_tuple == most_freq_tuple)
-//        {
-//            turing_bombe->starting_node = current_node;
-//        }
 
         const uint8_t i_first  = current_tuple->first.letter - 'A';
         const uint8_t i_second = current_tuple->second.letter - 'A';
@@ -275,7 +270,7 @@ static int32_t setup_turing_bombe(TuringBombe *restrict turing_bombe, const Menu
 
     setup_test_register(menu->menu + most_freq_pos, turing_bombe);
 
-    setup_contact_connections(menu, most_freq_pos, turing_bombe);
+    setup_contact_connections(menu, turing_bombe);
 
     build_node_lookup_table(turing_bombe);
 
@@ -289,7 +284,6 @@ static void setup_scramblers(TuringBombe *restrict turing_bombe,
                              const enum ROTOR_TYPE rotor_three_type)
 {
     //TODO reuse rotors if they dont differ...
-    //TODO free_scrambler...
     for (uint8_t tuple = 0; tuple < turing_bombe->scrambler_columns_used; ++tuple)
     {
         BombeNode *current_node = turing_bombe->nodes + tuple;
@@ -338,7 +332,7 @@ static void permutate_ins(TuringBombe *restrict turing_bombe, BombeNode *bombe_n
         character         = traverse_rotor(rotor_one, character);
         character         = traverse_rotor(rotor_two, character);
         character         = traverse_rotor(rotor_three, character);
-        character         = reflector->wiring[character];
+        character         = reflector->wiring[character]; // TODO valgrind uninit?
         character         = traverse_rotor_inverse(rotor_three, character);
         character         = traverse_rotor_inverse(rotor_two, character);
         character         = traverse_rotor_inverse(rotor_one, character);
@@ -429,7 +423,7 @@ static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
     puts("\nNew conf");
     LinkedList nodes_stack = ll_create();
 
-    Terminal terminal_template;
+    Terminal terminal_template; //I want to make this static, but haven't found a method yet and I don't thick there will be one...
     copy_terminal(&terminal_template, &turing_bombe->terminal);
 
     for (uint8_t rotor1_pos = 0; rotor1_pos < ALPHABET_SIZE; ++rotor1_pos)
@@ -443,6 +437,7 @@ static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
                 {
                     copy_terminal(&turing_bombe->terminal, &terminal_template);
                     clear_visited(turing_bombe);
+                    ll_destroy(nodes_stack);
                     //TODO proceed
                     return true;
                 }
@@ -507,7 +502,7 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
         }
     }
 
-//    free_bombe(&turing_bombe, nodes);
+    free_bombe(&turing_bombe);
     free_menu(menu);
 
     return ret_val;
