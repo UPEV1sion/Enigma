@@ -186,7 +186,8 @@ static bool set_stubs(MenuNode *node,
     const uint8_t current_i = node->letter - 'A';
     uint8_t num_stubs = tuples_per_letter[current_i] - 2; //ignoring the own and adjacent one
 
-    node->stubs = malloc(sizeof(CribCipherTuple) * num_stubs);
+//    node->stubs = malloc(sizeof(CribCipherTuple) * num_stubs);
+    node->stubs = calloc(num_stubs, sizeof(CribCipherTuple));
     assertmsg(node->stubs != NULL, "malloc failed");
 
     uint8_t stubs_count = 0;
