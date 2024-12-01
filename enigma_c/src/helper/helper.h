@@ -80,12 +80,16 @@ typedef ssize_t int64_t;
  * @brief The error codes - mainly for debugging.
  * @note In the code, the function return values are only asserted to be == 0, indicating no error.
  */
-#define ERR_NULL_POINTER        (-1)
-//Also empty uint8_t array
-#define ERR_EMPTY_STRING        (-2)
-#define ERR_INVALID_INPUT       (-3)
-#define ERR_OUT_OF_RANGE        (-4)
-#define ERR_PARTIAL_CONVERSION  (-5)
+
+enum
+{
+    ERR_NULL_POINTER = -1,
+    //Also empty uint8_t array
+    ERR_EMPTY_STRING = -2,
+    ERR_INVALID_INPUT = -3,
+    ERR_OUT_OF_RANGE = -4,
+    ERR_PARTIAL_CONVERSION = -5
+};
 
 int32_t get_number_from_string(const char *str, int32_t *number);
 int32_t to_uppercase(char *input);

@@ -16,14 +16,17 @@
 #define INPUT_BUFFER_SIZE       (1024)
 #define SEPARATOR_LENGTH        (128)
 
-#define ERR_BAD_ENIGMA_TYPE     (1)
-#define ERR_NO_PLAINTEXT        (2)
-#define ERR_BAD_ROTOR_OFFSET    (3)
-#define ERR_BAD_ROTOR_POSITIONS (4)
-#define ERR_BAD_ROTOR_TYPE      (5)
-#define ERR_BAD_REFLECTOR_TYPE  (6)
-#define ERR_DUPLICATE_ROTORS    (7)
-#define ERR_BAD_PLUGBOARD       (8)
+enum
+{
+    ERR_BAD_ENIGMA_TYPE = 1,
+    ERR_NO_PLAINTEXT,
+    ERR_BAD_ROTOR_OFFSET,
+    ERR_BAD_ROTOR_POSITIONS,
+    ERR_BAD_ROTOR_TYPE,
+    ERR_BAD_REFLECTOR_TYPE,
+    ERR_DUPLICATE_ROTORS,
+    ERR_BAD_PLUGBOARD
+};
 
 /*----------ENIGMA----------*/
 #define ROTOR_ONE              "--rotor-one"

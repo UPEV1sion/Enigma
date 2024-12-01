@@ -23,8 +23,11 @@
 #define NUM_ROTORS             5
 #define PLUGBOARD              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-#define ERR_INVALID_CRIB       1
-#define ERR_CYCLE              2
+enum
+{
+    ERR_INVALID_CRIB = 1,
+    ERR_CYCLE
+};
 
 typedef struct
 {

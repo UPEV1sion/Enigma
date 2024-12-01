@@ -15,9 +15,12 @@
 #define SCALING_FACTOR      2
 #define LOAD_FACTOR         0.75
 
-#define ERR_TOO_BIG         1
-#define ERR_NULL_PTR        2
-#define ERR_INVALID_KEY     2
+enum
+{
+    ERR_TOO_BIG = 1,
+    ERR_NULL_PTR,
+    ERR_INVALID_KEY
+};
 
 typedef struct Bucket Bucket;
 

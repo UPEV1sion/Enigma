@@ -60,7 +60,7 @@ enum CliMode
 
 typedef struct
 {
-    char *ciphertext;
+    char *ciphertext; //TODO
     char *crib;
     int32_t crib_offset;
     uint8_t active_mode;
