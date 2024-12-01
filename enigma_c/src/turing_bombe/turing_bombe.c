@@ -88,7 +88,6 @@ static void free_scramblers(const TuringBombe *turing_bombe)
 static void free_bombe(const TuringBombe *turing_bombe)
 {
     free(turing_bombe->reflector);
-//    free_scramblers(turing_bombe);
     for (uint8_t scrambler = 0; scrambler < turing_bombe->scrambler_columns_used; ++scrambler)
     {
         const BombeNode *current_node = turing_bombe->nodes + scrambler;
@@ -116,30 +115,30 @@ static bool is_valid_crip_position(const char *crib, const char *ciphertext, con
     return true;
 }
 
-static void print_contact_status(const Contact *contact, const char *contact_name)
-{
-    printf("%15s. %2d : ", contact_name, contact->contact_num);
-    for (uint8_t i = 0; i < contact->num_active_connections; ++i)
-    {
-        printf("%d ", contact->active_cable_connections[i]);
-    }
-    puts("");
-}
-
-static void print_node(const BombeNode *bombe_node)
-{
-    printf("%c -- %c [",
-           bombe_node->scrambler_enigma.in->contact_num + 'A',
-           bombe_node->scrambler_enigma.out->contact_num + 'A');
-    for (uint8_t common = 0; common < bombe_node->outgoing_commons_count; ++common)
-    {
-        ScramblerEnigma current_scrambler = bombe_node->outgoing_commons[common]->scrambler_enigma;
-        printf("%c -- %c, ",
-               current_scrambler.in->contact_num + 'A',
-               current_scrambler.out->contact_num + 'A');
-    }
-    puts("]");
-}
+//static void print_contact_status(const Contact *contact, const char *contact_name)
+//{
+//    printf("%15s. %2d : ", contact_name, contact->contact_num);
+//    for (uint8_t i = 0; i < contact->num_active_connections; ++i)
+//    {
+//        printf("%d ", contact->active_cable_connections[i]);
+//    }
+//    puts("");
+//}
+//
+//static void print_node(const BombeNode *bombe_node)
+//{
+//    printf("%c -- %c [",
+//           bombe_node->scrambler_enigma.in->contact_num + 'A',
+//           bombe_node->scrambler_enigma.out->contact_num + 'A');
+//    for (uint8_t common = 0; common < bombe_node->outgoing_commons_count; ++common)
+//    {
+//        ScramblerEnigma current_scrambler = bombe_node->outgoing_commons[common]->scrambler_enigma;
+//        printf("%c -- %c, ",
+//               current_scrambler.in->contact_num + 'A',
+//               current_scrambler.out->contact_num + 'A');
+//    }
+//    puts("]");
+//}
 
 static uint8_t find_most_frequent_menu_pos(const Menu *menu)
 {
@@ -287,7 +286,7 @@ static void setup_scramblers(TuringBombe *restrict turing_bombe,
     for (uint8_t tuple = 0; tuple < turing_bombe->scrambler_columns_used; ++tuple)
     {
         BombeNode *current_node = turing_bombe->nodes + tuple;
-        const CribCipherTuple *current_tuple = menu->menu + tuple;
+        const CribCipherTuple *current_tuple = menu->menu + tuple; //FIXME scrambler_columns_used might be higher than menu length...
         // The upper (first) rotor of the Turing Bombe resembled the rightmost (third) rotor of the Enigma.
         // In contrast to the Enigma the Turing Bombe rotated the "third" Enigma rotor the fastest.
         // The Scramblers rotated after one complete turn, independent of the notch, and checked a menu.
@@ -308,13 +307,16 @@ static void populate_stack_at_terminal(const TuringBombe *restrict turing_bombe,
         BombeNode *current_node = turing_bombe->terminal_in_relations[terminal_num][node_num];
         if (current_node->visited == false)
         {
-            ll_push(bombe_stack, current_node);
+//            ll_push(bombe_stack, current_node);
+            ll_add(bombe_stack, current_node);
         }
     }
 }
 
 static void permutate_ins(TuringBombe *restrict turing_bombe, BombeNode *bombe_node)
 {
+//    printf("%c -- %c\n", bombe_node->scrambler_enigma.in->contact_num + 'A', bombe_node->scrambler_enigma.out->contact_num + 'A');
+    if(bombe_node->visited == true) return;
     const Contact *in  = bombe_node->scrambler_enigma.in;
     const Contact *out = bombe_node->scrambler_enigma.out;
     const uint8_t num_active_contacts     = in->num_active_connections;
@@ -342,7 +344,7 @@ static void permutate_ins(TuringBombe *restrict turing_bombe, BombeNode *bombe_n
             activate_contact(turing_bombe, out->contact_num, character);
         }
     }
-
+    //TODO if != add queue remove visited
     if (out->num_active_connections == num_outgoing_connection)
     {
         bombe_node->visited = true;
@@ -489,10 +491,11 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                 setup_scramblers(&turing_bombe, menu, rotor_one_type, rotor_two_type, rotor_three_type);
                 if (traverse_rotor_conf(&turing_bombe))
                 {
+                    //TODO indicators..
                     printf("Found conf: (%d : %d : %d) at (%d : %d : %d)",
-                           rotor_one_type,
-                           rotor_two_type,
                            rotor_three_type,
+                           rotor_two_type,
+                           rotor_one_type,
                            turing_bombe.nodes[0].scrambler_enigma.rotors[0]->position,
                            turing_bombe.nodes[0].scrambler_enigma.rotors[1]->position,
                            turing_bombe.nodes[0].scrambler_enigma.rotors[2]->position);
@@ -501,7 +504,6 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
             }
         }
     }
-
     free_bombe(&turing_bombe);
     free_menu(menu);
 

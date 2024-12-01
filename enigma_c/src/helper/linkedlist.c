@@ -22,13 +22,13 @@ struct LinkedList
     LLNode *tail;
 };
 
-static LLNode* create_node(BombeNode *bombe_node, LLNode *next, LLNode *prev)
+static LLNode *create_node(BombeNode *bombe_node)
 {
     // Benchmarking needed
     LLNode *node = malloc(sizeof(LLNode));
     assertmsg(node != NULL, "malloc failed");
-    node->next = next;
-    node->prev = prev;
+    node->next = NULL;
+    node->prev = NULL;
     node->bombe_node = bombe_node;
     return node;
 }
@@ -45,7 +45,7 @@ LinkedList ll_create(void)
 
 int ll_push(LinkedList ll, BombeNode *data)
 {
-    LLNode *node = create_node(data, ll->head, NULL);
+    LLNode *node = create_node(data);
     if(ll->head == NULL && ll->tail == NULL)
     {
         ll->head = ll->tail = node;
@@ -63,10 +63,10 @@ int ll_push(LinkedList ll, BombeNode *data)
 
 int ll_add(LinkedList ll, BombeNode *data)
 {
-    LLNode *node = create_node(data, NULL, ll->tail);
+    LLNode *node = create_node(data);
     if(ll->head == NULL && ll->tail == NULL)
     {
-        ll->head = ll->tail = NULL;
+        ll->head = ll->tail = node;
     }
     else
     {
