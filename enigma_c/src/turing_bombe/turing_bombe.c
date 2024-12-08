@@ -69,15 +69,12 @@ typedef struct TuringBomb
 
 static void free_scrambler(const BombeNode *bombe_node)
 {
-    Rotor *rotor_one   = bombe_node->scrambler_enigma.rotors[0];
-    Rotor *rotor_two   = bombe_node->scrambler_enigma.rotors[1];
-    Rotor *rotor_three = bombe_node->scrambler_enigma.rotors[2];
-    free(rotor_one->notch);
-    free(rotor_one);
-    free(rotor_two->notch);
-    free(rotor_two);
-    free(rotor_three->notch);
-    free(rotor_three);
+    for (uint8_t rotor_num = 0; rotor_num < NUM_SCRAMBLERS_PER_COLUMN; ++rotor_num)
+    {
+        Rotor *rotor = bombe_node->scrambler_enigma.rotors[rotor_num];
+        free(rotor->notch);
+        free(rotor);
+    }
 }
 
 static void free_scramblers(const TuringBombe *turing_bombe)
@@ -507,6 +504,7 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
             }
         }
     }
+
     free_bombe(&turing_bombe);
     free_menu(menu);
 

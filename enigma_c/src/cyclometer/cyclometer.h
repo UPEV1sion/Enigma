@@ -1,7 +1,13 @@
 #pragma once
 
-//
-// Created by Emanuel on 09.10.24.
-//
+#include "helper/helper.h"
 
-void test_permut_table_builder(void);
+#define NUM_ROTORS_PER_ENIGMA      3
+
+typedef struct
+{
+    uint8_t cycle_values[ALPHABET_SIZE];
+    uint8_t length;
+} Cycle;
+
+void create_cycles(void);

@@ -6,7 +6,7 @@
 #include "cli.h"
 #include "cli_enigma.h"
 #include "helper/helper.h"
-#include "cyclometer/cycle_generator.h"
+#include "cyclometer/cyclometer.h"
 #include "turing_bombe/turing_bombe.h"
 #include "gui/start_gui/start_gui.h"
 
