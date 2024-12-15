@@ -237,7 +237,7 @@ Enigma* get_enigma_from_json(void)
     EnigmaConfiguration configuration;
 
     char *json_string = read_json();
-    cJSON *json              = cJSON_Parse(json_string);
+    cJSON *json       = cJSON_Parse(json_string);
     assertmsg(json != NULL, "parsing failed");
 
     puts(json_string);

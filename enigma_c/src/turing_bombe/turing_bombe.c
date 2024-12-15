@@ -422,6 +422,7 @@ static void clear_visited(TuringBombe *restrict turing_bombe)
 
 static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
 {
+    bool ret = false;
     puts("\nNew conf");
     LinkedList nodes_stack = ll_create();
 
@@ -437,11 +438,15 @@ static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
                 permutate_all_scramblers(turing_bombe, nodes_stack);
                 if (should_halt(turing_bombe))
                 {
-                    copy_terminal(&turing_bombe->terminal, &terminal_template);
-                    clear_visited(turing_bombe);
-                    ll_destroy(nodes_stack);
+                    printf("halt at (%d : %d : %d)\n",
+                        turing_bombe->nodes[0].scrambler_enigma.rotors[0]->position,
+                        turing_bombe->nodes[0].scrambler_enigma.rotors[1]->position,
+                        turing_bombe->nodes[0].scrambler_enigma.rotors[2]->position);
+                    // copy_terminal(&turing_bombe->terminal, &terminal_template);
+                    // clear_visited(turing_bombe);
+                    // ll_destroy(nodes_stack);
                     //TODO proceed
-                    return true;
+                    ret = true;
                 }
                 advance_all_scramblers(turing_bombe);
                 copy_terminal(&turing_bombe->terminal, &terminal_template); //Reset all active connections
@@ -452,7 +457,7 @@ static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
 
     ll_destroy(nodes_stack);
 
-    return false;
+    return ret;
 }
 
 int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
@@ -488,17 +493,15 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                 {
                     continue;
                 }
+                printf("New conf: (%d : %d : %d)",
+                           rotor_three_type,
+                           rotor_two_type,
+                           rotor_one_type);
                 setup_scramblers(&turing_bombe, menu, rotor_one_type, rotor_two_type, rotor_three_type);
                 if (traverse_rotor_conf(&turing_bombe))
                 {
                     //TODO indicators..
-                    printf("Found conf: (%d : %d : %d) at (%d : %d : %d)",
-                           rotor_three_type,
-                           rotor_two_type,
-                           rotor_one_type,
-                           turing_bombe.nodes[0].scrambler_enigma.rotors[0]->position,
-                           turing_bombe.nodes[0].scrambler_enigma.rotors[1]->position,
-                           turing_bombe.nodes[0].scrambler_enigma.rotors[2]->position);
+                    puts("Haltet");
                 }
                 free_scramblers(&turing_bombe);
             }
