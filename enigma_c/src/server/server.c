@@ -29,7 +29,7 @@ static void* handle_client(void* arg)
         return NULL;
     }
 
-    char *method, *path;
+    const char *method, *path;
     int pret, minor_version;
     struct phr_header headers[100];
     size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers;
@@ -41,7 +41,7 @@ static void* handle_client(void* arg)
     printf("path is %.*s\n", (int)path_len, path);
     printf("HTTP version is 1.%d\n", minor_version);
     printf("headers:\n");
-    for (int i = 0; i != num_headers; ++i) {
+    for (size_t i = 0; i != num_headers; ++i) {
         printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
                (int)headers[i].value_len, headers[i].value);
     }

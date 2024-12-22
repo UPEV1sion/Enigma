@@ -44,6 +44,8 @@ add_library(enigma_lib
         turing_bombe/cycle_finder/graph_test.h
         server/server.c
         server/server.h
+        server/picohttpparser.c
+        server/picohttpparser.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)
