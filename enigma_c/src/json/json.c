@@ -161,9 +161,12 @@ char* read_json(void)
 static void save_model_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *model_item = cJSON_GetObjectItem(json, "model");
-    if (cJSON_IsNumber(model_item))
-    {
-        configuration->type = model_item->valueint;
+    // if (cJSON_IsNumber(model_item))
+    // {
+    //     configuration->type = model_item->valueint;
+    // }
+    if (cJSON_IsString(model_item)) {
+        configuration->type = *model_item->valuestring - '0';
     }
 }
 
@@ -202,12 +205,12 @@ static void save_rotor_to_conf(const cJSON *json,EnigmaConfiguration *configurat
             const cJSON *position = cJSON_GetArrayItem(pos_item, i);
             const cJSON *ring     = cJSON_GetArrayItem(ring_item, i);
 
-            if (cJSON_IsNumber(rotor) && cJSON_IsNumber(position) &&
-                cJSON_IsNumber(ring))
+            if (cJSON_IsString(rotor) && cJSON_IsString(position) &&
+                cJSON_IsString(ring))
             {
-                configuration->rotors[i]          = rotor->valueint;
-                configuration->rotor_positions[i] = position->valueint;
-                configuration->ring_settings[i]   = ring->valueint;
+                configuration->rotors[i]          = *rotor->valuestring - '0';
+                configuration->rotor_positions[i] = *position->valuestring - '0';
+                configuration->ring_settings[i]   = *ring->valuestring - '0';
             }
         }
     }
@@ -241,7 +244,7 @@ Enigma* get_enigma_from_json(char *json_string)
     assertmsg(json != NULL, "parsing failed");
 
     puts(json_string);
-    free(json_string);
+    // free(json_string);
 
     save_model_to_conf(json, &configuration);
     save_reflector_to_conf(json, &configuration);
