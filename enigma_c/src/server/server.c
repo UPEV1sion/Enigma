@@ -36,6 +36,11 @@ static char* get_response_json(const char *input)
     // puts(substr);
 
     cJSON *cjson = cJSON_Parse(json);
+    if (cjson == NULL)
+    {
+        fprintf(stderr, "Failed to parse JSON!");
+        return NULL;
+    }
     cJSON *old_output = cJSON_GetObjectItem(cjson, "output");
 
     Enigma *enigma = get_enigma_from_json(json);
@@ -66,7 +71,7 @@ static int send_http_response(const char *input, struct phr_header headers[MAX_H
     size_t offset = 0;
     uint8_t origin_i = 0;
     struct phr_header *header = NULL;
-    for (;(header = headers + origin_i)->name != NULL && origin_i < 100;++origin_i) {
+    for (;(header = headers + origin_i)->name != NULL && origin_i < 100; ++origin_i) {
         if (strncmp(headers[origin_i].name, "Origin", 6) == 0) {
             break;
         }

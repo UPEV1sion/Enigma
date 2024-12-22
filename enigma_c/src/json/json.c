@@ -241,7 +241,7 @@ Enigma* get_enigma_from_json(char *json_string)
 
     // char *json_string = read_json();
     cJSON *json       = cJSON_Parse(json_string);
-    assertmsg(json != NULL, "parsing failed");
+    assertmsg(json != NULL, "json parsing failed");
 
     puts(json_string);
     // free(json_string);
