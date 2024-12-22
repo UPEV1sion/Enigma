@@ -4,13 +4,17 @@
 #include <pthread.h>
 
 #include "server.h"
+
+#include <string.h>
+
 #include "helper/helper.h"
 #include "picohttpparser.h"
+#include "enigma/enigma.h"
+#include "json/json.h"
 
 //
 // Created by Emanuel on 22.12.2024.
 //
-
 
 #define PORT 8081
 #define NUM_CLIENTS 10
@@ -32,7 +36,7 @@ static void* handle_client(void* arg)
     const char *method, *path;
     int pret, minor_version;
     struct phr_header headers[100];
-    size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers;
+    size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers = 5;
     pret  = phr_parse_request(buffer, len, &method, &method_len, &path, &path_len,
                              &minor_version, headers, &num_headers, prevbuflen);
 
@@ -46,6 +50,15 @@ static void* handle_client(void* arg)
                (int)headers[i].value_len, headers[i].value);
     }
 
+    Enigma *enigma = get_enigma_from_json(buffer);
+    assertmsg(enigma != NULL, "Couldn't create enigma");
+    uint8_t *text_as_ints = traverse_enigma(enigma);
+    assertmsg(text_as_ints != NULL, "Couldn't traverse enigma");
+    char *text = get_string_from_int_array(text_as_ints, strlen(enigma->plaintext));
+    puts(text);
+
+    free(text);
+    free(text_as_ints);
     puts(buffer);
 }
 

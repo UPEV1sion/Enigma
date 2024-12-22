@@ -232,11 +232,11 @@ static void save_input_to_conf(const cJSON *json, EnigmaConfiguration *configura
     }
 }
 
-Enigma* get_enigma_from_json(void)
+Enigma* get_enigma_from_json(char *json_string)
 {
     EnigmaConfiguration configuration;
 
-    char *json_string = read_json();
+    // char *json_string = read_json();
     cJSON *json       = cJSON_Parse(json_string);
     assertmsg(json != NULL, "parsing failed");
 
