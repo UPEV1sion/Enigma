@@ -36,15 +36,10 @@ static char* get_response_json(const char *input)
     // puts(substr);
 
     cJSON *cjson = cJSON_Parse(json);
-    if (cjson == NULL)
-    {
-        fprintf(stderr, "Failed to parse JSON!");
-        return NULL;
-    }
     cJSON *old_output = cJSON_GetObjectItem(cjson, "output");
 
     Enigma *enigma = get_enigma_from_json(json);
-    assertmsg(enigma != NULL, "Couldn't create enigma");
+    if (enigma == NULL) return NULL;
     uint8_t *text_as_ints = traverse_enigma(enigma);
     assertmsg(text_as_ints != NULL, "Couldn't traverse enigma");
     char *text = get_string_from_int_array(text_as_ints, strlen(enigma->plaintext));
@@ -62,6 +57,7 @@ static char* get_response_json(const char *input)
 static int send_http_response(const char *input, struct phr_header headers[MAX_HTTP_HEADER], const int sock)
 {
     char *response_json = get_response_json(input);
+    if (response_json == NULL) return -3;
     puts(response_json);
 
     char return_buffer[BUFFER_SIZE] = "HTTP/1.1 200 OK\n"
@@ -71,7 +67,7 @@ static int send_http_response(const char *input, struct phr_header headers[MAX_H
     size_t offset = 0;
     uint8_t origin_i = 0;
     struct phr_header *header = NULL;
-    for (;(header = headers + origin_i)->name != NULL && origin_i < 100; ++origin_i) {
+    for (;(header = headers + origin_i)->name != NULL && origin_i < 100;++origin_i) {
         if (strncmp(headers[origin_i].name, "Origin", 6) == 0) {
             break;
         }
@@ -82,13 +78,13 @@ static int send_http_response(const char *input, struct phr_header headers[MAX_H
     }
     offset += snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, "Content-Length: %zu\n\n", json_len);
     offset += snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, response_json);
-    // puts("\n\n\n\n\n");
-    // puts(return_buffer);
+    puts("\n\n\n\n\n");
+    puts(return_buffer);
 
-    if (send(sock, return_buffer, strlen(return_buffer), 0) == -1) {
-        perror("Couldn't send all bytes!");
-        return -1;
-    }
+    // if (send(sock, return_buffer, strlen(return_buffer), 0) == -1) {
+    //     perror("Couldn't send all bytes!");
+    //     return -1;
+    // }
 
     cJSON_free(response_json);
     return 0;

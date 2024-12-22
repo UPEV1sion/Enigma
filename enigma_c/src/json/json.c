@@ -158,7 +158,7 @@ char* read_json(void)
     return buffer;
 }
 
-static void save_model_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
+static uint32_t save_model_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *model_item = cJSON_GetObjectItem(json, "model");
     // if (cJSON_IsNumber(model_item))
@@ -167,10 +167,12 @@ static void save_model_to_conf(const cJSON *json, EnigmaConfiguration *configura
     // }
     if (cJSON_IsString(model_item)) {
         configuration->type = *model_item->valuestring - '0';
+        return 0;
     }
+    return 1;
 }
 
-static void save_reflector_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
+static uint32_t save_reflector_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *reflector_item = cJSON_GetObjectItem(json, "reflector");
     if (cJSON_IsString(reflector_item))
@@ -181,10 +183,12 @@ static void save_reflector_to_conf(const cJSON *json, EnigmaConfiguration *confi
             configuration->reflector = UKW_B;
         else if(strcmp(reflector_item->valuestring, "C") == 0)
             configuration->reflector = UKW_C;
+        return 0;
     }
+    return 1;
 }
 
-static void save_rotor_to_conf(const cJSON *json,EnigmaConfiguration *configuration)
+static uint32_t save_rotor_to_conf(const cJSON *json,EnigmaConfiguration *configuration)
 {
     configuration->rotors          = malloc(configuration->type * sizeof(uint8_t));
     configuration->rotor_positions = malloc(configuration->type * sizeof(uint8_t));
@@ -212,27 +216,36 @@ static void save_rotor_to_conf(const cJSON *json,EnigmaConfiguration *configurat
                 configuration->rotor_positions[i] = *position->valuestring - '0';
                 configuration->ring_settings[i]   = *ring->valuestring - '0';
             }
+            else
+            {
+                return 1;
+            }
         }
     }
+    return 0;
 }
 
-static void save_plugboard_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
+static uint32_t save_plugboard_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *plugboard_item = cJSON_GetObjectItem(json, "plugboard");
     if (cJSON_IsString(plugboard_item))
     {
         strcpy(configuration->plugboard, plugboard_item->valuestring);
+        return 0;
     }
+    return 1;
 }
 
-static void save_input_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
+static uint32_t save_input_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     const cJSON *input_item = cJSON_GetObjectItem(json, "input");
     if (cJSON_IsString(input_item))
     {
         configuration->message = strdup(input_item->valuestring);
         assertmsg(configuration->message != NULL, "strdup failed");
+        return 1;
     }
+    return 0;
 }
 
 Enigma* get_enigma_from_json(char *json_string)
@@ -241,16 +254,16 @@ Enigma* get_enigma_from_json(char *json_string)
 
     // char *json_string = read_json();
     cJSON *json       = cJSON_Parse(json_string);
-    assertmsg(json != NULL, "json parsing failed");
+    assertmsg(json != NULL, "parsing failed");
 
     puts(json_string);
     // free(json_string);
 
-    save_model_to_conf(json, &configuration);
-    save_reflector_to_conf(json, &configuration);
-    save_rotor_to_conf(json, &configuration);
-    save_plugboard_to_conf(json, &configuration);
-    save_input_to_conf(json, &configuration);
+    if (save_model_to_conf(json, &configuration) != 0) goto FAIL1;
+    if (save_reflector_to_conf(json, &configuration) != 0) goto FAIL1;
+    if (save_rotor_to_conf(json, &configuration) != 0) goto FAIL2;
+    if (save_plugboard_to_conf(json, &configuration) != 0) goto FAIL2;
+    if (save_input_to_conf(json, &configuration) != 0) goto FAIL3;
     Enigma *temp = create_enigma_from_configuration(&configuration);
 
     free(configuration.ring_settings);
@@ -260,4 +273,15 @@ Enigma* get_enigma_from_json(char *json_string)
     delete_json(json);
 
     return temp;
+
+    FAIL3:
+        free(configuration.message);
+    FAIL2:
+        free(configuration.ring_settings);
+        free(configuration.rotor_positions);
+        free(configuration.rotors);
+    FAIL1:
+        delete_json(json);
+        fprintf(stderr, "Error parsing json\n");
+        return NULL;
 }
