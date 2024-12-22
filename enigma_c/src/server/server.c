@@ -11,7 +11,7 @@
 //
 
 
-#define PORT 17576
+#define PORT 8080
 #define NUM_CLIENTS 10
 #define BUFFER_SIZE 4096
 
@@ -41,6 +41,7 @@ static int32_t accept_incomming(int sock)
             perror("Error accepting connection");
             return -1;
         }
+        printf("%d\n", new_sock);
         if (pthread_create(thread_ids + thread_count, NULL, handle_client, &new_sock) == -1)
         {
             perror("Error creating thread");
@@ -63,15 +64,15 @@ static int32_t accept_incomming(int sock)
 int32_t server_run(void)
 {
     int sock;
-    assertmsg((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1, "Couldn't create socket");
-    assertmsg(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof (int)) == -1, "Couldn't set socket options");
+    assertmsg((sock = socket(AF_INET, SOCK_STREAM, 0)) != -1, "Couldn't create socket");
+    assertmsg(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof (int)) != -1, "Couldn't set socket options");
     struct sockaddr_in server_addr = {
         .sin_family      = AF_INET,
         .sin_port        = htons(PORT),
         .sin_addr.s_addr = INADDR_ANY,
     };
-    assertmsg(bind(sock, (struct sockaddr*)&server_addr, sizeof(struct sockaddr)) == -1, "Couldn't bind");
-    assertmsg(listen(sock, 5) == -1, "Couldn't listen");
+    assertmsg(bind(sock, (struct sockaddr*)&server_addr, sizeof(struct sockaddr)) != -1, "Couldn't bind");
+    assertmsg(listen(sock, 5) != -1, "Couldn't listen");
 
     return accept_incomming(sock);
 }
