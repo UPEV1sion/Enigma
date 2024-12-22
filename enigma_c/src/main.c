@@ -25,6 +25,7 @@
 #include "cli/cli.h"
 #include "enigma/enigma.h"
 #include "helper/helper.h"
+#include "server/server.h"
 #include "turing_bombe/turing_bombe.h"
 
 
@@ -32,7 +33,7 @@
 int main(int argc, char *argv[])
 {
 
-      start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
+      // start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
 //    start_turing_bombe("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
     // start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
 //     start_turing_bombe("BEACHHEAD", "EDBGEAHDB", 0);
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
      // find_longest_menu("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
     // query_input(argc, argv);
 
-
+    server_run();
 
     return EXIT_SUCCESS;
 }

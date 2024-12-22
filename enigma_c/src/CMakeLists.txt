@@ -42,6 +42,8 @@ add_library(enigma_lib
         turing_bombe/cycle_finder/cycle_finder.h
         turing_bombe/cycle_finder/graph_test.c
         turing_bombe/cycle_finder/graph_test.h
+        server/server.c
+        server/server.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

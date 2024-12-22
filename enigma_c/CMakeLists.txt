@@ -4,7 +4,7 @@ project(enigma VERSION 0.1.0
         DESCRIPTION "Enigma machine simulator"
         LANGUAGES C)
 
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Although I've provided MSCV support, I recommend GCC or Clang, because of the better compiler flags.
@@ -76,5 +76,5 @@ add_definitions(${GTK3_CFLAGS_OTHER})
 add_subdirectory(src)
 add_executable(enigma src/main.c)
 
-target_link_libraries(enigma enigma_lib ${GTK3_LIBRARIES})
+target_link_libraries(enigma enigma_lib ${GTK3_LIBRARIES} pthread)
 
