@@ -5,27 +5,48 @@
 
 #include "server.h"
 #include "helper/helper.h"
+#include "picohttpparser.h"
 
 //
 // Created by Emanuel on 22.12.2024.
 //
 
 
-#define PORT 8080
+#define PORT 8081
 #define NUM_CLIENTS 10
 #define BUFFER_SIZE 4096
 
 static void* handle_client(void* arg)
 {
+    ssize_t len;
     const int sock = *(int *)arg;
     char buffer[BUFFER_SIZE] = {0};
-    if (read(sock, buffer, BUFFER_SIZE) < 0)
+    if ((len = read(sock, buffer, BUFFER_SIZE)) == -1)
     {
         perror("Couldn't read from socket");
         close(sock);
 
         return NULL;
     }
+
+    char *method, *path;
+    int pret, minor_version;
+    struct phr_header headers[100];
+    size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers;
+    pret  = phr_parse_request(buffer, len, &method, &method_len, &path, &path_len,
+                             &minor_version, headers, &num_headers, prevbuflen);
+
+    printf("request is %d bytes long\n", pret);
+    printf("method is %.*s\n", (int)method_len, method);
+    printf("path is %.*s\n", (int)path_len, path);
+    printf("HTTP version is 1.%d\n", minor_version);
+    printf("headers:\n");
+    for (int i = 0; i != num_headers; ++i) {
+        printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
+               (int)headers[i].value_len, headers[i].value);
+    }
+
+    puts(buffer);
 }
 
 static int32_t accept_incomming(int sock)
