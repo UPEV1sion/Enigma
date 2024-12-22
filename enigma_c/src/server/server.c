@@ -21,6 +21,7 @@
 #define PORT 8081
 #define NUM_CLIENTS 10
 #define BUFFER_SIZE 4096
+#define MAX_HTTP_HEADER 100
 
 static char* get_response_json(const char *input)
 {
@@ -53,7 +54,7 @@ static char* get_response_json(const char *input)
     return cJSON_Print(cjson);
 }
 
-static int send_http_response(const char *input, const int sock)
+static int send_http_response(const char *input, struct phr_header headers[MAX_HTTP_HEADER], const int sock)
 {
     char *response_json = get_response_json(input);
     puts(response_json);
@@ -63,8 +64,20 @@ static int send_http_response(const char *input, const int sock)
     size_t len = strlen(return_buffer);
     size_t json_len = strlen(response_json);
     size_t offset = 0;
-    offset += snprintf(return_buffer + len, BUFFER_SIZE - len, "Content-Length: %zu\n\n", json_len);
+    uint8_t origin_i = 0;
+    struct phr_header *header = NULL;
+    for (;(header = headers + origin_i)->name != NULL && origin_i < 100;++origin_i) {
+        if (strncmp(headers[origin_i].name, "Origin", 6) == 0) {
+            break;
+        }
+    }
+
+    if (header->name != NULL) {
+        offset += snprintf(return_buffer + len, BUFFER_SIZE - len, "Access-Control-Allow-Origin: %.*s\n", (int)header->value_len, header->value);
+    }
+    offset += snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, "Content-Length: %zu\n\n", json_len);
     offset += snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, response_json);
+    // puts("\n\n\n\n\n");
     // puts(return_buffer);
 
     if (send(sock, return_buffer, strlen(return_buffer), 0) == -1) {
@@ -92,8 +105,8 @@ static void* handle_client(void* arg)
     // puts(buffer);
     const char *method, *path, *msg;
     int pret, minor_version, status;
-    struct phr_header headers[100];
-    size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers = 100, msg_len;
+    struct phr_header headers[MAX_HTTP_HEADER];
+    size_t buflen = 0, prevbuflen = 0, method_len, path_len, num_headers = MAX_HTTP_HEADER, msg_len;
     // pret  = phr_parse_response(buffer, len, &minor_version, &status, &msg, &msg_len,
     //                          headers, &num_headers, prevbuflen);
     pret  = phr_parse_request(buffer, len, &method, &method_len, &path, &path_len,
@@ -109,7 +122,7 @@ static void* handle_client(void* arg)
                (int)headers[i].value_len, headers[i].value);
     }
 
-    send_http_response(buffer, sock);
+    send_http_response(buffer, headers, sock);
 }
 
 static int32_t accept_incomming(int sock)
