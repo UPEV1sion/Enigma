@@ -243,12 +243,12 @@ static uint32_t save_input_to_conf(const cJSON *json, EnigmaConfiguration *confi
     {
         configuration->message = strdup(input_item->valuestring);
         assertmsg(configuration->message != NULL, "strdup failed");
-        return 1;
+        return 0;
     }
-    return 0;
+    return 1;
 }
 
-Enigma* get_enigma_from_json(char *json_string)
+Enigma* get_enigma_from_json(const char *json_string)
 {
     EnigmaConfiguration configuration;
 
@@ -257,14 +257,13 @@ Enigma* get_enigma_from_json(char *json_string)
     assertmsg(json != NULL, "parsing failed");
 
     puts(json_string);
-    // free(json_string);
 
     if (save_model_to_conf(json, &configuration) != 0) goto FAIL1;
     if (save_reflector_to_conf(json, &configuration) != 0) goto FAIL1;
     if (save_rotor_to_conf(json, &configuration) != 0) goto FAIL2;
     if (save_plugboard_to_conf(json, &configuration) != 0) goto FAIL2;
     if (save_input_to_conf(json, &configuration) != 0) goto FAIL3;
-    Enigma *temp = create_enigma_from_configuration(&configuration);
+    Enigma *enigma = create_enigma_from_configuration(&configuration);
 
     free(configuration.ring_settings);
     free(configuration.rotor_positions);
@@ -272,7 +271,7 @@ Enigma* get_enigma_from_json(char *json_string)
     free(configuration.message);
     delete_json(json);
 
-    return temp;
+    return enigma;
 
     FAIL3:
         free(configuration.message);
