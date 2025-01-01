@@ -99,7 +99,7 @@ static int32_t send_http_response(const char *input, struct phr_header headers[M
     const size_t len      = strlen(return_buffer);
     const size_t json_len = strlen(response_json);
 
-    struct phr_header *header = NULL;
+    const struct phr_header *header = NULL;
     for (uint8_t origin_i = 0; (header = headers + origin_i)->name != NULL && origin_i < MAX_HTTP_HEADER; ++origin_i)
     {
         if (strncmp(headers[origin_i].name, "Origin", 6) == 0)
@@ -160,7 +160,6 @@ static void* handle_client(void *arg)
 
         return NULL;
     }
-
 
     // printf("request is %d bytes long\n", pret);
     // printf("method is %.*s\n", (int)method_len, method);

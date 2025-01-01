@@ -3,6 +3,9 @@
 #include <helper/linkedlist.h>
 
 #include "turing_bombe.h"
+
+#include <pthread.h>
+
 #include "cycle_finder/cycle_finder.h"
 
 //
@@ -420,8 +423,10 @@ static void clear_visited(TuringBombe *restrict turing_bombe)
     }
 }
 
-static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
+static void* traverse_rotor_conf(void *arg)
 {
+    TuringBombe *restrict turing_bombe = arg;
+
     bool ret = false;
     puts("\nNew conf");
     LinkedList nodes_stack = ll_create();
@@ -457,8 +462,48 @@ static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
 
     ll_destroy(nodes_stack);
 
-    return ret;
+    return NULL;
 }
+
+// static bool traverse_rotor_conf(TuringBombe *restrict turing_bombe)
+// {
+//     bool ret = false;
+//     puts("\nNew conf");
+//     LinkedList nodes_stack = ll_create();
+//
+//     Terminal terminal_template; //I want to make this static, but haven't found a method yet and I don't thick there will be one...
+//     copy_terminal(&terminal_template, &turing_bombe->terminal);
+//
+//     for (uint8_t rotor1_pos = 0; rotor1_pos < ALPHABET_SIZE; ++rotor1_pos)
+//     {
+//         for (uint8_t rotor2_pos = 0; rotor2_pos < ALPHABET_SIZE; ++rotor2_pos)
+//         {
+//             for (uint8_t rotor3_pos = 0; rotor3_pos < ALPHABET_SIZE; ++rotor3_pos)
+//             {
+//                 permutate_all_scramblers(turing_bombe, nodes_stack);
+//                 if (should_halt(turing_bombe))
+//                 {
+//                     // printf("halt at (%d : %d : %d)\n",
+//                     // turing_bombe->nodes[0].scrambler_enigma.rotors[0]->position,
+//                     // turing_bombe->nodes[0].scrambler_enigma.rotors[1]->position,
+//                     turing_bombe->nodes[0].scrambler_enigma.rotors[2]->position);
+//                     // copy_terminal(&turing_bombe->terminal, &terminal_template);
+//                     // clear_visited(turing_bombe);
+//                     // ll_destroy(nodes_stack);
+//                     //TODO proceed
+//                     ret = true;
+//                 }
+//                 advance_all_scramblers(turing_bombe);
+//                 copy_terminal(&turing_bombe->terminal, &terminal_template); //Reset all active connections
+//                 clear_visited(turing_bombe);
+//             }
+//         }
+//     }
+//
+//     ll_destroy(nodes_stack);
+//
+//     return ret;
+// }
 
 int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphertext, const uint32_t crib_offset)
 {
