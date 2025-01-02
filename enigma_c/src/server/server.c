@@ -11,6 +11,7 @@
 #include "enigma/enigma.h"
 #include "json/cJSON.h"
 #include "json/json.h"
+#include "cyclometer/server_cyclometer.h"
 
 //
 // Created by Emanuel on 22.12.2024.
@@ -25,8 +26,6 @@
 #define ENIGMA_PATH "/enigma"
 #define CYCLOMETER_PATH "/cyclometer"
 #define CYCLOMETER_OPTION_COUNT "count"
-
-#define DAILY_KEY_SIZE 3
 
 static char* get_response_json(const char *input)
 {
@@ -59,12 +58,14 @@ static char* get_response_json(const char *input)
         fprintf(stderr, "Failed to get enigma from JSON!\n");
         goto CLEANUP_JSON;
     }
+
     uint8_t *text_as_ints = traverse_enigma(enigma);
     if (text_as_ints == NULL)
     {
         fprintf(stderr, "Failed to traverse enigma!\n");
         goto CLEANUP_ENIGMA;
     }
+
     char *text = get_string_from_int_array(text_as_ints, strlen(enigma->plaintext));
     if (text == NULL)
     {
@@ -85,17 +86,11 @@ static char* get_response_json(const char *input)
     return response;
 }
 
-static int32_t send_http_response(const char *input, struct phr_header headers[MAX_HTTP_HEADER], const int sock)
+static int32_t send_http_response(const char *response_json, struct phr_header headers[MAX_HTTP_HEADER], const int sock)
 {
     int32_t ret = 0;
 
-    char *response_json = get_response_json(input);
-    if (response_json == NULL)
-    {
-        fprintf(stderr, "Failed to generate response JSON!\n");
-        close(sock);
-        return -3;
-    }
+
 
     char return_buffer[BUFFER_SIZE] = "HTTP/1.1 200 OK\r\n"
             "Content-Type: application/json\r\n";
@@ -129,8 +124,6 @@ static int32_t send_http_response(const char *input, struct phr_header headers[M
         ret = -1;
     }
 
-    cJSON_free(response_json);
-
     return ret;
 }
 
@@ -153,13 +146,40 @@ char** generate_n_daily_keys(const int32_t n)
     return keys;
 }
 
-void free_daily_keys(char **keys, const int32_t n)
+void free_keys(char **keys, const int32_t n)
 {
     for (int32_t i = 0; i < n; ++i)
     {
         free(keys[i]);
     }
     free(keys);
+}
+
+static void free_enigma_config(EnigmaConfiguration *conf)
+{
+    free(conf->ring_settings);
+    free(conf->rotor_positions);
+    free(conf->rotors);
+    free(conf);
+}
+
+static cJSON* create_cycle_json(const Cycle *cycles)
+{
+    cJSON *json = cJSON_CreateObject();
+    char *names[3] = {"first",  "second", "third"};
+    for (int32_t i = 0; i < 3; ++i)
+    {
+        char rotor_name[30];
+        sprintf(rotor_name, "%s_rotor", names[i]);
+        cJSON *rotor = cJSON_AddArrayToObject(json, rotor_name);
+        const Cycle *current_cycle = cycles + i;
+        for (int j = 0; j < current_cycle->length; ++j)
+        {
+            cJSON_AddItemToArray(rotor, cJSON_CreateNumber(current_cycle->cycle_values[j]));
+        }
+    }
+
+    return json;
 }
 
 static void* handle_client(void *arg)
@@ -198,15 +218,28 @@ static void* handle_client(void *arg)
 
     if (strncmp(tmp_path, ENIGMA_PATH, sizeof ENIGMA_PATH - 1) == 0)
     {
-        send_http_response(buffer, headers, sock);
+        char *response_json = get_response_json(buffer);
+        if (response_json == NULL)
+        {
+            fprintf(stderr, "Failed to generate response JSON!\n");
+            close(sock);
+            return NULL;
+        }
+        send_http_response(response_json, headers, sock);
+        cJSON_free(response_json);
     }
     else if (strncmp(tmp_path, CYCLOMETER_PATH, sizeof CYCLOMETER_PATH - 1) == 0)
     {
         ServerCyclometerOptions opt;
         const char *json_start = strstr(buffer, "\r\n\r\n") + 4;
-        get_server_cyclometer_options_from_json(&opt, json_start);
+        if (get_server_cyclometer_options_from_json(&opt, json_start) != 0)
+        {
+
+        }
         char **keys = generate_n_daily_keys(opt.daily_key_count);
         free(opt.enigma_conf->message);
+        char **enc_keys = malloc(sizeof(char *) * opt.daily_key_count);
+        assertmsg(enc_keys != NULL, "malloc failed");
         for (int32_t i = 0; i < opt.daily_key_count; ++i)
         {
             char current_key[DAILY_KEY_SIZE * 2 + 1] = {0};
@@ -216,14 +249,25 @@ static void* handle_client(void *arg)
             Enigma *enigma = create_enigma_from_configuration(opt.enigma_conf);
             uint8_t *enc_key_as_ints = traverse_enigma(enigma);
             char *enc_key = get_string_from_int_array(enc_key_as_ints, DAILY_KEY_SIZE * 2);
-            puts(enc_key);
+            // printf("%s -> %s\n", current_key, enc_key);
+            enc_keys[i] = enc_key;
 
             free(enc_key_as_ints);
-            free(enc_key);
-            free_enigma(enigma); //todo free conf
+            // free(enc_key);
+            free_enigma(enigma);
         }
 
-        free_daily_keys(keys, opt.daily_key_count);
+        Cycle *cycles = server_create_cycles(enc_keys, opt.daily_key_count);
+        cJSON *cycle_json = create_cycle_json(cycles);
+        char *cycle_json_str = cJSON_PrintUnformatted(cycle_json);
+        send_http_response(cycle_json_str, headers, sock);
+
+        cJSON_free(cycle_json);
+        cJSON_free(cycle_json_str);
+        free(cycles);
+        free_keys(enc_keys, opt.daily_key_count);
+        free_enigma_config(opt.enigma_conf);
+        free_keys(keys, opt.daily_key_count);
     }
     else
     {

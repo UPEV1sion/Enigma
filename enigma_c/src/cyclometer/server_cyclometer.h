@@ -9,7 +9,7 @@
 //
 
 
-#define NUM_ROTORS_PER_ENIGMA      3
+#define DAILY_KEY_SIZE 3
 
 
 typedef struct
@@ -18,4 +18,4 @@ typedef struct
     uint8_t length;
 } Cycle;
 
-void s_create_cycles(void);
+Cycle* server_create_cycles(char **enc_daily_keys, int32_t daily_key_count);

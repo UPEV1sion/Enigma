@@ -10,7 +10,6 @@
 #include <stdbool.h>
 
 #include "enigma/enigma.h"
-#include "helper/hashmap.h"
 
 #define MESSAGE_SIZE               7
 
@@ -20,40 +19,8 @@
  * And MSVC doesnt support that....
  */
 //This was initially intended for an array holding all cycles. I leave it here.
-#ifdef _MSC_VER
-#define TOTAL_CYCLES (26 * 26 * 26 * 3 * 2 * 1)
-#else
-static const uint32_t TOTAL_CYCLES = 26 * 26 * 26 * 3 * 2 * 1;
-#endif
 
-#define NUM_ROTOR_PERMUTATIONS 6
 #define BUFFER_SIZE            100
-
-static uint8_t ring_settings[NUM_ROTORS_PER_ENIGMA] = {0, 0, 0};
-static const uint8_t possible_rotor_permutations[NUM_ROTOR_PERMUTATIONS][NUM_ROTORS_PER_ENIGMA] = {
-        {1, 2, 3},
-        {1, 3, 2},
-        {2, 1, 3},
-        {2, 3, 1},
-        {3, 1, 2},
-        {3, 2, 1}
-};
-
-typedef struct
-{
-    Cycle cycles[NUM_ROTORS_PER_ENIGMA];
-    uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA];
-    enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA];
-} CycleOfRotorSetting;
-
-typedef struct
-{
-    enum REFLECTOR_TYPE reflector;
-    uint8_t rotor_one_position;
-    uint8_t rotor_two_position;
-    uint8_t rotor_three_position;
-    uint8_t rotor_permutation;
-} CycleConfiguration;
 
 static void sort_cycles(Cycle *restrict cycle)
 {
@@ -106,10 +73,10 @@ static void calculate_cycle_lengths(const int16_t *rotor_permutation, Cycle *res
                 current          = rotor_permutation[current];
                 current_cycle_length++;
             }
-            cycle->cycle_values[cycle->length++] = current_cycle_length;
+            if (current != -1)
+                cycle->cycle_values[cycle->length++] = current_cycle_length;
         }
     }
-
     sort_cycles(cycle);
 }
 
@@ -123,100 +90,44 @@ static void print_cycle(const Cycle *cycle, FILE *file)
     fwrite(" )", sizeof(char), 2, file);
 }
 
-static void print_whole_cycle(const CycleOfRotorSetting *cycle, FILE *file)
+static void print_whole_cycle(const Cycle *cycle, FILE *file)
 {
-    print_cycle(cycle->cycles + 0, file);
+    print_cycle(cycle + 0, file);
     fwrite(" / ", sizeof(char), 3, file);
-    print_cycle(cycle->cycles + 1, file);
+    print_cycle(cycle + 1, file);
     fwrite(" / ", sizeof(char), 3, file);
-    print_cycle(cycle->cycles + 2, file);
-
-    fprintf(file, " : %c %c %c : ",
-            cycle->rotor_positions[0] + 'A',
-            cycle->rotor_positions[1] + 'A',
-            cycle->rotor_positions[2] + 'A');
-
-    fprintf(file, "%d %d %d\n",
-            cycle->rotors[0],
-            cycle->rotors[1],
-            cycle->rotors[2]);
+    print_cycle(cycle + 2, file);
 }
 
-static size_t get_cycle_len_string(const Cycle *cycle, char *buffer, size_t offset)
+// static size_t get_cycle_len_string(const Cycle *cycle, char *buffer, size_t offset)
+// {
+//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "(");
+//
+//     for (uint8_t i = 0; i < cycle->length; ++i)
+//     {
+//         offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " %d", cycle->cycle_values[i]);
+//     }
+//
+//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " )");
+//
+//     return offset;
+// }
+
+// static void get_cycle_whole_lens_string(const Cycle *cycle, char *buffer)
+// {
+//     size_t offset = 0;
+//
+//     offset = get_cycle_len_string(cycle + 0, buffer, offset);
+//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
+//     offset = get_cycle_len_string(cycle + 1, buffer, offset);
+//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
+//     offset = get_cycle_len_string(cycle + 2, buffer, offset);
+// }
+
+Cycle* server_create_cycles(char **enc_daily_keys, const int32_t daily_key_count)
 {
-    offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "(");
-
-    for (uint8_t i = 0; i < cycle->length; ++i)
-    {
-        offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " %d", cycle->cycle_values[i]);
-    }
-
-    offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " )");
-
-    return offset;
-}
-
-static void get_cycle_whole_lens_string(const CycleOfRotorSetting *cycle, char *buffer)
-{
-    size_t offset = 0;
-
-    offset = get_cycle_len_string(cycle->cycles + 0, buffer, offset);
-    offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
-    offset = get_cycle_len_string(cycle->cycles + 1, buffer, offset);
-    offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
-    offset = get_cycle_len_string(cycle->cycles + 2, buffer, offset);
-}
-
-static void get_enigma_settings_string(const CycleOfRotorSetting *cycle, char *buffer)
-{
-    size_t offset = 0;
-
-    snprintf(buffer + offset, BUFFER_SIZE - offset, "%c %c %c : %d %d %d",
-             cycle->rotor_positions[0] + 'A',
-             cycle->rotor_positions[1] + 'A',
-             cycle->rotor_positions[2] + 'A',
-             cycle->rotors[0],
-             cycle->rotors[1],
-             cycle->rotors[2]);
-}
-
-static void reset_enigma(Enigma *restrict enigma, const uint8_t *rotor_positions)
-{
-    for(uint8_t rotor = 0; rotor < NUM_ROTORS_PER_ENIGMA; ++rotor)
-    {
-        enigma->rotors[rotor]->position = rotor_positions[rotor];
-    }
-}
-
-static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfRotorSetting *restrict cycle)
-{
-    const uint8_t *rotor_permutation = possible_rotor_permutations[cycle_configuration->rotor_permutation];
-
-    enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA] = {
-            rotor_permutation[0],
-            rotor_permutation[1],
-            rotor_permutation[2]
-    };
-
-    uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA] = {
-            cycle_configuration->rotor_one_position,
-            cycle_configuration->rotor_two_position,
-            cycle_configuration->rotor_three_position
-    };
-
-    // Plugboard is implicitly the normal one
-    char message[MESSAGE_SIZE] = "AAAAAA";
-    const EnigmaConfiguration configuration = {
-            .rotors = rotors,
-            .rotor_positions = rotor_positions,
-            .ring_settings = ring_settings,
-            .type = ENIGMA_M3,
-            .reflector = cycle_configuration->reflector,
-            .message = message
-    };
-
-    memcpy(cycle->rotor_positions, rotor_positions, sizeof(rotor_positions));
-    memcpy(cycle->rotors, rotors, NUM_ROTORS_PER_ENIGMA * sizeof(enum ROTOR_TYPE));
+    Cycle *cycles = malloc(sizeof(Cycle) * 3);
+    assertmsg(cycles != NULL, "malloc failed");
 
     int16_t rotor_one_permutation[ALPHABET_SIZE];
     int16_t rotor_two_permutation[ALPHABET_SIZE];
@@ -225,81 +136,23 @@ static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfR
     memset(rotor_two_permutation, -1, ALPHABET_SIZE * sizeof(int16_t));
     memset(rotor_three_permutation, -1, ALPHABET_SIZE * sizeof(int16_t));
 
-    Enigma *enigma = create_enigma_from_configuration(&configuration);
-
-    for (uint16_t letter = 0; letter < 25; ++letter)
+    for (int32_t i = 0; i < daily_key_count; ++i)
     {
-        memset(enigma->plaintext, letter + 'A', 6);
+        uint8_t *key_as_int = get_int_array_from_string(enc_daily_keys[i]);
 
-        reset_enigma(enigma, rotor_positions);
-
-        uint8_t *output = traverse_enigma(enigma);
-        rotor_one_permutation[output[0]] = output[3];
-        rotor_two_permutation[output[1]] = output[4];
-        rotor_three_permutation[output[2]] = output[5];
-        free(output);
+        rotor_one_permutation[key_as_int[0]] = (int16_t) (key_as_int[DAILY_KEY_SIZE]);
+        // printf("Rot 1: %c -> %c\n", key_as_int[0] + 'A', key_as_int[DAILY_KEY_SIZE] + 'A');
+        rotor_two_permutation[key_as_int[1]] = (int16_t) (key_as_int[DAILY_KEY_SIZE + 1]);
+        // printf("Rot 2: %c -> %c\n", key_as_int[1] + 'A', key_as_int[DAILY_KEY_SIZE + 1] + 'A');
+        rotor_three_permutation[key_as_int[2]] = (int16_t) (key_as_int[DAILY_KEY_SIZE + 2]);
+        // printf("Rot 3: %c -> %c\n", key_as_int[2] + 'A', key_as_int[DAILY_KEY_SIZE + 2] + 'A');
+        free(key_as_int);
     }
 
-    free_enigma(enigma);
-    calculate_cycle_lengths(rotor_one_permutation, cycle->cycles + 0);
-    calculate_cycle_lengths(rotor_two_permutation, cycle->cycles + 1);
-    calculate_cycle_lengths(rotor_three_permutation, cycle->cycles + 2);
-    printf(" : %d %d %d\n", rotors[0], rotors[1], rotors[2]);
-}
-
-void s_create_cycles(void)
-{
-    // 3 rotors and 26 possible settings for each rotor, 3 * 2 * 1 rotor permutations, 1 reflectors
-
-    // CycleOfRotorSetting *cycles[TOTAL_CYCLES];
-
-    FILE *file;
-    assertmsg((file = fopen(FILE_PATH_CYCLO, "w")) != NULL, "can't open " FILE_PATH_CYCLO);
-
-    CycleOfRotorSetting cycle = {0};
-
-    // HashMap hm = hm_create(150000);
-    char cycle_len_buffer[BUFFER_SIZE];
-    char enigma_settings_buffer[BUFFER_SIZE];
-
-    for (uint8_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
-    {
-        for (uint8_t rotor_two_position = 0; rotor_two_position < ALPHABET_SIZE; ++rotor_two_position)
-        {
-            for (uint8_t rotor_three_position = 0; rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
-            {
-                for (uint8_t rotor_permutation = 0; rotor_permutation < NUM_ROTOR_PERMUTATIONS;
-                     rotor_permutation++)
-                {
-                    CycleConfiguration cycle_configuration = {
-                            .rotor_one_position = rotor_one_position,
-                            .rotor_two_position = rotor_two_position,
-                            .rotor_three_position = rotor_three_position,
-                            .rotor_permutation = rotor_permutation,
-                            .reflector = UKW_A,
-                    };
-
-                    create_cycle(&cycle_configuration, &cycle);
-                    get_cycle_whole_lens_string(&cycle, cycle_len_buffer);
-                    get_enigma_settings_string(&cycle, enigma_settings_buffer);
-                    // hm_put(hm, cycle_len_buffer, enigma_settings_buffer);
-                    print_whole_cycle(&cycle, file);
-                }
-            }
-        }
-    }
-
-    // ValueList *vl = hm_get(hm, "( 10 10 1 1 1 1 1 1 ) / ( 12 12 1 1 ) / ( 10 10 2 2 1 1 )");
-    // assertmsg(vl != NULL, "couldn't retrieve value");
-
-    // for(size_t i = 0; i < vl->list_size; ++i)
-    // {
-        // puts(vl->values[i]);
-    // }
-
-    fclose(file);
-    // hm_destroy(hm);
-    // vl_destroy(vl);
-    puts("Cycles have been written to: " FILE_PATH_CYCLO);
-    printf("Total cycles: %d\n", TOTAL_CYCLES);
+    calculate_cycle_lengths(rotor_one_permutation, cycles + 0);
+    calculate_cycle_lengths(rotor_two_permutation, cycles + 1);
+    calculate_cycle_lengths(rotor_three_permutation, cycles + 2);
+    print_whole_cycle(cycles, stdout);
+    fflush(stdout);
+    return cycles;
 }

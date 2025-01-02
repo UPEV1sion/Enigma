@@ -312,7 +312,6 @@ int32_t get_server_cyclometer_options_from_json(ServerCyclometerOptions *options
     if ((options->enigma_conf = get_enigma_configuration_from_json(enigma_json)) == NULL) return -1;
     const cJSON *param_json = cJSON_GetObjectItem(json, "parameters");
     if (get_daily_key_count_from_json(&options->daily_key_count, param_json) != 0) return -2;
-    printf("Number: %d\n", options->daily_key_count);
     delete_json(json);
 
     return 0;

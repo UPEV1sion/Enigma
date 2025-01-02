@@ -27,12 +27,12 @@ static const uint32_t TOTAL_CYCLES = 26 * 26 * 26 * 3 * 2 * 1;
 
 static uint8_t ring_settings[NUM_ROTORS_PER_ENIGMA] = {0, 0, 0};
 static const uint8_t possible_rotor_permutations[NUM_ROTOR_PERMUTATIONS][NUM_ROTORS_PER_ENIGMA] = {
-        {1, 2, 3},
-        {1, 3, 2},
-        {2, 1, 3},
-        {2, 3, 1},
-        {3, 1, 2},
-        {3, 2, 1}
+        {2, 3, 5},
+        {2, 5, 3},
+        {3, 2, 5},
+        {3, 5, 2},
+        {5, 2, 3},
+        {5, 3, 2}
 };
 
 typedef struct
@@ -98,15 +98,10 @@ static void calculate_cycle_lengths(const uint8_t *rotor_permutation, Cycle *res
 
             while (current != base)
             {
-                printf("%c", current + 'A');
                 visited[current] = true;
                 current          = rotor_permutation[current];
                 current_cycle_length++;
             }
-            // if (current_cycle_length > 1)
-            // {
-                printf("%c ", current + 'A');
-            // }
             cycle->cycle_values[cycle->length++] = current_cycle_length;
         }
     }
@@ -165,14 +160,12 @@ static void get_cycle_whole_lens_string(const CycleOfRotorSetting *cycle, char *
     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
     offset = get_cycle_len_string(cycle->cycles + 1, buffer, offset);
     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
-    offset = get_cycle_len_string(cycle->cycles + 2, buffer, offset);
+    get_cycle_len_string(cycle->cycles + 2, buffer, offset);
 }
 
 static void get_enigma_settings_string(const CycleOfRotorSetting *cycle, char *buffer)
 {
-    size_t offset = 0;
-
-    snprintf(buffer + offset, BUFFER_SIZE - offset, "%c %c %c : %d %d %d",
+    snprintf(buffer, BUFFER_SIZE, "%c %c %c : %d %d %d",
              cycle->rotor_positions[0] + 'A',
              cycle->rotor_positions[1] + 'A',
              cycle->rotor_positions[2] + 'A',
@@ -181,7 +174,7 @@ static void get_enigma_settings_string(const CycleOfRotorSetting *cycle, char *b
              cycle->rotors[2]);
 }
 
-static void reset_enigma(Enigma *restrict enigma, const uint8_t *rotor_positions)
+static void reset_enigma(const Enigma *restrict enigma, const uint8_t *rotor_positions)
 {
     for(uint8_t rotor = 0; rotor < NUM_ROTORS_PER_ENIGMA; ++rotor)
     {
@@ -242,7 +235,6 @@ static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfR
     calculate_cycle_lengths(rotor_one_permutation, cycle->cycles + 0);
     calculate_cycle_lengths(rotor_two_permutation, cycle->cycles + 1);
     calculate_cycle_lengths(rotor_three_permutation, cycle->cycles + 2);
-    printf(" : %d %d %d\n", rotors[0], rotors[1], rotors[2]);
 }
 
 void create_cycles(void)
@@ -257,8 +249,6 @@ void create_cycles(void)
     CycleOfRotorSetting cycle = {0};
 
     // HashMap hm = hm_create(150000);
-    char cycle_len_buffer[BUFFER_SIZE];
-    char enigma_settings_buffer[BUFFER_SIZE];
 
     for (uint8_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
     {
@@ -269,12 +259,14 @@ void create_cycles(void)
                 for (uint8_t rotor_permutation = 0; rotor_permutation < NUM_ROTOR_PERMUTATIONS;
                      rotor_permutation++)
                 {
+                    char enigma_settings_buffer[BUFFER_SIZE];
+                    char cycle_len_buffer[BUFFER_SIZE];
                     CycleConfiguration cycle_configuration = {
                             .rotor_one_position = rotor_one_position,
                             .rotor_two_position = rotor_two_position,
                             .rotor_three_position = rotor_three_position,
                             .rotor_permutation = rotor_permutation,
-                            .reflector = UKW_A,
+                            .reflector = UKW_B,
                     };
 
                     create_cycle(&cycle_configuration, &cycle);
