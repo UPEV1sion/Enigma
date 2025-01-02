@@ -1,5 +1,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/random.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
@@ -21,6 +22,12 @@
 #define BUFFER_SIZE 4096
 #define MAX_HTTP_HEADER 100
 
+#define ENIGMA_PATH "/enigma"
+#define CYCLOMETER_PATH "/cyclometer"
+#define CYCLOMETER_OPTION_COUNT "count"
+
+#define DAILY_KEY_SIZE 3
+
 static char* get_response_json(const char *input)
 {
     char *response = NULL;
@@ -31,10 +38,6 @@ static char* get_response_json(const char *input)
         fprintf(stderr, "Invalid JSON!");
         return NULL;
     }
-    // char *endptr = strstr(substr, ",\"_value\":");
-    //
-    // substr[endptr - substr] = 0;
-    // puts(substr);
 
     cJSON *cjson = cJSON_Parse(json);
     if (cjson == NULL)
@@ -79,7 +82,7 @@ static char* get_response_json(const char *input)
         free_enigma(enigma);
     CLEANUP_JSON:
         cJSON_Delete(cjson);
-        return response;
+    return response;
 }
 
 static int32_t send_http_response(const char *input, struct phr_header headers[MAX_HTTP_HEADER], const int sock)
@@ -119,8 +122,8 @@ static int32_t send_http_response(const char *input, struct phr_header headers[M
     offset += snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, response_json);
 
     const size_t response_len   = strlen(return_buffer);
-    const size_t num_bytes_send = send(sock, return_buffer, response_len, 0);
-    if (num_bytes_send != response_len || num_bytes_send == -1)
+    const ssize_t num_bytes_send = send(sock, return_buffer, response_len, 0);
+    if (num_bytes_send != (ssize_t) response_len || num_bytes_send == -1) //TODO
     {
         perror("Couldn't send all bytes!");
         ret = -1;
@@ -129,6 +132,34 @@ static int32_t send_http_response(const char *input, struct phr_header headers[M
     cJSON_free(response_json);
 
     return ret;
+}
+
+char** generate_n_daily_keys(const int32_t n)
+{
+    char **keys = malloc(sizeof(char *) * n);
+    assertmsg(keys != NULL, "malloc failed");
+
+    for (int32_t i = 0; i < n; ++i)
+    {
+        keys[i] = malloc(DAILY_KEY_SIZE + 1);
+        assertmsg(keys[i] != NULL, "malloc failed");
+        for (int j = 0; j < DAILY_KEY_SIZE; ++j)
+        {
+            keys[i][j] = (char) ((random() % 26) + 'A');
+        }
+        keys[i][DAILY_KEY_SIZE] = 0;
+    }
+
+    return keys;
+}
+
+void free_daily_keys(char **keys, const int32_t n)
+{
+    for (int32_t i = 0; i < n; ++i)
+    {
+        free(keys[i]);
+    }
+    free(keys);
 }
 
 static void* handle_client(void *arg)
@@ -146,12 +177,12 @@ static void* handle_client(void *arg)
         return NULL;
     }
 
-    // puts(buffer);
+    puts(buffer);
     const char *method, *path;
-    int pret, minor_version;
+    int minor_version;
     struct phr_header headers[MAX_HTTP_HEADER];
     size_t prevbuflen = 0, method_len, path_len, num_headers = MAX_HTTP_HEADER;
-    pret              = phr_parse_request(buffer, len, &method, &method_len, &path, &path_len,
+    const int pret          = phr_parse_request(buffer, len, &method, &method_len, &path, &path_len,
                                           &minor_version, headers, &num_headers, prevbuflen);
     if (pret < 0)
     {
@@ -160,26 +191,52 @@ static void* handle_client(void *arg)
 
         return NULL;
     }
+    printf("%.*s\n", (int) path_len, path);
 
-    // printf("request is %d bytes long\n", pret);
-    // printf("method is %.*s\n", (int)method_len, method);
-    // printf("path is %.*s\n", (int)path_len, path);
-    // printf("HTTP version is 1.%d\n", minor_version);
-    // printf("headers:\n");
-    // for (size_t i = 0; i != num_headers; ++i) {
-    //     printf("%.*s: %.*s\n", (int)headers[i].name_len, headers[i].name,
-    //            (int)headers[i].value_len, headers[i].value);
-    // }
+    char *tmp_path     = strdup(path);
+    tmp_path[path_len] = 0;
 
-    send_http_response(buffer, headers, sock);
-    close(sock);
+    if (strncmp(tmp_path, ENIGMA_PATH, sizeof ENIGMA_PATH - 1) == 0)
+    {
+        send_http_response(buffer, headers, sock);
+    }
+    else if (strncmp(tmp_path, CYCLOMETER_PATH, sizeof CYCLOMETER_PATH - 1) == 0)
+    {
+        ServerCyclometerOptions opt;
+        const char *json_start = strstr(buffer, "\r\n\r\n") + 4;
+        get_server_cyclometer_options_from_json(&opt, json_start);
+        char **keys = generate_n_daily_keys(opt.daily_key_count);
+        free(opt.enigma_conf->message);
+        for (int32_t i = 0; i < opt.daily_key_count; ++i)
+        {
+            char current_key[DAILY_KEY_SIZE * 2 + 1] = {0};
+            memcpy(current_key, keys[i], DAILY_KEY_SIZE);
+            memcpy(current_key + DAILY_KEY_SIZE, keys[i], DAILY_KEY_SIZE);
+            opt.enigma_conf->message = current_key;
+            Enigma *enigma = create_enigma_from_configuration(opt.enigma_conf);
+            uint8_t *enc_key_as_ints = traverse_enigma(enigma);
+            char *enc_key = get_string_from_int_array(enc_key_as_ints, DAILY_KEY_SIZE * 2);
+            puts(enc_key);
+
+            free(enc_key_as_ints);
+            free(enc_key);
+            free_enigma(enigma); //todo free conf
+        }
+
+        free_daily_keys(keys, opt.daily_key_count);
+    }
+    else
+    {
+    }
+
+    CLEANUP:
+        free(tmp_path);
+        close(sock);
     return NULL;
 }
 
-static int32_t accept_incomming(int sock)
+static int32_t accept_incoming(const int sock)
 {
-    uint8_t thread_count = 0;
-
     for (;;)
     {
         int *new_sock = malloc(sizeof(int));
@@ -198,7 +255,7 @@ static int32_t accept_incomming(int sock)
         printf("%d\n", *new_sock);
 
         pthread_t thread_id;
-        if (pthread_create(&thread_id, NULL, handle_client, new_sock) == -1)
+        if (pthread_create(&thread_id, NULL, handle_client, new_sock) != 0)
         {
             perror("Error creating thread");
             close(*new_sock);
@@ -207,12 +264,6 @@ static int32_t accept_incomming(int sock)
         }
 
         pthread_detach(thread_id);
-
-        thread_count++;
-        if (thread_count >= NUM_CLIENTS)
-        {
-            thread_count = 0;
-        }
     }
 
     return 0;
@@ -231,5 +282,5 @@ int32_t server_run(void)
     assertmsg(bind(sock, (struct sockaddr*)&server_addr, sizeof(struct sockaddr)) != -1, "Couldn't bind");
     assertmsg(listen(sock, 5) != -1, "Couldn't listen");
 
-    return accept_incomming(sock);
+    return accept_incoming(sock);
 }

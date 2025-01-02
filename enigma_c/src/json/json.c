@@ -23,7 +23,7 @@ static char* get_json_string(const cJSON *json)
 static void delete_json(cJSON *json)
 {
     cJSON_Delete(json);
-//    root = NULL;
+    //    root = NULL;
 }
 
 static void add_enigma_model_to_json(cJSON *json, const enum ENIGMA_TYPE enigma_type)
@@ -41,7 +41,7 @@ static void add_reflector_to_json(cJSON *json, const enum REFLECTOR_TYPE reflect
 
 static void add_rotors_to_json(cJSON *json, const enum ROTOR_TYPE *rotors, const uint8_t num_rotors)
 {
-    cJSON *rotors_array     = cJSON_AddArrayToObject(json, "rotors");
+    cJSON *rotors_array = cJSON_AddArrayToObject(json, "rotors");
     for (uint8_t i = 0; i < num_rotors; ++i)
     {
         cJSON_AddItemToArray(rotors_array, cJSON_CreateNumber(rotors[i]));
@@ -96,14 +96,14 @@ void enigma_config_to_json(const EnigmaConfiguration *const enigma_config, const
 {
     cJSON *json = cJSON_CreateObject();
 
-     add_enigma_model_to_json(json, enigma_config->type);
-     add_reflector_to_json(json, enigma_config->reflector);
-     add_rotors_to_json(json, enigma_config->rotors, enigma_config->type);
-     add_positions_to_json(json, enigma_config->rotor_positions, enigma_config->type);
-     add_rings_to_json(json, enigma_config->ring_settings, enigma_config->type);
-     add_plugboard_to_json(json, enigma_config->plugboard);
-     add_input_to_json(json, enigma_config->message);
-     add_output_to_json(json, output);
+    add_enigma_model_to_json(json, enigma_config->type);
+    add_reflector_to_json(json, enigma_config->reflector);
+    add_rotors_to_json(json, enigma_config->rotors, enigma_config->type);
+    add_positions_to_json(json, enigma_config->rotor_positions, enigma_config->type);
+    add_rings_to_json(json, enigma_config->ring_settings, enigma_config->type);
+    add_plugboard_to_json(json, enigma_config->plugboard);
+    add_input_to_json(json, enigma_config->message);
+    add_output_to_json(json, output);
 
     write_json_to_file(json);
     delete_json(json);
@@ -115,10 +115,12 @@ void enigma_cli_options_to_json(const EnigmaCliOptions *const cli_options, const
 
     add_enigma_model_to_json(json, cli_options->enigma_type);
     add_reflector_to_json(json, cli_options->reflector_type);
-    enum ROTOR_TYPE rotor_types[4] = {cli_options->rotor_one_type,
-                                      cli_options->rotor_two_type,
-                                      cli_options->rotor_three_type,
-                                      cli_options->rotor_four_type};
+    enum ROTOR_TYPE rotor_types[4] = {
+        cli_options->rotor_one_type,
+        cli_options->rotor_two_type,
+        cli_options->rotor_three_type,
+        cli_options->rotor_four_type
+    };
     add_rotors_to_json(json, rotor_types, cli_options->enigma_type);
     uint8_t rotor_positions[4];
     for (uint8_t i = 0; i < (uint8_t) cli_options->enigma_type; ++i)
@@ -165,7 +167,8 @@ static uint32_t save_model_to_conf(const cJSON *json, EnigmaConfiguration *confi
     // {
     //     configuration->type = model_item->valueint;
     // }
-    if (cJSON_IsString(model_item)) {
+    if (cJSON_IsString(model_item))
+    {
         configuration->type = *model_item->valuestring - '0';
         return 0;
     }
@@ -177,18 +180,18 @@ static uint32_t save_reflector_to_conf(const cJSON *json, EnigmaConfiguration *c
     const cJSON *reflector_item = cJSON_GetObjectItem(json, "reflector");
     if (cJSON_IsString(reflector_item))
     {
-        if(strcmp(reflector_item->valuestring, "A") == 0)
+        if (strcmp(reflector_item->valuestring, "A") == 0)
             configuration->reflector = UKW_A;
-        else if(strcmp(reflector_item->valuestring, "B") == 0)
+        else if (strcmp(reflector_item->valuestring, "B") == 0)
             configuration->reflector = UKW_B;
-        else if(strcmp(reflector_item->valuestring, "C") == 0)
+        else if (strcmp(reflector_item->valuestring, "C") == 0)
             configuration->reflector = UKW_C;
         return 0;
     }
     return 1;
 }
 
-static uint32_t save_rotor_to_conf(const cJSON *json,EnigmaConfiguration *configuration)
+static uint32_t save_rotor_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
     configuration->rotors          = malloc(configuration->type * sizeof(uint8_t));
     configuration->rotor_positions = malloc(configuration->type * sizeof(uint8_t));
@@ -248,39 +251,69 @@ static uint32_t save_input_to_conf(const cJSON *json, EnigmaConfiguration *confi
     return 1;
 }
 
-Enigma* get_enigma_from_json(const char *json_string)
+static EnigmaConfiguration* get_enigma_configuration_from_json(const cJSON *json)
 {
-    EnigmaConfiguration configuration;
+    EnigmaConfiguration *conf = malloc(sizeof(EnigmaConfiguration));
+    assertmsg(conf != NULL, "malloc failed");
 
-    // char *json_string = read_json();
-    cJSON *json       = cJSON_Parse(json_string);
-    assertmsg(json != NULL, "parsing failed");
+    if (save_model_to_conf(json, conf) != 0) goto FAIL1;
+    if (save_reflector_to_conf(json, conf) != 0) goto FAIL1;
+    if (save_rotor_to_conf(json, conf) != 0) goto FAIL2;
+    if (save_plugboard_to_conf(json, conf) != 0) goto FAIL2;
+    if (save_input_to_conf(json, conf) != 0) goto FAIL3;
 
-    puts(json_string);
 
-    if (save_model_to_conf(json, &configuration) != 0) goto FAIL1;
-    if (save_reflector_to_conf(json, &configuration) != 0) goto FAIL1;
-    if (save_rotor_to_conf(json, &configuration) != 0) goto FAIL2;
-    if (save_plugboard_to_conf(json, &configuration) != 0) goto FAIL2;
-    if (save_input_to_conf(json, &configuration) != 0) goto FAIL3;
-    Enigma *enigma = create_enigma_from_configuration(&configuration);
-
-    free(configuration.ring_settings);
-    free(configuration.rotor_positions);
-    free(configuration.rotors);
-    free(configuration.message);
-    delete_json(json);
-
-    return enigma;
+    return conf;
 
     FAIL3:
-        free(configuration.message);
+        free(conf->message);
     FAIL2:
-        free(configuration.ring_settings);
-        free(configuration.rotor_positions);
-        free(configuration.rotors);
+        free(conf->ring_settings);
+        free(conf->rotor_positions);
+        free(conf->rotors);
     FAIL1:
-        delete_json(json);
-        fprintf(stderr, "Error parsing json\n");
         return NULL;
+}
+
+Enigma* get_enigma_from_json(const char *json_string)
+{
+    cJSON *json = cJSON_Parse(json_string);
+    assertmsg(json, "Parsing failed");
+
+    cJSON *enigma_json = cJSON_GetObjectItem(json, "enigma");
+
+    EnigmaConfiguration *conf = get_enigma_configuration_from_json(enigma_json);
+    if (conf == NULL) return NULL;
+    // char *json_string = read_json();
+
+    Enigma *enigma = create_enigma_from_configuration(conf);
+
+    free(conf);
+    delete_json(enigma_json);
+
+    return enigma;
+}
+
+static int32_t get_daily_key_count_from_json(int32_t *key_count, const cJSON *param_json)
+{
+    const cJSON *count = cJSON_GetObjectItem(param_json, "daily-key-count");
+    if (!cJSON_IsString(count)) return -1;
+    if (get_number_from_string(count->valuestring, key_count) < 0) return -2;
+
+    return 0;
+}
+
+int32_t get_server_cyclometer_options_from_json(ServerCyclometerOptions *options, const char *json_string)
+{
+    cJSON *json = cJSON_Parse(json_string);
+    assertmsg(json, "Parsing failed");
+
+    const cJSON *enigma_json = cJSON_GetObjectItem(json, "enigma");
+    if ((options->enigma_conf = get_enigma_configuration_from_json(enigma_json)) == NULL) return -1;
+    const cJSON *param_json = cJSON_GetObjectItem(json, "parameters");
+    if (get_daily_key_count_from_json(&options->daily_key_count, param_json) != 0) return -2;
+    printf("Number: %d\n", options->daily_key_count);
+    delete_json(json);
+
+    return 0;
 }

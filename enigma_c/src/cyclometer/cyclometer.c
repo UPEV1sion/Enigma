@@ -79,6 +79,7 @@ static void sort_cycles(Cycle *restrict cycle)
  * @brief Get cycles by hopping through the rotor_permutation using the next
  * index
  * @param rotor_permutation: Array containing the next index of the cycle
+ * @param cycle: struct, where the values should be stored
  * @return Cycle: A cycle of the rotor permutation
  */
 static void calculate_cycle_lengths(const uint8_t *rotor_permutation, Cycle *restrict cycle)

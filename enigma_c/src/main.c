@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "cli/cli.h"
+#include "cyclometer/server_cyclometer.h"
 #include "enigma/enigma.h"
 #include "helper/helper.h"
 #include "server/server.h"
@@ -32,7 +33,7 @@
 
 int main(int argc, char *argv[])
 {
-
+    // s_create_cycles();
       // start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
 //    start_turing_bombe("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
     // start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);

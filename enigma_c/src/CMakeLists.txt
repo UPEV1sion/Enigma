@@ -46,6 +46,8 @@ add_library(enigma_lib
         server/server.h
         server/picohttpparser.c
         server/picohttpparser.h
+        cyclometer/server_cyclometer.c
+        cyclometer/server_cyclometer.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)
