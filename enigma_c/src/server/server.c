@@ -120,7 +120,7 @@ static int32_t send_http_200_response(const char *body, const HttpPost *post)
     }
     offset += snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, "Content-Length: %zu\r\n\r\n",
                        json_len);
-    snprintf(return_buffer + len + offset, BUFFER_SIZE - len - offset, body);
+    strncat(return_buffer + len + offset, body, BUFFER_SIZE - len - offset);
 
     const size_t response_len    = strlen(return_buffer);
     const ssize_t num_bytes_send = send(post->sock, return_buffer, response_len, 0);
@@ -198,7 +198,7 @@ static void tokenize_string(char *tokens[MAX_TOKENS], char *str)
     }
 }
 
-static int save_token(const char **dest, const char *origin)
+static int save_token(char **dest, const char *origin)
 {
     if (origin == NULL) return -1;
     if (dest == NULL) return -2;

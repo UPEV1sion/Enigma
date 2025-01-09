@@ -44,8 +44,6 @@ add_library(enigma_lib
         turing_bombe/cycle_finder/graph_test.h
         server/server.c
         server/server.h
-        server/picohttpparser.c
-        server/picohttpparser.h
         cyclometer/server_cyclometer.c
         cyclometer/server_cyclometer.h
 )
