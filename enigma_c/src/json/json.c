@@ -8,7 +8,6 @@
 
 #include <gtk/gtk.h>
 
-#include "cJSON.h"
 #include "json.h"
 
 //
@@ -193,7 +192,7 @@ static uint32_t save_reflector_to_conf(const cJSON *json, EnigmaConfiguration *c
 
 static uint32_t save_rotor_to_conf(const cJSON *json, EnigmaConfiguration *configuration)
 {
-    configuration->rotors          = malloc(configuration->type * sizeof(uint8_t));
+    configuration->rotors          = malloc(configuration->type * sizeof(enum ROTOR_TYPE));
     configuration->rotor_positions = malloc(configuration->type * sizeof(uint8_t));
     configuration->ring_settings   = malloc(configuration->type * sizeof(uint8_t));
     assertmsg(configuration->rotors != NULL, "configuration->rotors == NULL");
@@ -262,7 +261,6 @@ static EnigmaConfiguration* get_enigma_configuration_from_json(const cJSON *json
     if (save_plugboard_to_conf(json, conf) != 0) goto FAIL2;
     if (save_input_to_conf(json, conf) != 0) goto FAIL3;
 
-
     return conf;
 
     FAIL3:
@@ -275,20 +273,28 @@ static EnigmaConfiguration* get_enigma_configuration_from_json(const cJSON *json
         return NULL;
 }
 
-Enigma* get_enigma_from_json(const char *json_string)
+Enigma* get_enigma_from_json(const cJSON *json)
 {
-    cJSON *json = cJSON_Parse(json_string);
-    assertmsg(json, "Parsing failed");
-
-    cJSON *enigma_json = cJSON_GetObjectItem(json, "enigma");
-
-    EnigmaConfiguration *conf = get_enigma_configuration_from_json(enigma_json);
+    EnigmaConfiguration *conf = get_enigma_configuration_from_json(json);
     if (conf == NULL) return NULL;
-    // char *json_string = read_json();
 
     Enigma *enigma = create_enigma_from_configuration(conf);
 
     free(conf);
+
+    return enigma;
+}
+
+Enigma* get_enigma_from_json_string(const char *json_string)
+{
+    cJSON *json = cJSON_Parse(json_string);
+    if (json == NULL) return NULL;
+
+    cJSON *enigma_json = cJSON_GetObjectItem(json, "enigma");
+    if (enigma_json == NULL) return NULL;
+
+    Enigma *enigma = get_enigma_from_json(json);
+
     delete_json(enigma_json);
 
     return enigma;
@@ -296,7 +302,7 @@ Enigma* get_enigma_from_json(const char *json_string)
 
 static int32_t get_daily_key_count_from_json(int32_t *key_count, const cJSON *param_json)
 {
-    const cJSON *count = cJSON_GetObjectItem(param_json, "daily-key-count");
+    const cJSON *count = cJSON_GetObjectItem(param_json, "daily_key_count");
     if (!cJSON_IsString(count)) return -1;
     if (get_number_from_string(count->valuestring, key_count) < 0) return -2;
 

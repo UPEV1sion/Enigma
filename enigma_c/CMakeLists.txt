@@ -72,9 +72,11 @@ include_directories(${GTK3_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 add_definitions(${GTK3_CFLAGS_OTHER})
 
+include_directories(/usr/local/include/hiredis)
+
 ##################### Backend #####################
 add_subdirectory(src)
 add_executable(enigma src/main.c)
 
-target_link_libraries(enigma enigma_lib ${GTK3_LIBRARIES} pthread)
+target_link_libraries(enigma enigma_lib ${GTK3_LIBRARIES} pthread hiredis)
 

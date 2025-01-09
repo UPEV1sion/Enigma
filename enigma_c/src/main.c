@@ -28,6 +28,7 @@
 #include "helper/helper.h"
 #include "server/server.h"
 #include "turing_bombe/turing_bombe.h"
+#include <hiredis/hiredis.h>
 
 
 
