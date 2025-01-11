@@ -218,7 +218,7 @@ static void mark_stubs(Graph *restrict graph, const CyclePositions *cycle)
     puts("");
 }
 
-void free_cycle(Cycle *cycle)
+void free_cycle(S_Cycle *cycle)
 {
     free(cycle->positions);
     for(uint8_t node = 0; node < cycle->len_nodes_wo_stubs; ++node)
@@ -244,14 +244,14 @@ void free_cycle(Cycle *cycle)
  * @return Cycle: cycle if cycles where found, NULL for errors and no cycles found.
  */
 DEPRECATED("find_longest_cycle_graph is deprecated. Use find_longest_menu instead")
-Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
+S_Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext)
 {
     size_t len;
 
     if ((len = strlen(ciphertext)) != strlen(crib)) return NULL;
     assertmsg(len <= MAX_CRIB_LEN, "Try a shorter crib");
 
-    Cycle *cycle = malloc(sizeof(Cycle));
+    S_Cycle *cycle = malloc(sizeof(S_Cycle));
     assertmsg(cycle != NULL, "malloc failed");
 
     Node *nodes  = malloc(sizeof(Node) * len);

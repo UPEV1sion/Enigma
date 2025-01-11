@@ -22,7 +22,7 @@
 
 #define BUFFER_SIZE            100
 
-static void sort_cycles(Cycle *restrict cycle)
+static void sort_cycles(S_Cycle *restrict cycle)
 {
     // Sort the cycles.
     // QSort is NOT beneficial here.
@@ -53,7 +53,7 @@ static void sort_cycles(Cycle *restrict cycle)
  * @param cycle: struct, where the values should be stored
  * @return Cycle: A cycle of the rotor permutation
  */
-static void calculate_cycle_lengths(const int16_t *rotor_permutation, Cycle *restrict cycle)
+static void calculate_cycle_lengths(const int16_t *rotor_permutation, S_Cycle *restrict cycle)
 {
     cycle->length = 0;
 
@@ -80,7 +80,7 @@ static void calculate_cycle_lengths(const int16_t *rotor_permutation, Cycle *res
     sort_cycles(cycle);
 }
 
-static void print_cycle(const Cycle *cycle, FILE *file)
+static void print_cycle(const S_Cycle *cycle, FILE *file)
 {
     fwrite("(", sizeof(char), 1, file);
     for (uint8_t i = 0; i < cycle->length; ++i)
@@ -90,7 +90,7 @@ static void print_cycle(const Cycle *cycle, FILE *file)
     fwrite(" )", sizeof(char), 2, file);
 }
 
-static void print_whole_cycle(const Cycle *cycle, FILE *file)
+static void print_whole_cycle(const S_Cycle *cycle, FILE *file)
 {
     print_cycle(cycle + 0, file);
     fwrite(" / ", sizeof(char), 3, file);
@@ -124,9 +124,9 @@ static void print_whole_cycle(const Cycle *cycle, FILE *file)
 //     offset = get_cycle_len_string(cycle + 2, buffer, offset);
 // }
 
-Cycle* server_create_cycles(char **enc_daily_keys, const int32_t daily_key_count)
+S_Cycle* server_create_cycles(char **enc_daily_keys, const int32_t daily_key_count)
 {
-    Cycle *cycles = malloc(sizeof(Cycle) * 3);
+    S_Cycle *cycles = malloc(sizeof(S_Cycle) * 3);
     assertmsg(cycles != NULL, "malloc failed");
 
     int16_t rotor_one_permutation[ALPHABET_SIZE];

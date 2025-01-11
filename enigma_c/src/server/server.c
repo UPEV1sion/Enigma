@@ -6,6 +6,8 @@
 #include <string.h>
 
 #include "server.h"
+
+#include "db_cyclometer.h"
 #include "helper/helper.h"
 #include "enigma/enigma.h"
 #include "json/cJSON.h"
@@ -96,6 +98,7 @@ typedef struct
 //     return response;
 // }
 
+
 static void free_http_post(const HttpPost *post)
 {
     if (post->cors != NULL) free(post->cors);
@@ -168,7 +171,7 @@ static void free_enigma_config(EnigmaConfiguration *conf)
     free(conf);
 }
 
-static cJSON* create_cycle_json(const Cycle *cycles)
+static cJSON* create_cycle_json(const S_Cycle *cycles)
 {
     cJSON *json    = cJSON_CreateObject();
     char *names[3] = {"first", "second", "third"};
@@ -177,7 +180,7 @@ static cJSON* create_cycle_json(const Cycle *cycles)
         char rotor_name[30];
         sprintf(rotor_name, "%s_rotor", names[i]);
         cJSON *rotor               = cJSON_AddArrayToObject(json, rotor_name);
-        const Cycle *current_cycle = cycles + i;
+        const S_Cycle *current_cycle = cycles + i;
         for (int j = 0; j < current_cycle->length; ++j)
         {
             cJSON_AddItemToArray(rotor, cJSON_CreateNumber(current_cycle->cycle_values[j]));
@@ -331,11 +334,12 @@ static int send_cyclometer_response(const HttpPost *post)
         free_enigma(enigma);
     }
 
-    Cycle *cycles        = server_create_cycles(enc_keys, opt.daily_key_count);
+    S_Cycle *cycles        = server_create_cycles(enc_keys, opt.daily_key_count);
     cJSON *cycle_json    = create_cycle_json(cycles);
     char *cycle_json_str = cJSON_PrintUnformatted(cycle_json);
 
     send_http_200_response(cycle_json_str, post);
+    query_db(cycles);
 
     cJSON_Delete(cycle_json);
     cJSON_free(cycle_json_str);
@@ -438,6 +442,7 @@ static int32_t accept_incoming(const int sock)
 
 int32_t server_run(void)
 {
+    init_db();
     int sock;
     assertmsg((sock = socket(AF_INET, SOCK_STREAM, 0)) != -1, "Couldn't create socket");
     assertmsg(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof (int)) != -1, "Couldn't set socket options");

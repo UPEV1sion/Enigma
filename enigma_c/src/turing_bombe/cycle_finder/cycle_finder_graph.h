@@ -42,8 +42,8 @@ typedef struct
     uint8_t len_nodes_wo_stubs;
     CyclePositions *positions;
     Graph *graph;
-} Cycle;
+} S_Cycle;
 
 DEPRECATED("find_longest_cycle_graph is deprecated. Use find_longest_menu instead")
-Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext);
-void free_cycle(Cycle *cycle);
+S_Cycle* find_longest_cycle_graph(const char *restrict crib, const char *restrict ciphertext);
+void free_cycle(S_Cycle *cycle);

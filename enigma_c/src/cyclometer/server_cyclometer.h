@@ -16,6 +16,6 @@ typedef struct
 {
     uint8_t cycle_values[ALPHABET_SIZE];
     uint8_t length;
-} Cycle;
+} S_Cycle;
 
-Cycle* server_create_cycles(char **enc_daily_keys, int32_t daily_key_count);
+S_Cycle* server_create_cycles(char **enc_daily_keys, int32_t daily_key_count);
