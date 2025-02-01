@@ -1,6 +1,5 @@
 #include "db_cyclometer.h"
 
-#include <assert.h>
 
 //
 // Created by Emanuel on 1/11/25.
@@ -40,7 +39,7 @@ PGresult* query_db(const S_Cycle *cycles)
     //     exit(1);
     // }
 
-    char query[BUFFER_SIZE];
+    char query[BUFFER_SIZE * 4];
     char cycles_1_rotor[BUFFER_SIZE];
     char cycles_2_rotor[BUFFER_SIZE];
     char cycles_3_rotor[BUFFER_SIZE];
@@ -48,7 +47,7 @@ PGresult* query_db(const S_Cycle *cycles)
     get_cycle_str(cycles_2_rotor, cycles + 1);
     get_cycle_str(cycles_3_rotor, cycles + 2);
 
-    snprintf(query, BUFFER_SIZE, QUERY_STR, cycles_1_rotor, cycles_2_rotor, cycles_3_rotor);
+    snprintf(query, BUFFER_SIZE * 4, QUERY_STR, cycles_1_rotor, cycles_2_rotor, cycles_3_rotor);
     // puts(query);
     // fflush(stdout);
     PGresult *res = PQexec(conn, query);

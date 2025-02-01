@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
 //     find_longest_menu("BEACHHEAD", "EDBGEAHDB");
 //    find_longest_menu("ATTACKATDAWN", "WSNPNLKLSTCS");
      // find_longest_menu("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-    // query_input(argc, argv);
+     query_input(argc, argv);
 
-    server_run();
+//    server_run();
 
     return EXIT_SUCCESS;
 }

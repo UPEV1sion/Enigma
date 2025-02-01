@@ -1,8 +1,6 @@
 add_library(enigma_lib
         cyclometer/cyclometer.c
         cyclometer/cyclometer.h
-        cyclometer/cycle_generator.c
-        cyclometer/cycle_generator.h
         enigma/enigma.c
         enigma/enigma.h
         enigma/rotor/rotor.c

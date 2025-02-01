@@ -4,8 +4,6 @@
 
 #include "turing_bombe.h"
 
-#include <pthread.h>
-
 #include "cycle_finder/cycle_finder.h"
 
 //
