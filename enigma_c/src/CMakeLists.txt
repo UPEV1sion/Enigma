@@ -1,4 +1,4 @@
-add_library(enigma_lib
+add_library(enigma_lib SHARED
         cyclometer/cyclometer.c
         cyclometer/cyclometer.h
         enigma/enigma.c
@@ -42,6 +42,8 @@ add_library(enigma_lib
         turing_bombe/cycle_finder/graph_test.h
         server/server.c
         server/server.h
+        server/enigma_adapter.c
+        server/enigma_adapter.h
         cyclometer/server_cyclometer.c
         cyclometer/server_cyclometer.h
         server/db_cyclometer.c

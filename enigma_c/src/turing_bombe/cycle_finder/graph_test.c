@@ -211,18 +211,6 @@ static int32_t build_menu(const size_t len,
     return ret;
 }
 
-void free_menu(MenuGraph *menu)
-{
-    for(uint8_t i = 0; i < menu->len_menu; ++i)
-    {
-        MNode *current_node = menu->nodes + i;
-        free(current_node->stubs);
-    }
-
-    free(menu->nodes);
-    free(menu);
-}
-
 static bool set_stubs_for_node(MNode *node,
                                const Tuple *lookup_table[ALPHABET_SIZE][MAX_CRIB_LEN],
                                const uint8_t *tuples_per_letter,
