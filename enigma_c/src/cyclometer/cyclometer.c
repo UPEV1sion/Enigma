@@ -22,18 +22,11 @@
 static const uint32_t TOTAL_CYCLES = 26 * 26 * 26 * 3 * 2 * 1;
 #endif
 
+#define NUM_ROTORS             5
 #define NUM_ROTOR_PERMUTATIONS 6
 #define BUFFER_SIZE            100
 
 static uint8_t ring_settings[NUM_ROTORS_PER_ENIGMA] = {0, 0, 0};
-static const uint8_t possible_rotor_permutations[NUM_ROTOR_PERMUTATIONS][NUM_ROTORS_PER_ENIGMA] = {
-        {2, 3, 5},
-        {2, 5, 3},
-        {3, 2, 5},
-        {3, 5, 2},
-        {5, 2, 3},
-        {5, 3, 2}
-};
 
 typedef struct
 {
@@ -48,7 +41,7 @@ typedef struct
     uint8_t rotor_one_position;
     uint8_t rotor_two_position;
     uint8_t rotor_three_position;
-    uint8_t rotor_permutation;
+    uint8_t *rotor_permutation;
 } CycleConfiguration;
 
 static void sort_cycles(Cycle *restrict cycle)
@@ -99,7 +92,7 @@ static void calculate_cycle_lengths(const uint8_t *rotor_permutation, Cycle *res
             while (current != base)
             {
                 visited[current] = true;
-                current          = rotor_permutation[current];
+                current = rotor_permutation[current];
                 current_cycle_length++;
             }
             cycle->cycle_values[cycle->length++] = current_cycle_length;
@@ -176,7 +169,7 @@ static void get_enigma_settings_string(const CycleOfRotorSetting *cycle, char *b
 
 static void reset_enigma(const Enigma *restrict enigma, const uint8_t *rotor_positions)
 {
-    for(uint8_t rotor = 0; rotor < NUM_ROTORS_PER_ENIGMA; ++rotor)
+    for (uint8_t rotor = 0; rotor < NUM_ROTORS_PER_ENIGMA; ++rotor)
     {
         enigma->rotors[rotor]->position = rotor_positions[rotor];
     }
@@ -184,12 +177,11 @@ static void reset_enigma(const Enigma *restrict enigma, const uint8_t *rotor_pos
 
 static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfRotorSetting *restrict cycle)
 {
-    const uint8_t *rotor_permutation = possible_rotor_permutations[cycle_configuration->rotor_permutation];
 
     enum ROTOR_TYPE rotors[NUM_ROTORS_PER_ENIGMA] = {
-            rotor_permutation[0],
-            rotor_permutation[1],
-            rotor_permutation[2]
+            cycle_configuration->rotor_permutation[0],
+            cycle_configuration->rotor_permutation[1],
+            cycle_configuration->rotor_permutation[2]
     };
 
     uint8_t rotor_positions[NUM_ROTORS_PER_ENIGMA] = {
@@ -237,59 +229,95 @@ static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfR
     calculate_cycle_lengths(rotor_three_permutation, cycle->cycles + 2);
 }
 
-void create_cycles(void)
+static void swap(uint8_t *a, uint8_t *b)
 {
-    // 3 rotors and 26 possible settings for each rotor, 3 * 2 * 1 rotor permutations, 1 reflectors
+    uint8_t temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
-    // CycleOfRotorSetting *cycles[TOTAL_CYCLES];
-
-    FILE *file;
-    assertmsg((file = fopen(FILE_PATH_CYCLO, "w")) != NULL, "can't open " FILE_PATH_CYCLO);
-
-    CycleOfRotorSetting cycle = {0};
-
-    // HashMap hm = hm_create(150000);
-
-    for (uint8_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
+static void generate_permutations(uint8_t data[], uint8_t left, uint8_t right, FILE *file)
+{
+    if(left == right)
     {
-        for (uint8_t rotor_two_position = 0; rotor_two_position < ALPHABET_SIZE; ++rotor_two_position)
+        CycleOfRotorSetting cycle = {0};
+
+        for (uint8_t rotor_one_position = 0; rotor_one_position < ALPHABET_SIZE; ++rotor_one_position)
         {
-            for (uint8_t rotor_three_position = 0; rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
+            for (uint8_t rotor_two_position = 0; rotor_two_position < ALPHABET_SIZE; ++rotor_two_position)
             {
-                for (uint8_t rotor_permutation = 0; rotor_permutation < NUM_ROTOR_PERMUTATIONS;
-                     rotor_permutation++)
+                for (uint8_t rotor_three_position = 0;
+                     rotor_three_position < ALPHABET_SIZE; ++rotor_three_position)
                 {
+
                     char enigma_settings_buffer[BUFFER_SIZE];
                     char cycle_len_buffer[BUFFER_SIZE];
                     CycleConfiguration cycle_configuration = {
                             .rotor_one_position = rotor_one_position,
                             .rotor_two_position = rotor_two_position,
                             .rotor_three_position = rotor_three_position,
-                            .rotor_permutation = rotor_permutation,
+                            .rotor_permutation = data,
                             .reflector = UKW_B,
                     };
 
                     create_cycle(&cycle_configuration, &cycle);
                     get_cycle_whole_lens_string(&cycle, cycle_len_buffer);
                     get_enigma_settings_string(&cycle, enigma_settings_buffer);
-                    // hm_put(hm, cycle_len_buffer, enigma_settings_buffer);
                     print_whole_cycle(&cycle, file);
                 }
             }
         }
+
+//        for (int i = 0; i < NUM_ROTORS_PER_ENIGMA; i++) {
+//            fprintf(file, "%d ", data[i]);
+//        }
+//        putc('\n', file);
+        return;
     }
 
-    // ValueList *vl = hm_get(hm, "( 10 10 1 1 1 1 1 1 ) / ( 12 12 1 1 ) / ( 10 10 2 2 1 1 )");
-    // assertmsg(vl != NULL, "couldn't retrieve value");
+    for (int i = left; i <= right; ++i)
+    {
+        swap(&data[left], &data[i]);
+        generate_permutations(data, left + 1, right, file);
+        swap(&data[left], &data[i]);
+    }
+}
 
-    // for(size_t i = 0; i < vl->list_size; ++i)
-    // {
-        // puts(vl->values[i]);
-    // }
+static void generate_combinations(const uint8_t rotors[], uint8_t data[], uint8_t start, uint8_t index)
+{
+    if(index == NUM_ROTORS_PER_ENIGMA)
+    {
+        char path_buffer[512];
+        snprintf(path_buffer, sizeof path_buffer, "%s/cycle_%d_%d_%d.txt", FILE_PATH_CYCLO, data[0], data[1], data[2]);
 
-    fclose(file);
-    // hm_destroy(hm);
-    // vl_destroy(vl);
+        FILE *file = fopen(path_buffer, "w");
+        if (!file) {
+            fprintf(stderr, "Can't open file %s\n", path_buffer);
+            return;
+        }
+
+        generate_permutations(data, 0, NUM_ROTORS_PER_ENIGMA - 1, file);
+        fclose(file);
+        return;
+    }
+
+    for (int i = start; i < NUM_ROTORS; ++i)
+    {
+        data[index] = rotors[i];
+        generate_combinations(rotors, data, i + 1, index + 1);
+    }
+}
+
+void create_cycles(void)
+{
+    // 3 rotors and 26 possible settings for each rotor, 3 * 2 * 1 rotor permutations, 1 reflectors
+
+    const uint8_t rotors[NUM_ROTORS] = {1, 2, 3, 4, 5};
+    uint8_t data[NUM_ROTORS_PER_ENIGMA];
+
+
+    generate_combinations(rotors, data, 0, 0);
+
     puts("Cycles have been written to: " FILE_PATH_CYCLO);
     printf("Total cycles: %d\n", TOTAL_CYCLES);
 }
