@@ -1,0 +1,16 @@
+*
+!*.c
+!*.h
+!*.txt
+!*.md
+!LICENSE
+!*.dot
+!*.json
+!*.glade
+!*.svg
+!*.png
+!*.sh
+!.gitignore
+!*/
+build
+.vscode

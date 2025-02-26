@@ -9,7 +9,8 @@
 #include "enigma/rotor/rotor.h"
 #include "enigma/enigma.h"
 
-typedef struct {
+typedef struct
+{
     char *plugboard;
     char *message;
     int *rotor_positions;
@@ -17,6 +18,17 @@ typedef struct {
     enum ROTOR_TYPE *rotors;
     enum ENIGMA_TYPE type;
     enum REFLECTOR_TYPE reflector;
-}EnigmaConfigAdapter;
+} EnigmaConfigAdapter;
+
+
+typedef struct
+{
+    int daily_key_count;
+    EnigmaConfigAdapter *enigma_conf;
+} CyclometerAdapter;
+
 
 int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output);
+
+
+int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count) ;
