@@ -88,7 +88,8 @@ static void free_enigma_config(EnigmaConfiguration *conf)
 
 
 
-int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count) {
+int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count, 
+    int *cycles1, int cycles1_len, int *cycles2, int cycles2_len, int *cycles3, int cycles3_len) {
     printf("Cylometer Adapter \n");
     fflush(stdout);
 
@@ -128,14 +129,27 @@ int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count)
 
     S_Cycle *cycles        = server_create_cycles(enc_keys, daily_key_count);
 
+    cycles1[1] = 10;
+    
+
     //query_db(cycles);
 
 
     free(cycles);
+    printf("1");
+    fflush(stdout);
     free_keys(enc_keys, daily_key_count);
-    free_enigma_config(&config);
+    printf("2");
+    fflush(stdout);
+    //free_enigma_config(&config);
+    printf("3");
+    fflush(stdout);
     free_keys(keys, daily_key_count);
+    printf("4");
+    fflush(stdout);
     free(keys);
+    printf("5");
+    fflush(stdout);
 
 
     //free(config.message);
