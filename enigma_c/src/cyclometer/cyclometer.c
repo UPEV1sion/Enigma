@@ -104,28 +104,26 @@ static void calculate_cycle_lengths(const uint8_t *rotor_permutation, Cycle *res
 
 static void print_cycle(const Cycle *cycle, FILE *file)
 {
-    fwrite("(", sizeof(char), 1, file);
-    for (uint8_t i = 0; i < cycle->length; ++i)
+    fprintf(file, "{%d", cycle->cycle_values[0]);
+    for (uint8_t i = 1; i < cycle->length; ++i)
     {
-        fprintf(file, " %d", cycle->cycle_values[i]);
+        fprintf(file, ", %d", cycle->cycle_values[i]);
     }
-    fwrite(" )", sizeof(char), 2, file);
+    fwrite("};", sizeof(char), 2, file);
 }
 
 static void print_whole_cycle(const CycleOfRotorSetting *cycle, FILE *file)
 {
     print_cycle(cycle->cycles + 0, file);
-    fwrite(" / ", sizeof(char), 3, file);
     print_cycle(cycle->cycles + 1, file);
-    fwrite(" / ", sizeof(char), 3, file);
     print_cycle(cycle->cycles + 2, file);
 
-    fprintf(file, " : %c %c %c : ",
+    fprintf(file, "%c%c%c;",
             cycle->rotor_positions[0] + 'A',
             cycle->rotor_positions[1] + 'A',
             cycle->rotor_positions[2] + 'A');
 
-    fprintf(file, "%d %d %d\n",
+    fprintf(file, "{%d, %d, %d}\n",
             cycle->rotors[0],
             cycle->rotors[1],
             cycle->rotors[2]);
@@ -268,18 +266,14 @@ static void generate_permutations(uint8_t data[], uint8_t left, uint8_t right, F
             }
         }
 
-//        for (int i = 0; i < NUM_ROTORS_PER_ENIGMA; i++) {
-//            fprintf(file, "%d ", data[i]);
-//        }
-//        putc('\n', file);
         return;
     }
 
     for (int i = left; i <= right; ++i)
     {
-        swap(&data[left], &data[i]);
+        swap( data + left, data + i);
         generate_permutations(data, left + 1, right, file);
-        swap(&data[left], &data[i]);
+        swap(data + left, data + i);
     }
 }
 
@@ -314,7 +308,6 @@ void create_cycles(void)
 
     const uint8_t rotors[NUM_ROTORS] = {1, 2, 3, 4, 5};
     uint8_t data[NUM_ROTORS_PER_ENIGMA];
-
 
     generate_combinations(rotors, data, 0, 0);
 

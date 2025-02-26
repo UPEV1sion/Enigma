@@ -116,7 +116,6 @@ uint8_t* traverse_enigma(const Enigma *enigma)
 {
     char *plaintext         = enigma->plaintext;
     const size_t array_size = strlen(plaintext);
-
     assertmsg(to_uppercase(plaintext) == 0, "to_uppercase failed");
 
     uint8_t *text_in_integer = get_int_array_from_string(plaintext);

@@ -178,7 +178,7 @@ static cJSON* create_cycle_json(const S_Cycle *cycles)
     for (int32_t i = 0; i < 3; ++i)
     {
         char rotor_name[30];
-        sprintf(rotor_name, "%s_rotor", names[i]);
+        sprintf(rotor_name, "%s_cycle", names[i]);
         cJSON *rotor               = cJSON_AddArrayToObject(json, rotor_name);
         const S_Cycle *current_cycle = cycles + i;
         for (int j = 0; j < current_cycle->length; ++j)

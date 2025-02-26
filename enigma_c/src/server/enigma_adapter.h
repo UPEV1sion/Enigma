@@ -29,7 +29,5 @@ typedef struct
 
 
 int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output);
-
-
-int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count, 
+int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count,
     int *cycles1, int cycles1_len, int *cycles2, int cycles2_len, int *cycles3, int cycles3_len);

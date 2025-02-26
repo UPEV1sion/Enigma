@@ -81,7 +81,7 @@ add_executable(enigma src/main.c)
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #add_library(enigma SHARED src/main.c)
 #set_target_properties(enigma_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-#
+
 target_link_libraries(enigma enigma_lib ${GTK3_LIBRARIES} pthread PostgreSQL::PostgreSQL)
 
 
