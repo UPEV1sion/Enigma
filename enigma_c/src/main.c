@@ -43,23 +43,7 @@ int main(int argc, char *argv[])
 //     find_longest_menu("BEACHHEAD", "EDBGEAHDB");
 //    find_longest_menu("ATTACKATDAWN", "WSNPNLKLSTCS");
      // find_longest_menu("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-//     query_input(argc, argv);
-
-     ComputedCycles cycles = {0};
-     int rotor_pos[] = {0, 1, 0};
-     int ring_pos[] = {0, 0, 0};
-     enum ROTOR_TYPE rotors[] = {1, 2, 3};
-     EnigmaConfigAdapter adapter = {
-             .plugboard = "",
-             .message = "TEST",
-             .rotor_positions = rotor_pos,
-             .ring_settings = ring_pos,
-             .rotors = rotors,
-             .type = 3,
-             .reflector = 'B'
-     };
-
-    cyclometer_create_cycles(&adapter, 80, &cycles);
+     query_input(argc, argv);
 
 
 //    server_run();
