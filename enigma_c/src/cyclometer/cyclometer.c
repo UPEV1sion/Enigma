@@ -165,13 +165,13 @@ static void get_enigma_settings_string(const CycleOfRotorSetting *cycle, char *b
              cycle->rotors[2]);
 }
 
-static void reset_enigma(const Enigma *restrict enigma, const uint8_t *rotor_positions)
-{
-    for (uint8_t rotor = 0; rotor < NUM_ROTORS_PER_ENIGMA; ++rotor)
-    {
-        enigma->rotors[rotor]->position = rotor_positions[rotor];
-    }
-}
+//static void reset_enigma(const Enigma *restrict enigma, const uint8_t *rotor_positions)
+//{
+//    for (uint8_t rotor = 0; rotor < NUM_ROTORS_PER_ENIGMA; ++rotor)
+//    {
+//        enigma->rotors[rotor]->position = rotor_positions[rotor];
+//    }
+//}
 
 static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfRotorSetting *restrict cycle)
 {

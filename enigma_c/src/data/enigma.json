@@ -2,9 +2,9 @@
 	"model":	3,
 	"reflector":	"B",
 	"rotors":	[1, 2, 3],
-	"positions":	[3, 0, 0],
+	"positions":	[0, 0, 0],
 	"rings":	[0, 0, 0],
 	"plugboard":	"",
-	"input":	"ABCABC",
-	"output":	"MNGSJK"
+	"input":	"ZFDU",
+	"output":	"TEST"
 }

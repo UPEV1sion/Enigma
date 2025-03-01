@@ -46,8 +46,8 @@ add_library(enigma_lib SHARED
         server/enigma_adapter.h
         cyclometer/server_cyclometer.c
         cyclometer/server_cyclometer.h
-        server/db_cyclometer.c
-        server/db_cyclometer.h
+        server/cyclometer_adapter.c
+        server/cyclometer_adapter.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

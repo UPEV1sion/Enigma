@@ -107,19 +107,17 @@ static uint8_t* traverse_m4_enigma(const Enigma *enigma, const uint8_t *text_in_
     return output;
 }
 
-/**
- * @brief Traverses the correct Enigma machine based on the Enigma provided.
- * @param enigma The enigma machine to be traversed.
- * @return uint8_t*: The traversed text.
- */
-uint8_t* traverse_enigma(const Enigma *enigma)
+uint8_t* enigma_get_int_array_from_message(const Enigma *enigma, const char *message)
 {
-    char *plaintext         = enigma->plaintext;
-    const size_t array_size = strlen(plaintext);
-    assertmsg(to_uppercase(plaintext) == 0, "to_uppercase failed");
+    const size_t array_size = strlen(message);
 
-    uint8_t *text_in_integer = get_int_array_from_string(plaintext);
-    assertmsg(text_in_integer != NULL, "string to int[] conversion failed");
+    uint8_t *text_in_integer = get_int_array_from_string(message);
+    if(text_in_integer == NULL)
+    {
+        fprintf(stderr, "string to int[] conversion failed");
+        return NULL;
+    }
+//    assertmsg(text_in_integer != NULL, "string to int[] conversion failed");
 
     uint8_t *output;
 
@@ -135,6 +133,23 @@ uint8_t* traverse_enigma(const Enigma *enigma)
     free(text_in_integer);
 
     return output;
+}
+
+char* enigma_get_string_from_message(const Enigma *enigma, const char *message)
+{
+    uint8_t *enc_text_as_ints = enigma_get_int_array_from_message(enigma, message);
+
+    return get_string_from_int_array(enc_text_as_ints, strlen(message));
+}
+
+/**
+ * @brief Traverses the correct Enigma machine based on the Enigma provided.
+ * @param enigma The enigma machine to be traversed.
+ * @return uint8_t*: The traversed text.
+ */
+uint8_t* traverse_enigma(const Enigma *enigma)
+{
+    return enigma_get_int_array_from_message(enigma, enigma->plaintext);
 }
 
 /**
@@ -171,6 +186,16 @@ Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_confi
     assertmsg(enigma->plaintext != NULL, "strdup failed");
 
     return enigma;
+}
+
+void reset_enigma(Enigma *enigma, const EnigmaConfiguration *enigma_configuration)
+{
+    for(uint16_t i = 0; i < (uint16_t) enigma->type; ++i)
+    {
+        const uint8_t position = enigma_configuration->rotor_positions[i];
+        const uint8_t offset = enigma_configuration->ring_settings[i];
+        enigma->rotors[i]->position = MOD26(position - offset);
+    }
 }
 
 void free_enigma(Enigma *enigma)

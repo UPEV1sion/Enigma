@@ -20,14 +20,5 @@ typedef struct
     enum REFLECTOR_TYPE reflector;
 } EnigmaConfigAdapter;
 
-
-typedef struct
-{
-    int daily_key_count;
-    EnigmaConfigAdapter *enigma_conf;
-} CyclometerAdapter;
-
-
 int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output);
-int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count,
-    int *cycles1, int cycles1_len, int *cycles2, int cycles2_len, int *cycles3, int cycles3_len);
+int config_adapter_to_enigma(EnigmaConfigAdapter *adapter, EnigmaConfiguration *config);

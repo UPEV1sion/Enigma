@@ -77,10 +77,15 @@ typedef ssize_t int64_t;
 #endif
 
 /**
+ * @brief Makes sure a value is >= 0 and < 26
+ * @param value The value to be processed
+ */
+#define MOD26(value) (((value) + ALPHABET_SIZE) % ALPHABET_SIZE)
+
+/**
  * @brief The error codes - mainly for debugging.
  * @note In the code, the function return values are only asserted to be == 0, indicating no error.
  */
-
 enum
 {
     ERR_NULL_POINTER = -1,

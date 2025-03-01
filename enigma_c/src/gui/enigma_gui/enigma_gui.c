@@ -296,19 +296,17 @@ static char* create_output_with_enigma(char *restrict input_text)
     memcpy(configuration.plugboard, plugboard_text, strlen(plugboard_text));
 
     Enigma *enigma = create_enigma_from_configuration(&configuration);
-    uint8_t *enigma_output = traverse_enigma(enigma);
-    char *plaintext = get_string_from_int_array(enigma_output, strlen(input_text));
-    assertmsg(plaintext != NULL, "int[] to string conversion failed");
+    char *enigma_output = enigma_get_string_from_message(enigma, input_text);
+    assertmsg(enigma_output != NULL, "int[] to string conversion failed");
 
-    enigma_config_to_json(&configuration, plaintext);
+    enigma_config_to_json(&configuration, enigma_output);
 
     free(rotor_arr);
     free(rotor_position_arr);
     free(rotor_ring_position_arr);
     free(plugboard_text);
-    free(enigma_output);
 
-    return plaintext;
+    return enigma_output;
 }
 
 static void generate_output_with_enigma(char *restrict input_text)

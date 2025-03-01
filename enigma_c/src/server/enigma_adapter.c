@@ -5,16 +5,12 @@
 #include "enigma_adapter.h"
 #include "string.h"
 #include "cyclometer/server_cyclometer.h"
-#include "server.h"
-#include "db_cyclometer.h"
-
-#define MAX_DAILY_KEYS 1024
 
 int config_adapter_to_enigma(EnigmaConfigAdapter *adapter, EnigmaConfiguration *config)
 {
-
     strncpy(config->plugboard, adapter->plugboard, ALPHABET_SIZE);
     config->message = strdup(adapter->message);
+    if(config->message == NULL) return -1;
 
     for (int i = 0; i < (int)adapter->type; i++)
     {
@@ -24,11 +20,12 @@ int config_adapter_to_enigma(EnigmaConfigAdapter *adapter, EnigmaConfiguration *
     }
     config->type = adapter->type;
     config->reflector = adapter->reflector;
+
+    return 0;
 }
 
 int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output)
 {
-
     EnigmaConfiguration config;
     uint8_t rotor_positions[4];
     uint8_t ring_settings[4];
@@ -37,7 +34,8 @@ int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output)
     config.ring_settings = ring_settings;
     config.rotors = rotors;
 
-    config_adapter_to_enigma(adapter, &config);
+    if(config_adapter_to_enigma(adapter, &config) < 0) return -1;
+
     Enigma *enigma = create_enigma_from_configuration(&config);
     uint8_t *text_as_int = traverse_enigma(enigma);
     char *text = get_string_from_int_array(text_as_int, strlen(adapter->message));
@@ -48,110 +46,5 @@ int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output)
     free(text_as_int);
     free(text);
 
-    return 0;
-}
-
-static char** generate_n_daily_keys(const int32_t n)
-{
-    char **keys = malloc(sizeof(char *) * n);
-    assertmsg(keys != NULL, "malloc failed");
-
-    for (int32_t i = 0; i < n; ++i)
-    {
-        keys[i] = malloc(DAILY_KEY_SIZE + 1);
-        assertmsg(keys[i] != NULL, "malloc failed");
-        for (int j = 0; j < DAILY_KEY_SIZE; ++j)
-        {
-            keys[i][j] = (char) ((random() % 26) + 'A');
-        }
-        keys[i][DAILY_KEY_SIZE] = 0;
-    }
-
-    return keys;
-}
-
-static void free_keys(char **keys, const int32_t n)
-{
-    for (int32_t i = 0; i < n; ++i)
-    {
-        free(keys[i]);
-    }
-}
-
-static void free_enigma_config(EnigmaConfiguration *conf)
-{
-    free(conf->ring_settings);
-    free(conf->rotor_positions);
-    free(conf->rotors);
-    free(conf);
-}
-
-
-
-int cyclometer_create_cycles (EnigmaConfigAdapter *adapter, int daily_key_count, 
-    int *cycles1, int cycles1_len, int *cycles2, int cycles2_len, int *cycles3, int cycles3_len) {
-    printf("Cylometer Adapter \n");
-    fflush(stdout);
-
-    EnigmaConfiguration config;
-    uint8_t rotor_positions[4];
-    uint8_t ring_settings[4];
-    enum ROTOR_TYPE rotors[4];
-    config.rotor_positions = rotor_positions;
-    config.ring_settings = ring_settings;
-    config.rotors = rotors;
-    config_adapter_to_enigma(adapter, &config);
-
-
-    if (daily_key_count > MAX_DAILY_KEYS) daily_key_count = MAX_DAILY_KEYS;
-    char **keys = generate_n_daily_keys(daily_key_count);
-    // free(opt.enigma_conf->message);
-    char *enc_keys[MAX_DAILY_KEYS];
-
-
-    for (int32_t i = 0; i < daily_key_count; ++i)
-    {
-        char current_key[DAILY_KEY_SIZE * 2 + 1] = {0};
-        memcpy(current_key, keys[i], DAILY_KEY_SIZE);
-        memcpy(current_key + DAILY_KEY_SIZE, keys[i], DAILY_KEY_SIZE);
-        config.message = current_key;
-        Enigma *enigma           = create_enigma_from_configuration(&config);
-        uint8_t *enc_key_as_ints = traverse_enigma(enigma);
-        char *enc_key            = get_string_from_int_array(enc_key_as_ints, DAILY_KEY_SIZE * 2);
-        printf("%s -> %s\n", current_key, enc_key);
-        enc_keys[i] = enc_key;
-
-        free(enc_key_as_ints);
-        free_enigma(enigma);
-        
-    }
-
-
-    S_Cycle *cycles        = server_create_cycles(enc_keys, daily_key_count);
-
-    cycles1[1] = 10;
-    
-
-    //query_db(cycles);
-
-
-    free(cycles);
-    printf("1");
-    fflush(stdout);
-    free_keys(enc_keys, daily_key_count);
-    printf("2");
-    fflush(stdout);
-    //free_enigma_config(&config);
-    printf("3");
-    fflush(stdout);
-    free_keys(keys, daily_key_count);
-    printf("4");
-    fflush(stdout);
-    free(keys);
-    printf("5");
-    fflush(stdout);
-
-
-    //free(config.message);
     return 0;
 }

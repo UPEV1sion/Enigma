@@ -39,12 +39,6 @@
 #define ROTOR_GAMMA_INV_WIRING  "ELPZHAXJNYDRKFCTSIBMGWQVOU"
 
 /**
- * @brief Makes sure a value is >= 0 and < 26
- * @param value The value to be processed
- */
-#define MOD26(value) (((value) + ALPHABET_SIZE) % ALPHABET_SIZE)
-
-/**
  * @brief Determines if the turning point for the rotor to the left has been reached.
  * @param rotor The rotor to the right from the rotor, which is in question to be rotated.
  * @return bool

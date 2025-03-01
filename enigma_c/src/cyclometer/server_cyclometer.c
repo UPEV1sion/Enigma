@@ -4,68 +4,46 @@
 
 #include "server_cyclometer.h"
 #include <stdint.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
-#include "enigma/enigma.h"
-
-#define MESSAGE_SIZE               7
-
-/*
- * Advice from Jürgen Wolfs C von A bis Z:
- * Claim is that const or constexpr is more performant than define when a calculation is involved...
- * And MSVC doesnt support that....
- */
-//This was initially intended for an array holding all cycles. I leave it here.
-
-#define BUFFER_SIZE            100
-
-static void sort_cycles(S_Cycle *restrict cycle)
+static void sort_cycles(int *cycle_values, int cycle_len)
 {
     // Sort the cycles.
     // QSort is NOT beneficial here.
     // Selection Sort -although an O(n^2) algorithm- is the fastest one so far.
-    for (uint16_t i = 0; i < cycle->length; i++)
+    for (int i = 0; i < cycle_len; i++)
     {
-        uint16_t max_index = i;
-        for (uint16_t j = i + 1; j < cycle->length; j++)
+        int max_index = i;
+        for (int j = i + 1; j < cycle_len; j++)
         {
-            if (cycle->cycle_values[j] > cycle->cycle_values[max_index])
+            if (cycle_values[j] > cycle_values[max_index])
             {
                 max_index = j;
             }
         }
         if (max_index != i)
         {
-            const int32_t temp = cycle->cycle_values[i];
-            cycle->cycle_values[i] = cycle->cycle_values[max_index];
-            cycle->cycle_values[max_index] = temp;
+            const int temp = cycle_values[i];
+            cycle_values[i] = cycle_values[max_index];
+            cycle_values[max_index] = temp;
         }
     }
 }
 
-/**
- * @brief Get cycles by hopping through the rotor_permutation using the next
- * index
- * @param rotor_permutation: Array containing the next index of the cycle
- * @param cycle: struct, where the values should be stored
- * @return Cycle: A cycle of the rotor permutation
- */
-static void calculate_cycle_lengths(const int16_t *rotor_permutation, S_Cycle *restrict cycle)
+static void calculate_cycle_len(const int *rotor_permutation, int *total_cycle_len, int *cycle_values)
 {
-    cycle->length = 0;
+    *total_cycle_len = 0;
 
     bool visited[ALPHABET_SIZE] = {false};
 
-    for (int16_t base = 0; base < ALPHABET_SIZE; base++)
+    for (int base = 0; base < ALPHABET_SIZE; base++)
     {
         if (!visited[base])
         {
+
             visited[base] = true;
-            int16_t current = rotor_permutation[base];
-            int32_t current_cycle_length = 1;
+            int current = rotor_permutation[base];
+            int current_cycle_length = 1;
 
             while (current != base && current != -1)
             {
@@ -74,85 +52,26 @@ static void calculate_cycle_lengths(const int16_t *rotor_permutation, S_Cycle *r
                 current_cycle_length++;
             }
             if (current != -1)
-                cycle->cycle_values[cycle->length++] = current_cycle_length;
+            {
+                cycle_values[*total_cycle_len] = current_cycle_length;
+                (*total_cycle_len)++;
+            }
         }
     }
-    sort_cycles(cycle);
+
+    sort_cycles(cycle_values, *total_cycle_len);
 }
 
-static void print_cycle(const S_Cycle *cycle, FILE *file)
+void add_daily_key_to_permutations(RotorPermutations *permutations, const uint8_t *daily_key_as_int)
 {
-    fwrite("(", sizeof(char), 1, file);
-    for (uint8_t i = 0; i < cycle->length; ++i)
-    {
-        fprintf(file, " %d", cycle->cycle_values[i]);
-    }
-    fwrite(" )", sizeof(char), 2, file);
+    permutations->rotor_one_permutations[daily_key_as_int[0]] = daily_key_as_int[DAILY_KEY_SIZE];
+    permutations->rotor_two_permutations[daily_key_as_int[1]] = daily_key_as_int[DAILY_KEY_SIZE + 1];
+    permutations->rotor_three_permutations[daily_key_as_int[2]] = daily_key_as_int[DAILY_KEY_SIZE + 2];
 }
 
-static void print_whole_cycle(const S_Cycle *cycle, FILE *file)
+void server_compute_cycles(const RotorPermutations *permutations, ComputedCycles *restrict cycles)
 {
-    print_cycle(cycle + 0, file);
-    fwrite(" / ", sizeof(char), 3, file);
-    print_cycle(cycle + 1, file);
-    fwrite(" / ", sizeof(char), 3, file);
-    print_cycle(cycle + 2, file);
-}
-
-// static size_t get_cycle_len_string(const Cycle *cycle, char *buffer, size_t offset)
-// {
-//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, "(");
-//
-//     for (uint8_t i = 0; i < cycle->length; ++i)
-//     {
-//         offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " %d", cycle->cycle_values[i]);
-//     }
-//
-//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " )");
-//
-//     return offset;
-// }
-
-// static void get_cycle_whole_lens_string(const Cycle *cycle, char *buffer)
-// {
-//     size_t offset = 0;
-//
-//     offset = get_cycle_len_string(cycle + 0, buffer, offset);
-//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
-//     offset = get_cycle_len_string(cycle + 1, buffer, offset);
-//     offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " / ");
-//     offset = get_cycle_len_string(cycle + 2, buffer, offset);
-// }
-
-S_Cycle* server_create_cycles(char **enc_daily_keys, const int32_t daily_key_count)
-{
-    S_Cycle *cycles = malloc(sizeof(S_Cycle) * 3);
-    assertmsg(cycles != NULL, "malloc failed");
-
-    int16_t rotor_one_permutation[ALPHABET_SIZE];
-    int16_t rotor_two_permutation[ALPHABET_SIZE];
-    int16_t rotor_three_permutation[ALPHABET_SIZE];
-    memset(rotor_one_permutation, -1, ALPHABET_SIZE * sizeof(int16_t));
-    memset(rotor_two_permutation, -1, ALPHABET_SIZE * sizeof(int16_t));
-    memset(rotor_three_permutation, -1, ALPHABET_SIZE * sizeof(int16_t));
-
-    for (int32_t i = 0; i < daily_key_count; ++i)
-    {
-        uint8_t *key_as_int = get_int_array_from_string(enc_daily_keys[i]);
-
-        rotor_one_permutation[key_as_int[0]] = (int16_t) (key_as_int[DAILY_KEY_SIZE]);
-        // printf("Rot 1: %c -> %c\n", key_as_int[0] + 'A', key_as_int[DAILY_KEY_SIZE] + 'A');
-        rotor_two_permutation[key_as_int[1]] = (int16_t) (key_as_int[DAILY_KEY_SIZE + 1]);
-        // printf("Rot 2: %c -> %c\n", key_as_int[1] + 'A', key_as_int[DAILY_KEY_SIZE + 1] + 'A');
-        rotor_three_permutation[key_as_int[2]] = (int16_t) (key_as_int[DAILY_KEY_SIZE + 2]);
-        // printf("Rot 3: %c -> %c\n", key_as_int[2] + 'A', key_as_int[DAILY_KEY_SIZE + 2] + 'A');
-        free(key_as_int);
-    }
-
-    calculate_cycle_lengths(rotor_one_permutation, cycles + 0);
-    calculate_cycle_lengths(rotor_two_permutation, cycles + 1);
-    calculate_cycle_lengths(rotor_three_permutation, cycles + 2);
-    print_whole_cycle(cycles, stdout);
-    fflush(stdout);
-    return cycles;
+    calculate_cycle_len(permutations->rotor_one_permutations, &cycles->cycles_1_4_len, cycles->cycles_1_4);
+    calculate_cycle_len(permutations->rotor_two_permutations, &cycles->cycles_2_5_len, cycles->cycles_2_5);
+    calculate_cycle_len(permutations->rotor_three_permutations, &cycles->cycles_3_6_len, cycles->cycles_3_6);
 }

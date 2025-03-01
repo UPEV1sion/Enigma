@@ -36,4 +36,7 @@ typedef struct
 
 Enigma* create_enigma_from_configuration(const EnigmaConfiguration *enigma_configuration);
 uint8_t* traverse_enigma(const Enigma *enigma);
+char* enigma_get_string_from_message(const Enigma *enigma, const char *message);
+uint8_t* enigma_get_int_array_from_message(const Enigma *enigma, const char *message);
+void reset_enigma(Enigma *enigma, const EnigmaConfiguration *enigma_configuration);
 void free_enigma(Enigma *enigma);
