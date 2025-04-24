@@ -212,7 +212,7 @@ static void create_cycle(const CycleConfiguration *cycle_configuration, CycleOfR
     {
         memset(enigma->plaintext, letter + 'A', 6);
 
-        reset_enigma(enigma, rotor_positions);
+        reset_enigma(enigma, &configuration);
 
         uint8_t *output = traverse_enigma(enigma);
         rotor_one_permutation[output[0]] = output[3];
