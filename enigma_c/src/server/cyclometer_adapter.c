@@ -80,7 +80,6 @@ int manual_cyclometer_create_cycles(EnigmaConfigAdapter *adapter, int daily_key_
     
     int man_key = 0;
     for (man_key ; manual_keys[man_key] != NULL; man_key++) {
-        printf(manual_keys[man_key]);
 
         uint8_t *encrypted_key = enigma_get_int_array_from_message(enigma, manual_keys[man_key]);
         add_daily_key_to_permutations(&permutations, encrypted_key);
@@ -95,7 +94,6 @@ int manual_cyclometer_create_cycles(EnigmaConfigAdapter *adapter, int daily_key_
     {
         char current_key[MESSAGE_HEADER_LEN + 1] = {0};
         generate_random_message_header(current_key);
-        printf(current_key);
         uint8_t *encrypted_key = enigma_get_int_array_from_message(enigma, current_key);
         add_daily_key_to_permutations(&permutations, encrypted_key);
 
