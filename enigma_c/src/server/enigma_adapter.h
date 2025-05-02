@@ -20,5 +20,5 @@ typedef struct
     enum REFLECTOR_TYPE reflector;
 } EnigmaConfigAdapter;
 
-int enigma_encrypt(EnigmaConfigAdapter *adapter, char *output);
-int config_adapter_to_enigma(EnigmaConfigAdapter *adapter, EnigmaConfiguration *config);
+int enigma_encrypt(EnigmaConfiguration *config, char *output);
+
