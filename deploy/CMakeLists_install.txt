@@ -1,5 +1,5 @@
 # Set the source and destination directories
-set(SOURCE_LIB ${CMAKE_BINARY_DIR}/build/libenigma.so)  # Path to libenigma.so in build
+set(SOURCE_LIB ${CMAKE_BINARY_DIR}libenigma.so)  # Path to libenigma.so in build
 set(TARGET_DIR /opt/enigma/enigma_c)                    # Target installation directory
 
 # Check if libenigma.so exists in the build directory

@@ -1,1 +1,1 @@
-cmake -P deploy/CMakeLists_install.txt
+cmake -P ../deploy/CMakeLists_install.txt
