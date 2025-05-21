@@ -20,29 +20,12 @@
  * For reference here's Arif's GitHub repository: https://github.com/murderbaer/enigma
  */
 
-#include <string.h>
-
 #include "cli/cli.h"
-#include "enigma/enigma.h"
 #include "helper/helper.h"
-#include "turing_bombe/turing_bombe.h"
-
-
 
 int main(int argc, char *argv[])
 {
-
-      start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
-//    start_turing_bombe("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW", 0);
-    // start_turing_bombe("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV", 0);
-//     start_turing_bombe("BEACHHEAD", "EDBGEAHDB", 0);
-//      find_longest_menu("KOMMANDODERWEHR", "SSKKEZQRHOTJTDW");
-//     find_longest_menu("BEACHHEAD", "EDBGEAHDB");
-//    find_longest_menu("ATTACKATDAWN", "WSNPNLKLSTCS");
-     // find_longest_menu("WETTERVORHERSAGE", "SNMKGGSTZZUGARLV");
-    // query_input(argc, argv);
-
-
+    query_input(argc, argv);
 
     return EXIT_SUCCESS;
 }

@@ -493,7 +493,7 @@ int32_t start_turing_bombe(const char *restrict crib, const char *restrict ciphe
                 {
                     continue;
                 }
-                printf("New conf: (%d : %d : %d)",
+                printf("New conf: [r1: %d, r2: %d, r3: %d]",
                            rotor_three_type,
                            rotor_two_type,
                            rotor_one_type);

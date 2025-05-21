@@ -36,12 +36,6 @@ static void add_to_permutation_table(const char *message_key, PermutationTables 
     tables->permutations_stored++;
 }
 
-static size_t hash_func(const void *key, const size_t key_size)
-{
-
-   return 0;
-}
-
 static char *generate_message_key(void)
 {
     char *message_key = malloc(7);

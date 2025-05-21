@@ -8,6 +8,7 @@
 #include "bombe_gui.h"
 #include "turing_bombe/brute_force.h"
 #include "helper/helper.h"
+#include "turing_bombe/turing_bombe.h"
 
 //
 // Created by Emanuel on 07.08.2024.
@@ -15,6 +16,7 @@
 
 static GtkWidget *known_plaintext;
 static GtkTextBuffer *enc_buffer;
+static GtkSpinButton *spin_btn;
 
 static gchar* get_encrypted_text(void)
 {
@@ -34,7 +36,11 @@ static void action_listener_start(void)
 {
     gchar *encrypted_text   = get_encrypted_text();
     const gchar *known_text = gtk_entry_get_text(GTK_ENTRY(known_plaintext));
-    brute_force_enigma(known_text, encrypted_text);
+    const guint offset      = gtk_spin_button_get_digits(spin_btn);
+
+    start_turing_bombe(known_text, encrypted_text, offset);
+
+    g_free(encrypted_text);
 }
 
 static void activate(void)
@@ -56,6 +62,9 @@ static void activate(void)
 
     enc_text = GTK_WIDGET(gtk_builder_get_object(builder, "enc_text"));
     assertmsg(GTK_IS_WIDGET(enc_text), "Error: enc_text not found in the Glade file");
+
+    spin_btn = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_btn"));
+    assertmsg(GTK_IS_SPIN_BUTTON(spin_btn), "Error: spin_btn not found in the Glade file");
 
     enc_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(enc_text));
 

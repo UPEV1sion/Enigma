@@ -7,7 +7,6 @@
 #include <ctype.h>
 
 #include "enigma_gui.h"
-#include "json/json.h"
 
 //
 // Created by Emanuel on 25.07.2024.
@@ -299,8 +298,6 @@ static char* create_output_with_enigma(char *restrict input_text)
     uint8_t *enigma_output = traverse_enigma(enigma);
     char *plaintext = get_string_from_int_array(enigma_output, strlen(input_text));
     assertmsg(plaintext != NULL, "int[] to string conversion failed");
-
-    enigma_config_to_json(&configuration, plaintext);
 
     free(rotor_arr);
     free(rotor_position_arr);

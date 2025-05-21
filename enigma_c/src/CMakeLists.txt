@@ -19,10 +19,6 @@ add_library(enigma_lib
         helper/helper.h
         helper/hashmap.h
         helper/hashmap.c
-        json/json.h
-        json/json.c
-        json/cJSON.c
-        json/cJSON.h
         gui/enigma_gui/enigma_gui.c
         gui/enigma_gui/enigma_gui.h
         gui/bombe_out_gui/bombe_out.c
@@ -40,8 +36,6 @@ add_library(enigma_lib
         helper/linkedlist.c
         turing_bombe/cycle_finder/cycle_finder.c
         turing_bombe/cycle_finder/cycle_finder.h
-        turing_bombe/cycle_finder/graph_test.c
-        turing_bombe/cycle_finder/graph_test.h
 )
 
 target_include_directories(enigma_lib PUBLIC .)

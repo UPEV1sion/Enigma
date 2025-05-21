@@ -4,7 +4,6 @@
 #include <ctype.h>
 
 #include "cli_enigma.h"
-#include "json/json.h"
 
 //
 // Created by Emanuel on 05.10.2024.
@@ -670,8 +669,6 @@ void query_enigma_input(const int argc, char *argv[])
     uint8_t *text              = traverse_enigma(enigma);
 
     char *output_str = get_string_from_int_array(text, plaintext_len);
-
-    enigma_cli_options_to_json(&enigma_options, output_str);
 
     pretty_print_enigma_output(text, plaintext_len);
 

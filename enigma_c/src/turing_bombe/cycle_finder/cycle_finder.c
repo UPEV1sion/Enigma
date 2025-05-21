@@ -193,7 +193,7 @@ static bool set_stubs(MenuNode *node,
     uint8_t stubs_count = 0;
     for(uint8_t stub = 0; stub < tuples_per_letter[current_i]; ++stub)
     {
-        if(stubs_count >= NUM_CONTACTS_PER_COMMON - 1) break;
+        if(stubs_count >= NUM_CONTACTS_PER_COMMON - 1 || stubs_count >= num_stubs) break;
         CribCipherTuple *current_stub = relations[current_i][stub];
         if (current_tuple == current_stub) continue;
         if(current_stub->visited) continue;

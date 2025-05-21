@@ -15,9 +15,6 @@ else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wunused-result -march=native")
 endif ()
 
-set(FILE_PATH_JSON "${CMAKE_SOURCE_DIR}/src/data/enigma.json")
-add_definitions(-DFILE_PATH_JSON="${FILE_PATH_JSON}")
-
 set(FILE_PATH_IC "${CMAKE_SOURCE_DIR}/src/data/IC.txt")
 add_definitions(-DFILE_PATH_IC="${FILE_PATH_IC}")
 
@@ -30,7 +27,7 @@ add_definitions(-DFILE_PATH_ENIGMA="${FILE_PATH_ENIGMA}")
 set(FILE_PATH_START "${CMAKE_SOURCE_DIR}/src/gui/glade/start.glade")
 add_definitions(-DFILE_PATH_START="${FILE_PATH_START}")
 
-set(FILE_PATH_BOMB "${CMAKE_SOURCE_DIR}/src/gui/glade/bomb.glade")
+set(FILE_PATH_BOMB "${CMAKE_SOURCE_DIR}/src/gui/glade/bombe.glade")
 add_definitions(-DFILE_PATH_BOMB="${FILE_PATH_BOMB}")
 
 set(FILE_PATH_CONFIGURATIONS "${CMAKE_SOURCE_DIR}/src/data/configs.txt")
