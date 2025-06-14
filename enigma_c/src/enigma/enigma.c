@@ -84,10 +84,10 @@ static uint8_t* traverse_m4_enigma(const Enigma *enigma, const uint8_t *text_in_
             if (should_rotate(rotor_two))
             {
                 rotor_three->position = (rotor_three->position + 1) % 26;
-                if (should_rotate(rotor_three))
-                {
-                    rotor_four->position = (rotor_four->position + 1) % 26;
-                }
+                // if (should_rotate(rotor_three))
+                // {
+                //     rotor_four->position = (rotor_four->position + 1) % 26;
+                // }
             }
         }
 
