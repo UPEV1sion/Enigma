@@ -17,31 +17,32 @@ add_library(enigma_lib SHARED
         helper/helper.h
         helper/hashmap.h
         helper/hashmap.c
-        json/json.h
-        json/json.c
-        json/cJSON.c
-        json/cJSON.h
-        gui/enigma_gui/enigma_gui.c
-        gui/enigma_gui/enigma_gui.h
-        gui/bombe_out_gui/bombe_out.c
-        gui/bombe_out_gui/bombe_out.h
-        gui/start_gui/start_gui.c
-        gui/start_gui/start_gui.h
-        gui/bombe_gui/bombe_gui.c
-        gui/bombe_gui/bombe_gui.h
-        turing_bombe/brute_force.h
-        turing_bombe/brute_force.c
-        turing_bombe/turing_bombe.c
-        turing_bombe/turing_bombe.h
-        turing_bombe/cycle_finder/cycle_finder_graph.c
-        turing_bombe/cycle_finder/cycle_finder_graph.h
         helper/linkedlist.c
-        turing_bombe/cycle_finder/cycle_finder.c
-        turing_bombe/cycle_finder/cycle_finder.h
-        turing_bombe/cycle_finder/graph_test.c
-        turing_bombe/cycle_finder/graph_test.h
-        server/server.c
-        server/server.h
+        #json/json.h
+        #json/json.c
+        #json/cJSON.c
+        #json/cJSON.h
+        #gui/enigma_gui/enigma_gui.c
+        #gui/enigma_gui/enigma_gui.h
+        #gui/bombe_out_gui/bombe_out.c
+        #gui/bombe_out_gui/bombe_out.h
+        #gui/start_gui/start_gui.c
+        #gui/start_gui/start_gui.h
+        #gui/bombe_gui/bombe_gui.c
+        #gui/bombe_gui/bombe_gui.h
+        #turing_bombe/brute_force.h
+        #turing_bombe/brute_force.c
+        #turing_bombe/turing_bombe.c
+        #turing_bombe/turing_bombe.h
+        #turing_bombe/cycle_finder/cycle_finder_graph.c
+        #turing_bombe/cycle_finder/cycle_finder_graph.h
+        
+        #turing_bombe/cycle_finder/cycle_finder.c
+        #turing_bombe/cycle_finder/cycle_finder.h
+        #turing_bombe/cycle_finder/graph_test.c
+        #turing_bombe/cycle_finder/graph_test.h
+        #server/server.c
+        #server/server.h
         server/enigma_adapter.c
         server/enigma_adapter.h
         cyclometer/server_cyclometer.c
