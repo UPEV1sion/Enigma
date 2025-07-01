@@ -33,6 +33,9 @@ This simulator forms the computational core of a modular system involving multip
 - **[EnigmaSite](https://github.com/Bibble-code/EnigmaSite)**  
   → A web-based frontend for interacting with the Enigma and Cyclometer simulators.
 
+- **[Enigma-Zyklometer-Notes](https://github.com/Bibble-code/Enigma-Zyklometer-Notes)** 
+  → Technical documentation and bachelor thesis.
+
 ---
 
 ## Third-Party Libraries
