@@ -12,6 +12,7 @@
 !*.sh
 !.gitignore
 !*/
+!CMakeLists.txt
 build
 .vscode
 cycle_*
